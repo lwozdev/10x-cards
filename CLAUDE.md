@@ -80,13 +80,13 @@ docker-compose down
 docker-compose logs -f backend
 
 # Access backend container
-docker exec -it theme-builder-backend bash
+docker exec -it flashcards-backend bash
 ```
 
 **Services:**
 - PostgreSQL: exposed on port 5432
 - Nginx: exposed on port 8000
-- Backend container: `theme-builder-backend`
+- Backend container: `flashcards-backend`
 
 ### Database Operations
 ```bash
