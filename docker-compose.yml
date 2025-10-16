@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: flashcards-postgres
+    environment:
+      POSTGRES_DB: flashcards
+      POSTGRES_USER: flashcards_user
+      POSTGRES_PASSWORD: flashcards_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - flashcards_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flashcards_user -d flashcards"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flashcards-backend
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - vendor:/var/www/html/vendor
+    environment:
+      DATABASE_URL: postgresql://flashcards_user:flashcards_pass@postgres:5432/flashcards?serverVersion=16&charset=utf8
+      APP_ENV: dev
+    networks:
+      - flashcards_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: flashcards-nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - flashcards_network
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  vendor:
+
+networks:
+  flashcards_network:
+    driver: bridge
