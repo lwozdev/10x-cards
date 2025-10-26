@@ -3,3 +3,10 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+# UI Layer controllers (Clean Architecture)
+ui_controllers:
+    resource:
+        path: ../src/UI/Http/Controller/
+        namespace: App\UI\Http\Controller
+    type: attribute
