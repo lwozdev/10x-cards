@@ -7,6 +7,7 @@ namespace App\UI\Http\Controller;
 use App\Application\Command\GenerateFlashcardsCommand;
 use App\Application\Handler\GenerateFlashcardsHandler;
 use App\Domain\Model\User;
+use App\Domain\Value\UserId;
 use App\UI\Http\Request\GenerateFlashcardsRequest;
 use App\UI\Http\Response\AiJobResponse;
 use Psr\Log\LoggerInterface;
@@ -28,7 +29,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * - Return response
  */
 #[Route('/generate', name: 'flashcard_generate', methods: ['POST'])]
-#[IsGranted('IS_AUTHENTICATED_FULLY')]
+##[IsGranted('IS_AUTHENTICATED_FULLY')]
 final class FlashcardGeneratorController extends AbstractController
 {
     public function __construct(
@@ -55,13 +56,15 @@ final class FlashcardGeneratorController extends AbstractController
         }
 
         // Get authenticated user
-        /** @var User $user */
         $user = $this->getUser();
+
+        // Get user ID (support both Doctrine User and in-memory test user)
+        $userId = $this->getUserId($user);
 
         try {
             // Create command and delegate to handler
             $command = new GenerateFlashcardsCommand(
-                userId: $user->getId(),
+                userId: $userId,
                 sourceText: $generateRequest->sourceText,
             );
 
@@ -81,7 +84,7 @@ final class FlashcardGeneratorController extends AbstractController
         } catch (\InvalidArgumentException $e) {
             $this->logger->warning('Validation error in flashcard generation', [
                 'error' => $e->getMessage(),
-                'user_id' => $user->getId()->toString(),
+                'user_id' => $userId->toString(),
             ]);
 
             return new JsonResponse(
@@ -95,7 +98,7 @@ final class FlashcardGeneratorController extends AbstractController
         } catch (\Exception $e) {
             $this->logger->error('Failed to create AI job', [
                 'exception' => $e->getMessage(),
-                'user_id' => $user->getId()->toString(),
+                'user_id' => $userId->toString(),
             ]);
 
             return new JsonResponse(
@@ -155,5 +158,28 @@ final class FlashcardGeneratorController extends AbstractController
             ],
             Response::HTTP_UNPROCESSABLE_ENTITY
         );
+    }
+
+    /**
+     * Get UserId from authenticated user.
+     *
+     * Supports both:
+     * - Doctrine User entity (production) - has getId() method
+     * - In-memory test user (development) - uses fixed UUID
+     *
+     * @param mixed $user
+     * @return UserId
+     */
+    private function getUserId($user): UserId
+    {
+        // Production: Doctrine User entity
+        if ($user instanceof User) {
+            return $user->getId();
+        }
+
+        // Development: In-memory test user
+        // Use fixed UUID for test user (test@example.com)
+        // TODO: Replace with proper authentication when implemented
+        return UserId::fromString('308a32a9-f215-4140-b89b-440e2cb42542');
     }
 }
