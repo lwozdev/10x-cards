@@ -1,343 +1,454 @@
 # API Plan
 
-> Architecture note: Monolithic Symfony app with server‑side rendering (Twig) and Symfony UX (Turbo/Stimulus). No
-> separate public REST API in MVP; however, endpoints are designed with clean, resource‑oriented URLs and content
-> negotiation (`Accept: text/html` vs `application/json`) to keep a low-friction path to future extraction of a standalone
-> API. fileciteturn0file0
+Monolithic, server-rendered Symfony app with Twig (SSR) and a thin, internal JSON API for progressive enhancement now
+and easy separation later. Symfony Forms/Controllers render HTML, while `/api/*` endpoints return JSON for XHR/HTMX. No
+API Platform. This aligns with the chosen stack (Symfony + Doctrine, Twig, SSR monolith).
+
+---
 
 ## 1. Resources
 
-Each resource maps 1:1 to a primary table and related structures.
+| Resource    | DB table(s)     | Notes                                                                                            |
+|-------------|-----------------|--------------------------------------------------------------------------------------------------|
+| User        | `users`         | Email (unique), password_hash; app uses session auth.                                            |
+| Set         | `sets`          | Owned by user, unique name per owner (case-insensitive), soft-delete, denormalized `card_count`. |
+| Card        | `cards`         | Belongs to a set; `origin` = `ai` or `manual`; `front`/`back` ≤ 1000 chars; soft-delete.         |
+| ReviewState | `review_states` | Per-user scheduling state (due_at, reps, last_grade, etc.).                                      |
+| ReviewEvent | `review_events` | Log of study answers (grade 0/1, answered_at, duration_ms).                                      |
+| AI Job      | `ai_jobs`       | **MVP preview source of truth**. Fields relevant to preview & KPIs:<br>• `status` enum (`queued  |running|succeeded|failed`)<br>• `cards JSONB` – array of temp cards (see JSON shape below)<br>• `generated_count INT` – number of cards produced by AI right after finish<br>• `suggested_name TEXT` – optional default set name<br>• `set_id UUID NULL` – filled after `/save` succeeds |
 
-- **User** → `users` (account, login) fileciteturn0file3
-- **Set** → `sets` (owner-scoped, unique name per owner, soft delete, denormalized `card_count`) fileciteturn0file3
-  fileciteturn0file2
-- **Card** → `cards` (belongs to set, origin `ai|manual`, 1000-char limits, soft delete) fileciteturn0file3
-  fileciteturn0file2
-- **Study State** → `review_states` (scheduler state per user+card, `due_at`-based selection) fileciteturn0file3
-- **Study Event** → `review_events` (answers log; immutable history) fileciteturn0file3
-- **AI Job** → `ai_jobs` (request/response bookkeeping, status, errors) fileciteturn0file3 fileciteturn0file2
-- **Analytics Event** → `analytics_events` (instrumentation for KPIs and UX) fileciteturn0file1 fileciteturn0file3
+**`ai_jobs.cards` JSON element (MVP):**
+
+```json
+{
+    "tmp_id": "uuid-string",
+    "front": "string <= 1000",
+    "back": "string <= 1000",
+    "edited": false,
+    "deleted": false
+}
+```
+
+**Indices that inform list endpoints**: `sets(owner_id, deleted_at)`, `sets(owner_id, updated_at desc)`,
+`review_states(user_id, due_at)`.  
+**Data ownership & security**: RLS per-user on all tables; the app sets `SET app.current_user_id = <uuid>` per request.
+
+---
 
 ## 2. Endpoints
 
-> Conventions
-> - **HTML** responses for regular navigation (Twig views).
-> - **JSON** responses for progressive enhancement (Turbo/Stimulus) using the **same URLs** with
-    `Accept: application/json` or `?format=json`.
-> - All endpoints are **owner-scoped** (RLS ensures per-row isolation) and return **404** for unauthorized/missing
-    records to avoid enumeration. fileciteturn0file3
+Below, JSON endpoints live under `/api/*`. HTML SSR pages exist at similar non-`/api` paths (e.g., `/sets`,
+`/sets/{id}`, `/learn`) using Symfony Controllers + Twig.
 
-### 2.1 Authentication
+### Conventions (applies to all endpoints)
 
-#### Register
+- **Auth**: Session cookie (Symfony Security). Unauthenticated requests to protected endpoints return `401`.
+- **RLS context**: On every request, backend sets DB-local `app.current_user_id` before DB work.
+- **Soft delete**: reads ignore `deleted_at` by default; deletes set `deleted_at` (for domain tables).
+- **Errors**: Use `application/problem+json` (RFC 7807).
+- **Pagination**: `page` (1-based), `per_page` (default 20, max 100). Response includes `total`, `page`, `per_page`,
+  `items`.
+- **Sorting**: `sort` e.g. `updated_at_desc|asc` (whitelist per endpoint).
+- **Filtering**: Explicit, documented per endpoint.
+- **CSRF**: All state-changing calls require a CSRF token (header: `X-CSRF-Token`) when called via XHR.
+- **ETag/If-Match**: Recommended for preview edits to prevent lost updates (ETag based on job `updated_at` or hash of
+  `cards`).
 
-- **POST** `/auth/register`
-- **Description**: Create account; auto-login on success. fileciteturn0file1
-- **Request (JSON or form)**
+---
+
+### 2.1 Auth
+
+#### POST /api/auth/register
+
+- **Description**: Create user account and sign in.
+- **Request JSON**:
   ```json
-  { "email": "user@example.com", "password": "secret123", "password_confirm": "secret123" }
+  { "email": "user@example.com", "password": "<min 8 chars>", "password_confirm": "<same>" }
   ```
-- **Response (JSON, 201)**
+- **Response 201**:
   ```json
-  { "id": "uuid", "email": "user@example.com", "created_at": "2025-10-25T10:00:00Z" }
+  { "id": "uuid", "email": "user@example.com" }
   ```
-- **Errors**: 400 (validation), 409 (email exists). Email unique (case-insensitive via `CITEXT`). fileciteturn0file3
+- **Errors**: `400` validation; `409` email in use.
 
-#### Login / Logout
+#### POST /api/auth/login
 
-- **POST** `/auth/login` → 200 on success; 401 on invalid credentials. fileciteturn0file1
-- **POST** `/auth/logout` → 204 (clears session cookie).
+- **Description**: Authenticate; sets session cookie.
+- **Request**: `{ "email": "...", "password": "..." }`
+- **Response 200**: `{ "ok": true }`
+- **Errors**: `400`, `401`.
 
-### 2.2 Sets
+#### POST /api/auth/logout
 
-#### List My Sets
+- **Description**: Invalidate session.
+- **Response 204**
 
-- **GET** `/sets`
-- **Query**: `page` (default 1), `size` (default 20, max 100), `q` (search in name), `sort` (`updated_at desc|asc`,
-  default `desc`)
-- **Response (200)**
-  ```json
-  {
-    "items": [
-      { "id":"uuid","name":"Biology Basics","card_count":42,"updated_at":"...","created_at":"..." }
-    ],
-    "page":1,"size":20,"total":123
-  }
-  ```
-- **Notes**: Indexes `sets(owner_id, deleted_at)` and `sets(owner_id, updated_at desc)` support this view. Optional
-  trigram search on `name`. fileciteturn0file3
+#### POST /api/auth/password/reset
 
-#### Create Manual Set
+- **Description**: Issue reset token to email (no-op response to prevent probing).
+- **Response 202**: `{ "ok": true }`
 
-- **POST** `/sets`
-- **Request**
-  ```json
-  { "name": "My New Set" }
-  ```
-- **Response (201)**
-  ```json
-  { "id":"uuid","name":"My New Set","card_count":0 }
-  ```
-- **Errors**: 400 (name empty), 409 (duplicate name per owner; case-insensitive). fileciteturn0file2
-  fileciteturn0file3
+#### POST /api/auth/password/reset/confirm
 
-#### Get Set
+- **Description**: Set new password using token.
+- **Request**: `{ "token": "...", "password": "<min 8 chars>" }`
+- **Response 200**: `{ "ok": true }`
 
-- **GET** `/sets/{setId}`
-- **Response (200)**
-  ```json
-  {
-    "id":"uuid","name":"...","card_count":2,
-    "cards":[{"id":"...","origin":"ai","front":"...","back":"..."}]
-  }
-  ```
+---
 
-#### Rename Set
+### 2.2 Generate (AI) — Preview → Edit → Save (+ Stats)
 
-- **PUT** `/sets/{setId}`
-- **Request** `{ "name": "New Name" }`
-- **Response** `200` with full resource.
-- **Errors**: 409 on duplicate `(owner_id,name)`. fileciteturn0file3
+#### POST /api/generate
 
-#### Soft Delete Set
-
-- **DELETE** `/sets/{setId}` → `204` (sets `deleted_at`). Cards cascade soft via application logic, count decremented.
-  fileciteturn0file2
-
-### 2.3 Cards (manual only after set is saved)
-
-> Business rule: manual cards **can only be added after saving** a generated set (no mixing in preview). Enforced in
-> controller + UI. fileciteturn0file2
-
-#### Add Card
-
-- **POST** `/sets/{setId}/cards`
-- **Request**
-  ```json
-  { "front":"...","back":"..." }
-  ```
-- **Response (201)**
-  ```json
-  { "id":"uuid","origin":"manual","front":"...","back":"...","edited_by_user_at":null }
-  ```
-- **Validation**: `front`/`back` ≤ 1000 chars; non-empty. fileciteturn0file2 fileciteturn0file3
-
-#### Edit Card
-
-- **PATCH** `/sets/{setId}/cards/{cardId}`
-- **Request** (any subset):
-  ```json
-  { "front":"...","back":"..." }
-  ```
-- **Response (200)**: updated card, sets `edited_by_user_at` to now.
-
-#### Soft Delete Card
-
-- **DELETE** `/sets/{setId}/cards/{cardId}` → `204` (updates `deleted_at`, decrements `card_count`).
-  fileciteturn0file3
-
-### 2.4 AI Generation Flow
-
-#### Submit Text for Generation
-
-- **POST** `/generate`
-- **Description**: Enqueue AI job and start synchronous generation worker; returns job handle immediately for UI
-  progress; server may long-poll and inline preview when ready.
-- **Request**
+- **Description**: Enqueue AI job to generate cards from `source_text` (1,000–10,000 chars). Returns job handle
+  immediately.
+- **Request JSON**:
   ```json
   { "source_text": "<1000..10000 chars>" }
   ```
-- **Response (202)** (accepted; job created)
+- **Response 202**:
   ```json
-  { "job_id":"uuid","status":"queued" }
+  { "job_id": "uuid", "status": "queued" }
   ```
-- **Validation**: `source_text` length 1000–10000; otherwise 422. Tracked in `ai_jobs.request_prompt` with the same
-  limits. fileciteturn0file1 fileciteturn0file3
+- **Validation**: Enforce length window server-side (mirrors DB check).
+- **Errors**: `422` length invalid; `500` enqueue error.
 
-#### Poll Job / Fetch Preview
+#### GET /api/generate/{job_id}
 
-- **GET** `/generate/{jobId}`
-- **Response (200)** when `succeeded`:
+- **Description**: Poll job status.
+- **Response 200**:
+  ```json
+  { "job_id": "uuid", "status": "queued|running|succeeded|failed", "error_message": null }
+  ```
+
+#### GET /api/generate/{job_id}/preview
+
+- **Description**: Return the current **preview** (AI-produced cards) for review/edit **before saving**.
+- **Query**: `include_deleted=false` (default).
+- **Response 200**:
   ```json
   {
-    "job_id":"uuid","status":"succeeded",
-    "preview": { "suggested_name":"...", "cards":[{"front":"...","back":"..."}] }
-  }
-  ```
-- **Response (200)** when `running|queued`: `{ "job_id":"...","status":"running" }`
-- **Response (200)** when `failed`: `{ "job_id":"...","status":"failed","error":"..." }`
-- **Notes**: No DB persistence of preview cards before save (held in session/cache). `ai_jobs` stores raw response &
-  metadata. fileciteturn0file2
-
-#### Save Generated Set
-
-- **POST** `/generate/{jobId}/accept`
-- **Request**
-  ```json
-  { "name":"Suggested or custom", "cards":[{"front":"...","back":"..."}] }
-  ```
-- **Response (201)**
-  ```json
-  { "set_id":"uuid","card_count":N }
-  ```
-- **Rules**: Creates `sets` + `cards(origin='ai')` in a transaction; enforces `(owner_id,name)` uniqueness; failures
-  return 409. fileciteturn0file3
-
-### 2.5 Study (Spaced Repetition)
-
-#### Start Session
-
-- **POST** `/study/sessions`
-- **Request** `{ "set_id":"uuid" }`
-- **Response (201)**
-  ```json
-  {
-    "session_id":"uuid",
-    "next_card":{"card_id":"uuid","front":"..."}
+    "suggested_name": "string|null",
+    "cards": [ { "tmp_id":"...", "front":"...", "back":"...", "edited":false, "deleted":false } ]
   }
   ```
 
-#### Show Answer & Grade
+#### PATCH /api/generate/{job_id}/cards/{tmp_id}
 
-- **POST** `/study/sessions/{sessionId}/answer`
-- **Request**
+- **Description**: Update a preview card (front/back). If content changes, sets `edited=true`.
+- **Request**: `{ "front": "...", "back": "..." }`
+- **Response 200**: Updated card JSON.
+- **Errors**: `404` tmp_id not found; `409` if the card has `deleted=true`; `422` validation.
+
+#### DELETE /api/generate/{job_id}/cards/{tmp_id}
+
+- **Description**: Mark a preview card as deleted (`deleted=true`). Idempotent.
+- **Response 204**
+
+#### GET /api/generate/{job_id}/stats
+
+- **Description**: Lightweight KPIs for the preview (MVP replacement for analytics events).
+- **Response 200**:
   ```json
-  { "card_id":"uuid","grade":1 } // 1=I know, 0=I don't
+  {
+    "generated": 42,
+    "edited": 10,
+    "deleted": 5,
+    "kept": 37
+  }
   ```
-- **Response (200)**
+- **Notes**: `generated = generated_count`; `edited = count(cards.edited=true)`; `deleted = count(cards.deleted=true)`;
+  `kept = generated - deleted`.
+
+#### POST /api/generate/{job_id}/save
+
+- **Description**: Persist preview as a **Set**. Writes `sets` + `cards` (origin=`ai`) using only `deleted=false`
+  entries.
+- **Request**:
   ```json
-  { "next_card":{"card_id":"uuid","front":"..."},"reviewed":12,"correct_rate":0.75 }
+  { "name": "My Biology Set" }
   ```
-- **Notes**: Updates `review_states` and appends to `review_events`; next card selected by
-  `WHERE user_id = current AND due_at <= now() ORDER BY due_at ASC LIMIT 1`. fileciteturn0file3
-
-#### End Session / Summary
-
-- **GET** `/study/sessions/{sessionId}/summary`
-- **Response (200)**
+- **Response 201**:
   ```json
-  { "reviewed": N, "correct_rate": 0.72 }
+  { "set_id": "uuid", "name": "My Biology Set", "card_count": 37 }
   ```
-- **UX**: Matches PRD flow (“Show answer”, then “I know / I don’t know”, summary). fileciteturn0file1
+- **Errors**: `409` set name already used by owner; `422` when no cards to save (all deleted).
+- **Idempotency**: If `ai_jobs.set_id` already set, return existing `{ set_id, ... }`.
 
-### 2.6 Analytics
+---
 
-#### Track Event (optional client-side endpoint)
+### 2.3 Sets
 
-- **POST** `/analytics/events`
-- **Request**
+#### GET /api/sets
+
+- **Description**: List “My Sets”. Supports search and sorting.
+- **Query**: `q` (optional, case-insensitive name match), `page`, `per_page`, `sort=updated_at_desc|asc`.
+- **Response 200**:
   ```json
-  { "event_type":"card_deleted_in_preview","payload":{"card_index":3} }
+  { "items": [ { "id":"uuid","name":"...","card_count":12,"updated_at":"..." } ], "total": 1, "page": 1, "per_page": 20 }
   ```
-- **Response** `202`
-- **Notes**: Canonical KPIs: acceptance rate of AI cards; AI adoption ratio. Events persisted in `analytics_events`.
-  fileciteturn0file1 fileciteturn0file3
 
-### 2.7 AI Jobs (debug/UX)
+#### POST /api/sets
 
-- **GET** `/ai-jobs/{id}` → status/details (owner-scoped). Useful for robust UI error handling. fileciteturn0file3
+- **Description**: Create an empty set manually.
+- **Request**: `{ "name": "..." }`
+- **Response 201**: `{ "id":"uuid","name":"...","card_count":0 }`
+
+#### GET /api/sets/{set_id}
+
+- **Description**: Get set details with cards (excluding soft-deleted).
+- **Response 200**:
+  ```json
+  { "id":"uuid","name":"...","card_count":12,"cards":[{"id":"uuid","origin":"ai","front":"...","back":"..."}] }
+  ```
+
+#### PATCH /api/sets/{set_id}
+
+- **Description**: Rename set.
+- **Request**: `{ "name": "New Name" }`
+- **Response 200**: `{ "id":"uuid","name":"New Name" }`
+
+#### DELETE /api/sets/{set_id}
+
+- **Description**: Soft-delete set (and cascade soft-delete cards); filtered from lists.
+- **Response 204**
+
+---
+
+### 2.4 Cards (for saved sets)
+
+#### POST /api/sets/{set_id}/cards
+
+- **Description**: Add **manual** card to a saved set (allowed only **after** save).
+- **Request**:
+  ```json
+  { "front": "...", "back": "..." }
+  ```
+- **Response 201**: `{ "id":"uuid","origin":"manual","front":"...","back":"..." }`
+
+#### PATCH /api/sets/{set_id}/cards/{card_id}
+
+- **Description**: Edit card (front/back); update `edited_by_user_at`.
+- **Response 200**: Updated card.
+
+#### DELETE /api/sets/{set_id}/cards/{card_id}
+
+- **Description**: Soft-delete a card (decrement `card_count` via trigger or service).
+- **Response 204**
+
+---
+
+### 2.5 Learn (Spaced Repetition)
+
+#### GET /api/learn/next?set_id={uuid}
+
+- **Description**: Fetch next due card for the current user and (optional) set.
+- **Response 200**:
+  ```json
+  { "card": { "id":"uuid","front":"..." }, "due_at":"2025-10-27T09:00:00Z" }
+  ```
+
+#### POST /api/learn/{card_id}/grade
+
+- **Description**: Submit study result; append `review_events`, update `review_states` (grade 0 = “Don’t know”, 1 =
+  “Know”).
+- **Request**:
+  ```json
+  { "grade": 0, "duration_ms": 1200 }
+  ```
+- **Response 200**:
+  ```json
+  { "next_due_at":"2025-10-27T11:00:00Z" }
+  ```
+
+#### GET /api/learn/summary?set_id={uuid}&since={iso}
+
+- **Description**: Lightweight stats for current session (cards reviewed, % correct).
+- **Response 200**:
+  ```json
+  { "reviewed": 20, "correct_pct": 0.85 }
+  ```
+
+---
+
+### 2.6 Me
+
+#### GET /api/me
+
+- **Description**: Return current user profile minimal data.
+- **Response 200**: `{ "id":"uuid","email":"..." }`
 
 ---
 
 ## 3. Authentication & Authorization
 
-- **Auth mechanism**: Symfony Security with session cookies; CSRF protection on state-changing HTML forms. For JSON,
-  require SameSite cookies + CSRF header/token. (MVP does not expose public tokens/JWT.)
-- **Authorization**: All data is **owner-only**. PostgreSQL **RLS** enforces row access using
-  `current_setting('app.current_user_id')` via helper `current_app_user()`. Application must
-  `SET app.current_user_id = '<uuid>'` per request/transaction. fileciteturn0file3 fileciteturn0file2
-- **Errors**: Unauthorized → 401; forbidden/missing → 404 to avoid leaks.
-
-**Rate limiting & abuse protection**
-
-- Global + per-user rate limits on `/generate` and session actions.
-- Size limits on payloads; backpressure on AI queue (`ai_jobs.status`). fileciteturn0file3
+- **Mechanism**: Session-cookie auth via Symfony Security; password hashing with bcrypt/argon2.
+- **RLS (defense-in-depth)**: Per-user policies; the app sets `app.current_user_id` at request start. Users only see
+  their rows even if app checks fail.
+- **Ownership model**: Single-tenant per user; no admin roles in MVP.
+- **CSRF**: Required on state-changing HTML forms and XHR (header `X-CSRF-Token`).
+- **Rate limiting** (Symfony RateLimiter):
+    - `/api/generate`: e.g., 5/min per user + 100/day (tunable).
+    - Auth endpoints: bruteforce protection (IP + user key).
+- **Input size limits**:
+    - `source_text`: 1,000–10,000 chars (server-side check mirrors DB check).
+    - Card `front/back`: ≤ 1,000 chars.
+- **Soft delete**: Implemented via `deleted_at` in domain tables; list endpoints filter it.
 
 ---
 
 ## 4. Validation & Business Logic
 
-### 4.1 Validation Rules (by resource)
+### Cross-cutting validations
 
-- **Register/Login**: Email format; password min length; email uniqueness (case-insensitive). fileciteturn0file3
-  fileciteturn0file1
-- **Set**: `name` non-empty; unique per owner (`(owner_id, name)` with `CITEXT`). fileciteturn0file3
-  fileciteturn0file2
-- **Card**: `front`/`back` required; each ≤ **1000** chars. fileciteturn0file2
-- **Generate**: `source_text` length **1000–10000** chars; actionable error messages when out of range.
-  fileciteturn0file1 fileciteturn0file3
-- **Study Answer**: `grade` ∈ {0,1}; update of scheduling fields (`due_at`, `interval_days`, `ease`, `reps`,
-  `last_grade`). fileciteturn0file3
+- **Email** must be valid; **password** min length 8; **set.name** non-empty/unique per owner (case-insensitive).
+- **source_text** length window enforced both at controller and DB layer (`ai_jobs.request_prompt` check).
+- **Card fields** (`front/back`) ≤ 1000 chars.
 
-### 4.2 Business Logic & Constraints
+### Domain rules mapping
 
-- **Preview → Save boundary**: No persistence of preview cards; only after acceptance do we create `sets` +
-  `cards(origin='ai')`. Manual cards are allowed **only after** set exists. fileciteturn0file2
-- **Soft delete**: Use `deleted_at`; all listings filter out deleted; history in `review_*` remains intact (FK`RESTRICT`
-  on `review_states`, `SET NULL` on `review_events.card_id`). fileciteturn0file3
-- **Denormalized `card_count`**: Maintained by triggers (+1 on insert of active card; −1 on soft delete).
-  fileciteturn0file3
-- **Analytics**: Track `card_deleted_in_preview`, `ai_generation_failed`, `ai_generation_succeeded`, `set_saved`,
-  `study_answered` to compute KPI targets from PRD. fileciteturn0file1
+1) **Generate → Preview → Edit/Delete → Save**
+    - Preview lives entirely in `ai_jobs.cards`.
+    - `PATCH` updates content and sets `edited=true` when changed.
+    - `DELETE` marks `deleted=true` (idempotent).
+    - `SAVE` persists only `deleted=false` entries into domain `cards` with `origin='ai'`.
+    - `GET /stats` replaces analytics events for MVP KPIs.
 
----
+2) **Manual set and cards**
+    - Users can create empty sets and add manual cards (`origin='manual'`).
 
-## 5. Pagination, Filtering, Sorting
+3) **Study flow**
+    - Learn interface shows front → reveal back; grading is binary and updates scheduling. Session summary supported.
 
-- **Pagination**: `page` + `size` on list endpoints; `"Link"` header for prev/next; default size 20.
-- **Filtering**: soft-deleted filtered by default; owner scope implicit; search `q` on set names (optional trigram
-  index). fileciteturn0file3
-- **Sorting**: `updated_at` or `created_at` desc/asc where relevant.
+### Error handling patterns
+
+- `400 Bad Request`: invalid JSON shape, unsupported params.
+- `401 Unauthorized`: not logged in.
+- `403 Forbidden`: ownership/RLS violation detected at app-level (DB denies, too).
+- `404 Not Found`: resource missing (or soft-deleted).
+- `409 Conflict`: set name already used by the owner; or editing a deleted preview card.
+- `422 Unprocessable Entity`: validation (length windows, field constraints).
 
 ---
 
-## 6. Performance & Indexing
+## 5. Performance & Pagination Notes
 
-- **Sets listing** backed by `sets(owner_id, deleted_at)` and `sets(owner_id, updated_at desc)`; `card_count` avoids
-  N+1. fileciteturn0file3
-- **Study next-card** query uses `review_states(user_id, due_at)` index. fileciteturn0file3
-- **AI jobs** dashboard/status use `ai_jobs(user_id, created_at desc)` and `ai_jobs(status, created_at)`.
-  fileciteturn0file3
-- **Analytics** summary by `analytics_events(user_id, occurred_at desc)`; consider monthly partitioning as volume grows.
-  fileciteturn0file2
+- **Sets list** uses `(owner_id, deleted_at)` + `(owner_id, updated_at DESC)` indices; optional trigram search on
+  `name`.
+- **Due selection** for learning uses `(user_id, due_at)` index.
+- **Preview ops**: `ai_jobs.cards` stays small (tens of items), so JSONB scans are fine in MVP; add GIN on `cards` later
+  only if needed.
 
 ---
 
-## 7. Error Model (JSON)
+## 6. HTTP Method Use
+
+- `GET` for retrieval (safe, idempotent).
+- `POST` to create resources and to submit actions (`generate`, `grade`, `save`).
+- `PATCH` for partial updates (preview edits, set/card rename/edit).
+- `DELETE` for soft deletes (preview mark-delete and domain soft-delete).
+
+---
+
+## 7. JSON Schemas (Representative)
+
+### PreviewCard (stored inside `ai_jobs.cards`)
 
 ```json
 {
-    "error": {
-        "code": "validation_error",
-        "message": "Front must be ≤ 1000 chars.",
-        "field_errors": {
-            "front": "too_long"
-        }
-    }
+    "tmp_id": "uuid",
+    "front": "string <= 1000",
+    "back": "string <= 1000",
+    "edited": false,
+    "deleted": false
 }
 ```
 
-Standard codes: `validation_error` (400/422), `conflict` (409), `not_found` (404), `unauthorized` (401),`rate_limited` (
-429), `server_error` (500).
+### Generate Stats (GET /api/generate/{job_id}/stats)
+
+```json
+{
+    "generated": 0,
+    "edited": 0,
+    "deleted": 0,
+    "kept": 0
+}
+```
+
+### Set
+
+```json
+{
+    "id": "uuid",
+    "name": "string",
+    "card_count": 0,
+    "created_at": "ISO-8601",
+    "updated_at": "ISO-8601"
+}
+```
+
+### Card
+
+```json
+{
+    "id": "uuid",
+    "set_id": "uuid",
+    "origin": "ai|manual",
+    "front": "string <= 1000",
+    "back": "string <= 1000",
+    "edited_by_user_at": "ISO-8601|null",
+    "created_at": "ISO-8601",
+    "updated_at": "ISO-8601"
+}
+```
+
+### ReviewEvent
+
+```json
+{
+    "id": 1,
+    "user_id": "uuid",
+    "card_id": "uuid|null",
+    "answered_at": "ISO-8601",
+    "grade": 0,
+    "duration_ms": 1200
+}
+```
+
+### AI Job status
+
+```json
+{
+    "job_id": "uuid",
+    "status": "queued|running|succeeded|failed",
+    "error_message": null
+}
+```
 
 ---
 
-## 8. Security Considerations
+## 8. Security Hardening
 
-- **CSRF**: Tokens on all state-changing endpoints; `SameSite=Lax` cookies.
-- **RLS as backstop**: Policies on `sets/cards/review_* /analytics_events/ai_jobs` ensure row isolation regardless of
-  ORM mistakes; application sets `app.current_user_id`. fileciteturn0file3
-- **Input sanitation**: server-side validation mirrors DB `CHECK`s to fail fast; consistent error messages.
-  fileciteturn0file3
-- **Rate limiting**: protect `/generate` and `/study/*` from abuse.
-- **PII**: Keep `ai_jobs.response_raw` retention minimal (policy TBD per PRD scope); consider redaction/anonymization.
-  fileciteturn0file2
+- **Input validation** mirrored at DB where practical: CHECK for `ai_jobs.request_prompt` window; domain constraints for
+  unique email and `(owner_id, name)` for sets.
+- **Ownership at DB**: RLS policies for sets/cards/reviews/ai_jobs.
+- **Unique constraints**: email unique; `(owner_id, name)` unique for sets (case-insensitive).
+- **Soft delete discipline**: all domain queries filter `deleted_at IS NULL`.
+- **TTL**: purge old `ai_jobs` without `set_id` (e.g., >14 days).
 
 ---
 
-## 9. Future API Extraction (Guidelines)
+## 9. Stack Alignment & Evolution
 
-- Keep resource URLs stable (`/sets`, `/sets/{id}`, `/study/*`).
-- Ensure serializers return explicit resource IDs and timestamps to support external clients later.
-- Maintain content negotiation; adding a dedicated `/api/*` surface remains trivial when needed. fileciteturn0file0
+- **Stack fit**: Symfony + Doctrine + Twig SSR with optional HTMX/Stimulus; PostgreSQL.
+- **No separate public API for MVP**: Internal `/api/*` endpoints power the SSR app now and can be exposed externally
+  later with minimal changes.
+- **Future analytics**: If richer funnels are needed, re-introduce lightweight `analytics_events` later without breaking
+  these contracts.
+
+---
+
+## 10. Non-Goals (MVP)
+
+- No advanced SRS algorithm (use simple, binary grade-based scheduling).
+- No media cards, social features, external LMS integrations, or mobile apps in MVP.
