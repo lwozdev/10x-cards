@@ -4,16 +4,23 @@ declare(strict_types=1);
 
 namespace App\Domain\Model;
 
-use App\Domain\Value\PreviewCardCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * AI Job - tracks AI flashcard generation requests
+ * AI Job - tracks AI flashcard generation for KPI metrics
  *
- * Lifecycle: queued -> running -> succeeded|failed
- * Stores preview cards before user saves them as a Set
+ * Purpose: Optional KPI tracking only. No server-side preview.
+ * Flow:
+ *   1. POST /api/generate creates AiJob with status=SUCCEEDED/FAILED
+ *   2. Frontend manages card editing/deletion locally
+ *   3. POST /api/sets updates AiJob with set_id, accepted_count, edited_count
+ *
+ * KPI Metrics:
+ *   - Acceptance rate = accepted_count / generated_count (target: 75%)
+ *   - Deleted count = generated_count - accepted_count
+ *   - Edit rate = edited_count / accepted_count
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'ai_jobs')]
@@ -29,6 +36,10 @@ class AiJob
     #[ORM\Column(type: 'uuid')]
     private Uuid $userId;
 
+    /**
+     * Set ID - filled when user saves the set (POST /api/sets)
+     * NULL until then
+     */
     #[ORM\Column(type: 'uuid', nullable: true)]
     private ?Uuid $setId = null;
 
@@ -42,31 +53,25 @@ class AiJob
     private ?string $requestPrompt = null;
 
     /**
-     * Preview cards collection (stored as JSONB in DB)
-     */
-    #[ORM\Column(type: Types::JSON)]
-    private array $cardsData = [];
-
-    private ?PreviewCardCollection $cards = null;
-
-    /**
-     * Denormalized counters for query performance
-     * Kept in sync with PreviewCardCollection
+     * How many cards AI generated
      */
     #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
     private int $generatedCount = 0;
 
+    /**
+     * How many cards user saved (filled when POST /api/sets)
+     */
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
+    private int $acceptedCount = 0;
+
+    /**
+     * How many saved cards were edited before saving (filled when POST /api/sets)
+     */
     #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
     private int $editedCount = 0;
 
-    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
-    private int $deletedCount = 0;
-
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $suggestedName = null;
-
-    #[ORM\Column(type: Types::JSON, nullable: true)]
-    private ?array $responseRaw = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $modelName = null;
@@ -89,20 +94,51 @@ class AiJob
     private function __construct()
     {
         $this->id = Uuid::v4();
-        $this->status = AiJobStatus::QUEUED;
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
-        $this->cards = PreviewCardCollection::empty();
     }
 
     /**
-     * Create new AI generation job
+     * Create new successful AI generation job
      */
-    public static function create(Uuid $userId, string $requestPrompt): self
-    {
+    public static function createSucceeded(
+        Uuid $userId,
+        string $requestPrompt,
+        int $generatedCount,
+        ?string $suggestedName,
+        string $modelName,
+        int $tokensIn,
+        int $tokensOut
+    ): self {
         $job = new self();
         $job->userId = $userId;
         $job->requestPrompt = $requestPrompt;
+        $job->status = AiJobStatus::SUCCEEDED;
+        $job->generatedCount = $generatedCount;
+        $job->suggestedName = $suggestedName;
+        $job->modelName = $modelName;
+        $job->tokensIn = $tokensIn;
+        $job->tokensOut = $tokensOut;
+        $job->completedAt = new \DateTimeImmutable();
+
+        return $job;
+    }
+
+    /**
+     * Create new failed AI generation job
+     */
+    public static function createFailed(
+        Uuid $userId,
+        string $requestPrompt,
+        string $errorMessage
+    ): self {
+        $job = new self();
+        $job->userId = $userId;
+        $job->requestPrompt = $requestPrompt;
+        $job->status = AiJobStatus::FAILED;
+        $job->errorMessage = $errorMessage;
+        $job->completedAt = new \DateTimeImmutable();
+
         return $job;
     }
 
@@ -138,18 +174,14 @@ class AiJob
         return $this->requestPrompt;
     }
 
-    public function getCards(): PreviewCardCollection
-    {
-        if ($this->cards === null) {
-            $this->cards = PreviewCardCollection::fromArray($this->cardsData);
-        }
-
-        return $this->cards;
-    }
-
     public function getGeneratedCount(): int
     {
         return $this->generatedCount;
+    }
+
+    public function getAcceptedCount(): int
+    {
+        return $this->acceptedCount;
     }
 
     public function getEditedCount(): int
@@ -159,22 +191,12 @@ class AiJob
 
     public function getDeletedCount(): int
     {
-        return $this->deletedCount;
-    }
-
-    public function getKeptCount(): int
-    {
-        return $this->generatedCount - $this->deletedCount;
+        return $this->generatedCount - $this->acceptedCount;
     }
 
     public function getSuggestedName(): ?string
     {
         return $this->suggestedName;
-    }
-
-    public function getResponseRaw(): ?array
-    {
-        return $this->responseRaw;
     }
 
     public function getModelName(): ?string
@@ -207,121 +229,59 @@ class AiJob
         return $this->completedAt;
     }
 
-    public function isCompleted(): bool
+    public function isSuccessful(): bool
     {
-        return $this->status->isTerminal();
+        return $this->status->isSuccessful();
+    }
+
+    public function isFailed(): bool
+    {
+        return $this->status->isFailed();
+    }
+
+    /**
+     * Calculate acceptance rate (target: 75%)
+     */
+    public function getAcceptanceRate(): float
+    {
+        if ($this->generatedCount === 0) {
+            return 0.0;
+        }
+
+        return $this->acceptedCount / $this->generatedCount;
     }
 
     // ===== Intentional Methods (Business Operations) =====
 
     /**
-     * Start processing this job
-     */
-    public function start(): void
-    {
-        if ($this->status !== AiJobStatus::QUEUED) {
-            throw new \DomainException('Can only start queued jobs');
-        }
-
-        $this->status = AiJobStatus::RUNNING;
-        $this->updatedAt = new \DateTimeImmutable();
-    }
-
-    /**
-     * Mark job as succeeded with AI-generated cards
+     * Link this job to a saved Set and record KPI metrics
+     * Called when user saves cards via POST /api/sets
      *
-     * @param array<array{front: string, back: string}> $aiGeneratedCards
+     * @param Uuid $setId
+     * @param int $acceptedCount Number of cards user saved
+     * @param int $editedCount Number of saved cards that were edited
      */
-    public function succeedWithCards(
-        array $aiGeneratedCards,
-        ?string $suggestedName,
-        array $responseRaw,
-        string $modelName,
-        int $tokensIn,
-        int $tokensOut
-    ): void {
-        if ($this->status !== AiJobStatus::RUNNING) {
-            throw new \DomainException('Can only succeed running jobs');
-        }
-
-        $this->cards = PreviewCardCollection::fromAiGeneration($aiGeneratedCards);
-        $this->syncCardsToDatabase();
-
-        $this->generatedCount = $this->cards->count();
-        $this->suggestedName = $suggestedName;
-        $this->responseRaw = $responseRaw;
-        $this->modelName = $modelName;
-        $this->tokensIn = $tokensIn;
-        $this->tokensOut = $tokensOut;
-
-        $this->status = AiJobStatus::SUCCEEDED;
-        $this->completedAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
-    }
-
-    /**
-     * Mark job as failed with error message
-     */
-    public function failWithError(string $errorMessage): void
-    {
-        if ($this->status->isTerminal()) {
-            throw new \DomainException('Cannot fail already completed job');
-        }
-
-        $this->status = AiJobStatus::FAILED;
-        $this->errorMessage = $errorMessage;
-        $this->completedAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
-    }
-
-    /**
-     * Edit a preview card (front/back content)
-     */
-    public function editCard(string $tmpId, string $front, string $back): void
-    {
-        $this->cards = $this->getCards()->editCard($tmpId, $front, $back);
-        $this->syncCardsToDatabase();
-
-        // Update denormalized counter
-        $this->editedCount = $this->cards->editedCount();
-        $this->updatedAt = new \DateTimeImmutable();
-    }
-
-    /**
-     * Mark a preview card as deleted
-     */
-    public function deleteCard(string $tmpId): void
-    {
-        $this->cards = $this->getCards()->deleteCard($tmpId);
-        $this->syncCardsToDatabase();
-
-        // Update denormalized counter
-        $this->deletedCount = $this->cards->deletedCount();
-        $this->updatedAt = new \DateTimeImmutable();
-    }
-
-    /**
-     * Link this job to a saved Set after user accepts preview
-     */
-    public function linkToSet(Uuid $setId): void
+    public function linkToSet(Uuid $setId, int $acceptedCount, int $editedCount): void
     {
         if ($this->setId !== null) {
             throw new \DomainException('Job already linked to a set');
         }
 
-        if ($this->getCards()->allDeleted()) {
-            throw new \DomainException('Cannot save set - all cards are deleted');
+        if (!$this->isSuccessful()) {
+            throw new \DomainException('Can only link successful jobs to sets');
+        }
+
+        if ($acceptedCount > $this->generatedCount) {
+            throw new \DomainException('Cannot accept more cards than generated');
+        }
+
+        if ($editedCount > $acceptedCount) {
+            throw new \DomainException('Cannot have more edited cards than accepted');
         }
 
         $this->setId = $setId;
+        $this->acceptedCount = $acceptedCount;
+        $this->editedCount = $editedCount;
         $this->updatedAt = new \DateTimeImmutable();
-    }
-
-    /**
-     * Sync in-memory cards collection to database representation
-     */
-    private function syncCardsToDatabase(): void
-    {
-        $this->cardsData = $this->cards->toArray();
     }
 }

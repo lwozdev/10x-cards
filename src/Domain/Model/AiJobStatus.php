@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Domain\Model;
 
+/**
+ * AI Job Status - synchronous generation (no queuing)
+ *
+ * Jobs complete immediately:
+ * - SUCCEEDED: AI successfully generated cards
+ * - FAILED: AI generation failed with error
+ */
 enum AiJobStatus: string
 {
-    case QUEUED = 'queued';
-    case RUNNING = 'running';
     case SUCCEEDED = 'succeeded';
     case FAILED = 'failed';
-
-    public function isTerminal(): bool
-    {
-        return in_array($this, [self::SUCCEEDED, self::FAILED], true);
-    }
 
     public function isSuccessful(): bool
     {
