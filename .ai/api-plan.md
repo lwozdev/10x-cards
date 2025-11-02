@@ -15,19 +15,7 @@ API Platform. This aligns with the chosen stack (Symfony + Doctrine, Twig, SSR m
 | Card        | `cards`         | Belongs to a set; `origin` = `ai` or `manual`; `front`/`back` ≤ 1000 chars; soft-delete.         |
 | ReviewState | `review_states` | Per-user scheduling state (due_at, reps, last_grade, etc.).                                      |
 | ReviewEvent | `review_events` | Log of study answers (grade 0/1, answered_at, duration_ms).                                      |
-| AI Job      | `ai_jobs`       | **MVP preview source of truth**. Fields relevant to preview & KPIs:<br>• `status` enum (`queued  |running|succeeded|failed`)<br>• `cards JSONB` – array of temp cards (see JSON shape below)<br>• `generated_count INT` – number of cards produced by AI right after finish<br>• `suggested_name TEXT` – optional default set name<br>• `set_id UUID NULL` – filled after `/save` succeeds |
-
-**`ai_jobs.cards` JSON element (MVP):**
-
-```json
-{
-    "tmp_id": "uuid-string",
-    "front": "string <= 1000",
-    "back": "string <= 1000",
-    "edited": false,
-    "deleted": false
-}
-```
+| AI Job      | `ai_jobs`       | **Optional KPI tracking**. Fields: `status` (`succeeded|failed`), `generated_count` (cards produced by AI), `set_id` (nullable, filled when user saves), `source_text_hash`, `created_at`, `completed_at`. No preview storage needed. |
 
 **Indices that inform list endpoints**: `sets(owner_id, deleted_at)`, `sets(owner_id, updated_at desc)`,
 `review_states(user_id, due_at)`.  
@@ -51,8 +39,6 @@ Below, JSON endpoints live under `/api/*`. HTML SSR pages exist at similar non-`
 - **Sorting**: `sort` e.g. `updated_at_desc|asc` (whitelist per endpoint).
 - **Filtering**: Explicit, documented per endpoint.
 - **CSRF**: All state-changing calls require a CSRF token (header: `X-CSRF-Token`) when called via XHR.
-- **ETag/If-Match**: Recommended for preview edits to prevent lost updates (ETag based on job `updated_at` or hash of
-  `cards`).
 
 ---
 
@@ -96,84 +82,36 @@ Below, JSON endpoints live under `/api/*`. HTML SSR pages exist at similar non-`
 
 ---
 
-### 2.2 Generate (AI) — Preview → Edit → Save (+ Stats)
+### 2.2 Generate (AI) — Synchronous Generation
 
 #### POST /api/generate
 
-- **Description**: Enqueue AI job to generate cards from `source_text` (1,000–10,000 chars). Returns job handle
-  immediately.
+- **Description**: Synchronously generate flashcards from `source_text` (1,000–10,000 chars) using AI. Returns generated cards immediately (blocking call, timeout 30s).
 - **Request JSON**:
   ```json
   { "source_text": "<1000..10000 chars>" }
   ```
-- **Response 202**:
+- **Response 200**:
   ```json
-  { "job_id": "uuid", "status": "queued" }
+  {
+    "job_id": "uuid",
+    "suggested_name": "Biologia - Fotosynteza",
+    "cards": [
+      { "front": "Co to jest fotosynteza?", "back": "Proces..." },
+      { "front": "Gdzie zachodzi fotosynteza?", "back": "W chloroplastach..." }
+    ],
+    "generated_count": 15
+  }
   ```
 - **Validation**: Enforce length window server-side (mirrors DB check).
-- **Errors**: `422` length invalid; `500` enqueue error.
-
-#### GET /api/generate/{job_id}
-
-- **Description**: Poll job status.
-- **Response 200**:
-  ```json
-  { "job_id": "uuid", "status": "queued|running|succeeded|failed", "error_message": null }
-  ```
-
-#### GET /api/generate/{job_id}/preview
-
-- **Description**: Return the current **preview** (AI-produced cards) for review/edit **before saving**.
-- **Query**: `include_deleted=false` (default).
-- **Response 200**:
-  ```json
-  {
-    "suggested_name": "string|null",
-    "cards": [ { "tmp_id":"...", "front":"...", "back":"...", "edited":false, "deleted":false } ]
-  }
-  ```
-
-#### PATCH /api/generate/{job_id}/cards/{tmp_id}
-
-- **Description**: Update a preview card (front/back). If content changes, sets `edited=true`.
-- **Request**: `{ "front": "...", "back": "..." }`
-- **Response 200**: Updated card JSON.
-- **Errors**: `404` tmp_id not found; `409` if the card has `deleted=true`; `422` validation.
-
-#### DELETE /api/generate/{job_id}/cards/{tmp_id}
-
-- **Description**: Mark a preview card as deleted (`deleted=true`). Idempotent.
-- **Response 204**
-
-#### GET /api/generate/{job_id}/stats
-
-- **Description**: Lightweight KPIs for the preview (MVP replacement for analytics events).
-- **Response 200**:
-  ```json
-  {
-    "generated": 42,
-    "edited": 10,
-    "deleted": 5,
-    "kept": 37
-  }
-  ```
-- **Notes**: `generated = generated_count`; `edited = count(cards.edited=true)`; `deleted = count(cards.deleted=true)`;
-  `kept = generated - deleted`.
-
-#### POST /api/generate/{job_id}/save
-
-- **Description**: Persist preview as a **Set**. Writes `sets` + `cards` (origin=`ai`) using only `deleted=false`
-  entries.
-- **Request**:
-  ```json
-  { "name": "My Biology Set" }
-  ```
-- **Response 201**:
-  ```json
-  { "set_id": "uuid", "name": "My Biology Set", "card_count": 37 }
-  ```
-- **Errors**: `409` set name already used by owner; `422` when no cards to save (all deleted).
-- **Idempotency**: If `ai_jobs.set_id` already set, return existing `{ set_id, ... }`.
+- **Errors**:
+  - `422` length invalid or validation error
+  - `504` AI timeout (>30s)
+  - `500` AI service error
+- **Notes**:
+  - Frontend manages card editing/deletion in local state
+  - `job_id` is returned for optional KPI tracking linkage when user saves the set
+  - User can edit cards locally before calling `POST /api/sets` to persist
 
 ---
 
@@ -190,9 +128,23 @@ Below, JSON endpoints live under `/api/*`. HTML SSR pages exist at similar non-`
 
 #### POST /api/sets
 
-- **Description**: Create an empty set manually.
-- **Request**: `{ "name": "..." }`
-- **Response 201**: `{ "id":"uuid","name":"...","card_count":0 }`
+- **Description**: Create a set (empty for manual creation OR with cards from AI generation).
+- **Request**:
+  ```json
+  {
+    "name": "My Set Name",
+    "cards": [
+      { "front": "Question?", "back": "Answer", "origin": "ai" }
+    ],
+    "job_id": "uuid"
+  }
+  ```
+- **Notes**:
+  - `cards` array is optional (omit for empty manual set)
+  - `origin` must be "ai" or "manual" (defaults to "manual" if omitted)
+  - `job_id` is optional, used for KPI tracking linkage to `ai_jobs` table
+- **Response 201**: `{ "id":"uuid","name":"...","card_count":15 }`
+- **Errors**: `409` set name already used by owner; `422` validation errors
 
 #### GET /api/sets/{set_id}
 
@@ -307,15 +259,16 @@ Below, JSON endpoints live under `/api/*`. HTML SSR pages exist at similar non-`
 
 ### Domain rules mapping
 
-1) **Generate → Preview → Edit/Delete → Save**
-    - Preview lives entirely in `ai_jobs.cards`.
-    - `PATCH` updates content and sets `edited=true` when changed.
-    - `DELETE` marks `deleted=true` (idempotent).
-    - `SAVE` persists only `deleted=false` entries into domain `cards` with `origin='ai'`.
-    - `GET /stats` replaces analytics events for MVP KPIs.
+1) **Generate → Edit (client-side) → Save**
+    - `POST /api/generate` returns cards synchronously
+    - Frontend manages editing/deletion in local state (no server-side preview)
+    - User calls `POST /api/sets` with edited cards to persist to DB
+    - Cards saved with `origin='ai'`, optional `job_id` links to `ai_jobs` for KPIs
+    - KPI calculation: compare `ai_jobs.generated_count` vs final `sets.card_count`
 
 2) **Manual set and cards**
-    - Users can create empty sets and add manual cards (`origin='manual'`).
+    - Users can create empty sets (`POST /api/sets` without cards array)
+    - Add manual cards via `POST /api/sets/{set_id}/cards` with `origin='manual'`
 
 3) **Study flow**
     - Learn interface shows front → reveal back; grading is binary and updates scheduling. Session summary supported.
@@ -326,8 +279,9 @@ Below, JSON endpoints live under `/api/*`. HTML SSR pages exist at similar non-`
 - `401 Unauthorized`: not logged in.
 - `403 Forbidden`: ownership/RLS violation detected at app-level (DB denies, too).
 - `404 Not Found`: resource missing (or soft-deleted).
-- `409 Conflict`: set name already used by the owner; or editing a deleted preview card.
+- `409 Conflict`: set name already used by the owner.
 - `422 Unprocessable Entity`: validation (length windows, field constraints).
+- `504 Gateway Timeout`: AI generation exceeded 30s timeout.
 
 ---
 
@@ -336,42 +290,43 @@ Below, JSON endpoints live under `/api/*`. HTML SSR pages exist at similar non-`
 - **Sets list** uses `(owner_id, deleted_at)` + `(owner_id, updated_at DESC)` indices; optional trigram search on
   `name`.
 - **Due selection** for learning uses `(user_id, due_at)` index.
-- **Preview ops**: `ai_jobs.cards` stays small (tens of items), so JSONB scans are fine in MVP; add GIN on `cards` later
-  only if needed.
+- **AI generation**: Synchronous calls may take 10-30s; consider showing loading state to user. Client-side state management keeps UI responsive during card editing.
 
 ---
 
 ## 6. HTTP Method Use
 
 - `GET` for retrieval (safe, idempotent).
-- `POST` to create resources and to submit actions (`generate`, `grade`, `save`).
-- `PATCH` for partial updates (preview edits, set/card rename/edit).
-- `DELETE` for soft deletes (preview mark-delete and domain soft-delete).
+- `POST` to create resources and to submit actions (`generate`, `grade`).
+- `PATCH` for partial updates (set/card rename/edit).
+- `DELETE` for soft deletes.
 
 ---
 
 ## 7. JSON Schemas (Representative)
 
-### PreviewCard (stored inside `ai_jobs.cards`)
+### GenerateResponse (POST /api/generate)
 
 ```json
 {
-    "tmp_id": "uuid",
-    "front": "string <= 1000",
-    "back": "string <= 1000",
-    "edited": false,
-    "deleted": false
+    "job_id": "uuid",
+    "suggested_name": "Biologia - Fotosynteza",
+    "cards": [
+        { "front": "Question?", "back": "Answer" }
+    ],
+    "generated_count": 15
 }
 ```
 
-### Generate Stats (GET /api/generate/{job_id}/stats)
+### CreateSetRequest (POST /api/sets)
 
 ```json
 {
-    "generated": 0,
-    "edited": 0,
-    "deleted": 0,
-    "kept": 0
+    "name": "My Biology Set",
+    "cards": [
+        { "front": "Question?", "back": "Answer", "origin": "ai" }
+    ],
+    "job_id": "uuid"
 }
 ```
 
@@ -415,13 +370,17 @@ Below, JSON endpoints live under `/api/*`. HTML SSR pages exist at similar non-`
 }
 ```
 
-### AI Job status
+### AIJob (for KPI tracking)
 
 ```json
 {
-    "job_id": "uuid",
-    "status": "queued|running|succeeded|failed",
-    "error_message": null
+    "id": "uuid",
+    "status": "succeeded|failed",
+    "generated_count": 15,
+    "set_id": "uuid|null",
+    "source_text_hash": "sha256...",
+    "created_at": "ISO-8601",
+    "completed_at": "ISO-8601"
 }
 ```
 
