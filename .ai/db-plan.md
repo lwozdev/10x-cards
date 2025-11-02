@@ -81,31 +81,24 @@
 
 ### 1.6. `ai_jobs`
 
+**Cel**: Opcjonalne śledzenie KPI dla generowania AI. Rekordy tworzone synchronicznie podczas `POST /api/generate`. Pole `set_id` wypełniane dopiero gdy użytkownik zapisuje zestaw przez `POST /api/sets`. Frontend zarządza edycją/usuwaniem kart lokalnie (brak server-side preview).
+
 - `id` UUID **PK** `DEFAULT gen_random_uuid()`
 - `user_id` UUID **NOT NULL** **FK → users(id) ON DELETE CASCADE**
-- `set_id` UUID **NULL** **FK → sets(id) ON DELETE SET NULL**
-- `status` **ENUM** `'queued' | 'running' | 'succeeded' | 'failed'` **NOT NULL**
+- `set_id` UUID **NULL** **FK → sets(id) ON DELETE SET NULL** — wypełniane gdy user zapisze zestaw
+- `status` **ENUM** `'succeeded' | 'failed'` **NOT NULL** — synchroniczne generowanie, bez kolejkowania
 - `error_message` TEXT **NULL**
-- `request_prompt` TEXT **NULL** `CHECK (request_prompt IS NULL OR char_length(request_prompt) BETWEEN 1000 AND 10000)`
-- `cards` JSONB NOT NULL DEFAULT '[]'
-- `generated_count` INT NOT NULL DEFAULT 0 CHECK (generated_count >= 0)
-- `edited_count` INT NOT NULL DEFAULT 0
-- `deleted_count` INT NOT NULL DEFAULT 0
-- `suggested_name` TEXT
+- `request_prompt` TEXT **NULL** `CHECK (request_prompt IS NULL OR char_length(request_prompt) BETWEEN 1000 AND 10000)` — źródłowy tekst (dla audytu/analizy)
+- `generated_count` INT NOT NULL DEFAULT 0 CHECK (generated_count >= 0) — ile kart wygenerowano
+- `edited_count` INT NOT NULL DEFAULT 0 — ile zapisanych kart wymagało edycji
+- `accepted_count` INT NOT NULL DEFAULT 0 - ile kart zaakceptowano (bez względu na to, czy były edytowane)
+- `suggested_name` TEXT — sugerowana nazwa zestawu
 - `model_name` TEXT **NULL**
 - `tokens_in` INT **NULL**
 - `tokens_out` INT **NULL**
 - `created_at` TIMESTAMPTZ **NOT NULL DEFAULT now()`
 - `updated_at` TIMESTAMPTZ **NOT NULL DEFAULT now()`
 - `completed_at` TIMESTAMPTZ **NULL**
-
-- ai_jobs.cards:
-  - array of objects:
-    - `tmp_id` UUID,
-    - `front` string <= 1000"
-    - `back`  string <= 1000"
-    - `edited`  BOOL DEFAULT false
-    - `deleted` BOOL DEFAULT false
 
 ---
 
@@ -174,10 +167,9 @@ Kardynalności: wszystkie powyższe to **1:N**; relacji **M:N** brak w MVP.
 
 ### 3.6. `ai_jobs`
 
-- `INDEX ai_jobs_user_time ON ai_jobs (user_id, created_at DESC)`
-- `INDEX ai_jobs_status_time ON ai_jobs (status, created_at)`
-- `INDEX ai_jobs_set ON ai_jobs (set_id)`
-- **Opcjonalnie**: `GIN INDEX ai_jobs_response_gin ON ai_jobs USING gin (response_raw)`
+- `INDEX ai_jobs_user_time ON ai_jobs (user_id, created_at DESC)` — historia generowań użytkownika
+- `INDEX ai_jobs_status_time ON ai_jobs (status, created_at)` — filtrowanie nieudanych generowań
+- `INDEX ai_jobs_set ON ai_jobs (set_id)` — linkowanie job → zestaw dla KPI
 
 ### 3.7. `analytics_events`
 
@@ -191,7 +183,7 @@ Kardynalności: wszystkie powyższe to **1:N**; relacji **M:N** brak w MVP.
 ### 4.1. Typy ENUM
 
 - `CREATE TYPE card_origin AS ENUM ('ai', 'manual');`
-- `CREATE TYPE ai_job_status AS ENUM ('queued','running','succeeded','failed');`
+- `CREATE TYPE ai_job_status AS ENUM ('succeeded','failed');`
 
 ### 4.2. Funkcje pomocnicze
 
@@ -295,7 +287,8 @@ CREATE POLICY ai_jobs_by_user ON ai_jobs
 - **Denormalizacja `sets.card_count`**: utrzymywana triggerami:
     - +1 po `INSERT` karty aktywnej (`deleted_at IS NULL`), −1 po miękkim usunięciu (przejście `deleted_at` z `NULL` →
       `NOT NULL`).
-- **Brak „generation_session”** w MVP — minimalne metadane w `sets`, statusy/błędy i szczegóły w `ai_jobs`.
+- **Synchroniczne generowanie AI**: `POST /api/generate` zwraca karty natychmiast (timeout 30s). Frontend zarządza preview i edycją lokalnie. Zapis do DB tylko przez `POST /api/sets` z opcjonalnym `job_id` dla linkowania KPI.
+- **Tabela `ai_jobs`**: służy wyłącznie do śledzenia KPI (ile wygenerowano vs ile zapisano). Pole `set_id` wypełniane dopiero po zapisaniu zestawu przez użytkownika.
 - **Walidacje długości**: pola kart (≤1000 znaków); prompty AI w `ai_jobs.request_prompt` (1000–10000 znaków).
 - **Algorytm nauki**: `review_states` + `review_events`; dobór kolejnej karty:
   `WHERE user_id = current_app_user() AND due_at <= now()` z indeksem `(user_id, due_at)`.

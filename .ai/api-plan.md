@@ -15,7 +15,7 @@ API Platform. This aligns with the chosen stack (Symfony + Doctrine, Twig, SSR m
 | Card        | `cards`         | Belongs to a set; `origin` = `ai` or `manual`; `front`/`back` ≤ 1000 chars; soft-delete.         |
 | ReviewState | `review_states` | Per-user scheduling state (due_at, reps, last_grade, etc.).                                      |
 | ReviewEvent | `review_events` | Log of study answers (grade 0/1, answered_at, duration_ms).                                      |
-| AI Job      | `ai_jobs`       | **Optional KPI tracking**. Fields: `status` (`succeeded|failed`), `generated_count` (cards produced by AI), `set_id` (nullable, filled when user saves), `source_text_hash`, `created_at`, `completed_at`. No preview storage needed. |
+| AI Job      | `ai_jobs`       | **Optional KPI tracking**. Fields: `status` (`succeeded|failed`), `generated_count` (cards produced by AI), `accepted_count` (cards saved), `edited_count` (saved cards that were edited), `set_id` (nullable, filled when user saves), `created_at`, `completed_at`. No preview storage needed. |
 
 **Indices that inform list endpoints**: `sets(owner_id, deleted_at)`, `sets(owner_id, updated_at desc)`,
 `review_states(user_id, due_at)`.  
@@ -134,7 +134,7 @@ Below, JSON endpoints live under `/api/*`. HTML SSR pages exist at similar non-`
   {
     "name": "My Set Name",
     "cards": [
-      { "front": "Question?", "back": "Answer", "origin": "ai" }
+      { "front": "Question?", "back": "Answer", "origin": "ai", "edited": true }
     ],
     "job_id": "uuid"
   }
@@ -142,7 +142,13 @@ Below, JSON endpoints live under `/api/*`. HTML SSR pages exist at similar non-`
 - **Notes**:
   - `cards` array is optional (omit for empty manual set)
   - `origin` must be "ai" or "manual" (defaults to "manual" if omitted)
+  - `edited` (boolean, optional): `true` if user modified the card before saving. Backend sets `edited_by_user_at = now()` for edited cards.
   - `job_id` is optional, used for KPI tracking linkage to `ai_jobs` table
+  - When `job_id` is provided, backend updates `ai_jobs` record with:
+    - `set_id` = newly created set ID
+    - `accepted_count` = count of cards with `origin='ai'` in request
+    - `edited_count` = count of cards with `origin='ai'` AND `edited=true`
+    - Deleted count can be calculated as: `generated_count - accepted_count`
 - **Response 201**: `{ "id":"uuid","name":"...","card_count":15 }`
 - **Errors**: `409` set name already used by owner; `422` validation errors
 
@@ -260,11 +266,21 @@ Below, JSON endpoints live under `/api/*`. HTML SSR pages exist at similar non-`
 ### Domain rules mapping
 
 1) **Generate → Edit (client-side) → Save**
-    - `POST /api/generate` returns cards synchronously
+    - `POST /api/generate` returns cards synchronously with `job_id` and `generated_count`
     - Frontend manages editing/deletion in local state (no server-side preview)
-    - User calls `POST /api/sets` with edited cards to persist to DB
-    - Cards saved with `origin='ai'`, optional `job_id` links to `ai_jobs` for KPIs
-    - KPI calculation: compare `ai_jobs.generated_count` vs final `sets.card_count`
+    - Frontend tracks which cards were edited (sets `edited: true` flag)
+    - User calls `POST /api/sets` with cards array including `edited` flag
+    - Backend processes KPI metrics when `job_id` is provided:
+      - Sets `cards.origin = 'ai'` for AI-generated cards
+      - Sets `cards.edited_by_user_at = now()` for cards with `edited: true`
+      - Updates `ai_jobs` record:
+        - `set_id` = newly created set ID
+        - `accepted_count` = count of `origin='ai'` cards saved
+        - `edited_count` = count of `origin='ai'` cards with `edited=true`
+    - KPI calculations:
+      - Acceptance rate = `accepted_count / generated_count` (target: 75%)
+      - Deleted count = `generated_count - accepted_count`
+      - Edit rate = `edited_count / accepted_count`
 
 2) **Manual set and cards**
     - Users can create empty sets (`POST /api/sets` without cards array)
@@ -324,11 +340,16 @@ Below, JSON endpoints live under `/api/*`. HTML SSR pages exist at similar non-`
 {
     "name": "My Biology Set",
     "cards": [
-        { "front": "Question?", "back": "Answer", "origin": "ai" }
+        { "front": "Question?", "back": "Answer", "origin": "ai", "edited": true }
     ],
     "job_id": "uuid"
 }
 ```
+
+**Notes:**
+- `edited` flag indicates card was modified by user before saving
+- Backend sets `edited_by_user_at` timestamp for cards with `edited: true`
+- Backend updates `ai_jobs` KPI metrics when `job_id` provided
 
 ### Set
 
@@ -377,12 +398,24 @@ Below, JSON endpoints live under `/api/*`. HTML SSR pages exist at similar non-`
     "id": "uuid",
     "status": "succeeded|failed",
     "generated_count": 15,
+    "accepted_count": 12,
+    "edited_count": 3,
     "set_id": "uuid|null",
-    "source_text_hash": "sha256...",
+    "suggested_name": "Biologia - Fotosynteza",
+    "model_name": "anthropic/claude-3.5-sonnet",
+    "tokens_in": 1500,
+    "tokens_out": 800,
     "created_at": "ISO-8601",
     "completed_at": "ISO-8601"
 }
 ```
+
+**KPI Metrics:**
+- `generated_count`: Total cards generated by AI
+- `accepted_count`: Cards saved by user (with `origin='ai'`)
+- `edited_count`: Saved cards that were modified before saving
+- Deleted count = `generated_count - accepted_count`
+- Acceptance rate = `accepted_count / generated_count` (target: 75%)
 
 ---
 
