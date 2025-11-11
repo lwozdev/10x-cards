@@ -1,0 +1,139 @@
+### Test POST /api/sets - Create empty set
+POST http://localhost:8000/api/sets
+Content-Type: application/json
+
+{
+  "name": "Test Empty Set"
+}
+
+### Test POST /api/sets - Create set with manual cards
+POST http://localhost:8000/api/sets
+Content-Type: application/json
+
+{
+  "name": "Matematyka - Geometria",
+  "cards": [
+    {
+      "front": "Co to jest trójkąt równoboczny?",
+      "back": "Trójkąt, którego wszystkie boki mają jednakową długość",
+      "origin": "manual",
+      "edited": false
+    },
+    {
+      "front": "Wzór na pole trójkąta",
+      "back": "P = (a × h) / 2",
+      "origin": "manual",
+      "edited": false
+    }
+  ]
+}
+
+### Test POST /api/sets - Create set with AI cards (some edited)
+POST http://localhost:8000/api/sets
+Content-Type: application/json
+
+{
+  "name": "Biologia - Komórka",
+  "cards": [
+    {
+      "front": "Co to jest mitochondrium?",
+      "back": "Organellum komórkowe odpowiedzialne za produkcję energii (ATP)",
+      "origin": "ai",
+      "edited": false
+    },
+    {
+      "front": "Czym różni się komórka roślinna od zwierzęcej?",
+      "back": "Komórka roślinna ma ścianę komórkową, wakuolę i chloroplasty",
+      "origin": "ai",
+      "edited": true
+    },
+    {
+      "front": "Co to jest jądro komórkowe?",
+      "back": "Centrum kontrolne komórki zawierające DNA",
+      "origin": "ai",
+      "edited": false
+    }
+  ]
+}
+
+### Test POST /api/sets - Create set with job_id (AI job linkage)
+# First run POST /api/generate to get a job_id, then use it here
+POST http://localhost:8000/api/sets
+Content-Type: application/json
+
+{
+  "name": "Generated Set with Job",
+  "cards": [
+    {
+      "front": "Test card 1",
+      "back": "Answer 1",
+      "origin": "ai",
+      "edited": false
+    }
+  ],
+  "job_id": "REPLACE_WITH_ACTUAL_JOB_ID_FROM_GENERATE"
+}
+
+### Test POST /api/sets - Duplicate name (should return 409)
+POST http://localhost:8000/api/sets
+Content-Type: application/json
+
+{
+  "name": "Matematyka - Geometria"
+}
+
+### Test POST /api/sets - Validation error: empty name (should return 422)
+POST http://localhost:8000/api/sets
+Content-Type: application/json
+
+{
+  "name": ""
+}
+
+### Test POST /api/sets - Validation error: card front too long (should return 422)
+POST http://localhost:8000/api/sets
+Content-Type: application/json
+
+{
+  "name": "Test Validation",
+  "cards": [
+    {
+      "front": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "back": "Answer",
+      "origin": "manual"
+    }
+  ]
+}
+
+### Test POST /api/sets - Validation error: invalid origin (should return 422)
+POST http://localhost:8000/api/sets
+Content-Type: application/json
+
+{
+  "name": "Test Invalid Origin",
+  "cards": [
+    {
+      "front": "Question",
+      "back": "Answer",
+      "origin": "invalid_value"
+    }
+  ]
+}
+
+### Test POST /api/sets - Validation error: invalid job_id UUID (should return 422)
+POST http://localhost:8000/api/sets
+Content-Type: application/json
+
+{
+  "name": "Test Invalid Job ID",
+  "job_id": "not-a-valid-uuid"
+}
+
+### Test POST /api/sets - AI job not found (should return 404)
+POST http://localhost:8000/api/sets
+Content-Type: application/json
+
+{
+  "name": "Test Job Not Found",
+  "job_id": "00000000-0000-0000-0000-000000000000"
+}

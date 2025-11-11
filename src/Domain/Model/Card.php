@@ -66,9 +66,16 @@ class Card
         CardOrigin $origin,
         CardFront $front,
         CardBack $back,
-        DateTimeImmutable $createdAt
+        DateTimeImmutable $createdAt,
+        bool $wasEditedByUser = false
     ): self {
-        return new self($id, $setId, $origin, $front, $back, $createdAt);
+        $card = new self($id, $setId, $origin, $front, $back, $createdAt);
+
+        if ($wasEditedByUser) {
+            $card->editedByUserAt = $createdAt;
+        }
+
+        return $card;
     }
 
     public function getId(): string

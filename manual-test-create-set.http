@@ -1,0 +1,58 @@
+### Manual Test: POST /api/sets - Create set with AI cards
+# This test creates a set with 3 cards (2 AI-generated, 1 manual)
+# Expected: 201 Created with set ID and card_count=3
+
+POST http://localhost:8099/api/sets
+Content-Type: application/json
+Authorization: Basic test@example.com:test123
+
+{
+  "name": "Biologia - Test Manualny1",
+  "cards": [
+    {
+      "front": "Co to jest fotosynteza?",
+      "back": "Proces wytwarzania glukozy przez rośliny z CO2 i wody przy użyciu energii słonecznej",
+      "origin": "ai",
+      "edited": false
+    },
+    {
+      "front": "Jakie są produkty fotosyntezy?",
+      "back": "Glukoza (C6H12O6) i tlen (O2)",
+      "origin": "ai",
+      "edited": true
+    },
+    {
+      "front": "Gdzie zachodzi fotosynteza?",
+      "back": "W chloroplastach komórek roślinnych",
+      "origin": "manual",
+      "edited": false
+    }
+  ]
+}
+
+### Expected Response (201 Created):
+# {
+#   "id": "550e8400-e29b-41d4-a716-446655440000",
+#   "name": "Biologia - Test Manualny",
+#   "card_count": 3
+# }
+#
+# Headers:
+# Location: /api/sets/550e8400-e29b-41d4-a716-446655440000
+# Content-Type: application/json
+
+### Expected database state after test:
+# Table: sets
+# - 1 new record with name="Biologia - Test Manualny", card_count=3
+#
+# Table: cards
+# - 3 new records linked to the set
+# - 2 cards with origin='ai'
+# - 1 card with origin='manual'
+# - 1 card with edited_by_user_at NOT NULL (the edited AI card)
+#
+# Table: analytics_events
+# - 1 new event with event_type='set_created'
+# - payload: {"total_cards": 3, "ai_cards": 2, "manual_cards": 1, "edited_ai_cards": 1, "ai_edit_rate": 0.5}
+
+###

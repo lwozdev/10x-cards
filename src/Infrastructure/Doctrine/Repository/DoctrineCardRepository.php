@@ -41,6 +41,17 @@ class DoctrineCardRepository extends ServiceEntityRepository implements CardRepo
         $this->getEntityManager()->flush();
     }
 
+    public function saveAll(array $cards): void
+    {
+        $em = $this->getEntityManager();
+
+        foreach ($cards as $card) {
+            $em->persist($card);
+        }
+
+        $em->flush();
+    }
+
     public function softDelete(Card $card): void
     {
         $card->softDelete(new \DateTimeImmutable());
