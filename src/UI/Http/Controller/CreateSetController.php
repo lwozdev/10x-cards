@@ -137,7 +137,10 @@ final class CreateSetController extends AbstractController
                 card_count: $result->cardCount
             );
 
-            // 8. Return 201 Created with Location header
+            // 8. Clear pending_set from session (cleanup after successful save)
+            $request->getSession()->remove('pending_set');
+
+            // 9. Return 201 Created with Location header
             return $this->json(
                 $response,
                 Response::HTTP_CREATED,

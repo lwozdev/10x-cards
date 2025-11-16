@@ -189,16 +189,8 @@ export default class extends Controller {
                 const data = await response.json();
 
                 // Success! Data is stored in session by backend
-                // Redirect to edit view (when implemented)
-                // TODO: Replace with actual edit view route when ready
-                // window.location.href = '/sets/new/edit';
-
-                // Temporary: show success message
-                alert(`Sukces! Wygenerowano ${data.generatedCount} fiszek.\n\nZaproponowana nazwa: ${data.suggestedName}\n\nWidok edycji (/sets/new/edit) będzie zaimplementowany w następnym kroku.`);
-
-                // Reset form
-                this.textareaTarget.value = '';
-                this.updateCharacterCount();
+                // Redirect to edit view
+                window.location.href = '/sets/new/edit';
             } else {
                 // Handle error
                 await this.handleError({ response, statusCode: response.status });

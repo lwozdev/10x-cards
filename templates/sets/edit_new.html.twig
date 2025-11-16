@@ -1,0 +1,184 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edytuj wygenerowane fiszki{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8" data-controller="edit-set">
+    {# Hidden data for Stimulus #}
+    <div class="hidden"
+         data-edit-set-job-id-value="{{ jobId }}"
+         data-edit-set-initial-cards-value="{{ cards|json_encode }}"
+         data-edit-set-generated-count-value="{{ generatedCount }}">
+    </div>
+
+    {# PageHeader #}
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold mb-2">Edytuj wygenerowane fiszki</h1>
+        <p class="text-gray-600">Sprawdź i edytuj fiszki przed zapisaniem. Możesz zmienić nazwę zestawu, edytować treść fiszek lub usunąć niepotrzebne.</p>
+    </header>
+
+    {# Flash messages #}
+    {% for message in app.flashes('error') %}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+            <span class="block sm:inline">{{ message }}</span>
+        </div>
+    {% endfor %}
+
+    {# Main form #}
+    <form data-action="submit->edit-set#handleSave" class="max-w-4xl mx-auto">
+
+        {# SetNameInput Component #}
+        <div class="mb-6">
+            <label for="set-name" class="block text-sm font-medium text-gray-700 mb-2">
+                Nazwa zestawu
+            </label>
+            <input
+                type="text"
+                id="set-name"
+                data-edit-set-target="setNameInput"
+                data-action="input->edit-set#updateSetName"
+                value="{{ suggestedName }}"
+                placeholder="Wprowadź nazwę zestawu (min. 3 znaki)"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+                minlength="3"
+                maxlength="100"
+            />
+            <p class="mt-1 text-sm text-gray-500" data-edit-set-target="setNameHint">
+                Minimum 3 znaki, maksimum 100 znaków
+            </p>
+        </div>
+
+        {# StatsBar Component #}
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div class="flex justify-between items-center text-sm">
+                <div>
+                    <span class="font-semibold">Wygenerowano:</span>
+                    <span data-edit-set-target="generatedCountText">{{ generatedCount }}</span> fiszek
+                </div>
+                <div>
+                    <span class="font-semibold">Do zapisu:</span>
+                    <span data-edit-set-target="cardsToSaveCount">{{ cards|length }}</span> fiszek
+                </div>
+                <div>
+                    <span class="font-semibold">Źródło:</span>
+                    <span class="bg-blue-600 text-white px-2 py-1 rounded text-xs">AI</span>
+                </div>
+            </div>
+        </div>
+
+        {# CardsList Component #}
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold mb-4">Fiszki ({{ cards|length }})</h2>
+
+            <div data-edit-set-target="cardsList" class="space-y-4">
+                {% for card in cards %}
+                    {# CardItem Component #}
+                    <div data-edit-set-target="cardItem"
+                         data-index="{{ loop.index0 }}"
+                         class="border border-gray-300 rounded-lg p-4 bg-white hover:shadow-md transition">
+
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-sm font-semibold text-gray-500">Fiszka #{{ loop.index }}</span>
+                            <button type="button"
+                                    data-action="click->edit-set#deleteCard"
+                                    data-index="{{ loop.index0 }}"
+                                    class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                🗑️ Usuń
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {# Front textarea #}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Przód (pytanie)
+                                </label>
+                                <textarea
+                                    data-edit-set-target="frontTextarea"
+                                    data-action="input->edit-set#updateCard"
+                                    data-index="{{ loop.index0 }}"
+                                    data-field="front"
+                                    rows="3"
+                                    class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 resize-y"
+                                    required
+                                    placeholder="Wpisz pytanie..."
+                                >{{ card.front }}</textarea>
+                            </div>
+
+                            {# Back textarea #}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Tył (odpowiedź)
+                                </label>
+                                <textarea
+                                    data-edit-set-target="backTextarea"
+                                    data-action="input->edit-set#updateCard"
+                                    data-index="{{ loop.index0 }}"
+                                    data-field="back"
+                                    rows="3"
+                                    class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 resize-y"
+                                    required
+                                    placeholder="Wpisz odpowiedź..."
+                                >{{ card.back }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# Action buttons #}
+        <div class="flex gap-4 justify-end">
+            {# CancelButton #}
+            <button type="button"
+                    data-action="click->edit-set#handleCancel"
+                    class="px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition">
+                Anuluj
+            </button>
+
+            {# SaveButton #}
+            <button type="submit"
+                    data-edit-set-target="saveButton"
+                    disabled
+                    class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
+                <span data-edit-set-target="saveButtonText">Zapisz zestaw (<span data-edit-set-target="saveButtonCount">{{ cards|length }}</span> fiszek)</span>
+            </button>
+        </div>
+    </form>
+
+    {# Cancel Confirmation Modal #}
+    <dialog data-edit-set-target="cancelModal" class="rounded-lg shadow-xl p-6 max-w-md backdrop:bg-gray-900 backdrop:bg-opacity-50">
+        <h3 class="text-xl font-bold mb-4">Czy na pewno chcesz anulować?</h3>
+        <p class="text-gray-700 mb-6">Wygenerowane fiszki zostaną utracone i będziesz musiał wygenerować je ponownie.</p>
+
+        <div class="flex gap-3">
+            <button type="button"
+                    data-action="click->edit-set#closeCancelModal"
+                    class="flex-1 bg-gray-200 hover:bg-gray-300 py-2 px-4 rounded transition">
+                Nie, kontynuuj edycję
+            </button>
+            <button type="button"
+                    data-action="click->edit-set#confirmCancel"
+                    class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition">
+                Tak, anuluj
+            </button>
+        </div>
+    </dialog>
+
+    {# Loading Overlay #}
+    <div data-edit-set-target="loadingOverlay"
+         class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-xl">
+            <div class="flex items-center space-x-4">
+                {# Spinner #}
+                <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-lg font-semibold">Zapisywanie zestawu...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
