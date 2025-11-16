@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Generuj fiszki{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8" data-controller="generate">
+    {# PageHeader Component #}
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold mb-2">Wygeneruj fiszki z notatek</h1>
+        <p class="text-gray-600">Wklej swoje notatki (1000-10000 znaków), a AI automatycznie utworzy zestaw fiszek do nauki</p>
+    </header>
+
+    {# GenerateForm Component #}
+    <form action="/api/generate"
+          method="POST"
+          data-action="submit->generate#handleSubmit"
+          class="max-w-3xl mx-auto">
+
+        {# SourceTextarea Component #}
+        <div class="mb-4">
+            <textarea
+                name="source_text"
+                data-generate-target="textarea"
+                data-action="input->generate#updateCharacterCount"
+                placeholder="Wklej tutaj swoje notatki (minimum 1000 znaków)..."
+                rows="10"
+                aria-describedby="character-counter"
+                class="w-full p-4 border border-gray-300 rounded-lg resize-y focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            ></textarea>
+        </div>
+
+        {# CharacterCounter Component #}
+        <div id="character-counter" role="status" aria-live="polite" class="mb-2 text-sm">
+            <span data-generate-target="charCount" class="font-semibold">0</span> / 10 000 znaków
+            <span data-generate-target="counterHint" class="ml-2 text-sm"></span>
+        </div>
+
+        {# ProgressBar Component #}
+        <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+            <div data-generate-target="progressBar"
+                 class="h-2 rounded-full transition-all duration-300 bg-red-500"
+                 style="width: 0%"></div>
+        </div>
+
+        {# GenerateButton Component #}
+        <button type="submit"
+                data-generate-target="submitButton"
+                disabled
+                class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
+            Generuj fiszki
+        </button>
+    </form>
+
+    {# LoadingOverlay Component #}
+    <div data-generate-target="loadingOverlay"
+         class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-xl">
+            <div class="flex items-center space-x-4">
+                {# Spinner Animation #}
+                <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <div role="status" aria-live="polite">
+                    <p data-generate-target="loadingMessage" class="text-lg font-semibold">Analizuję tekst...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ErrorModal Component #}
+    <dialog data-generate-target="errorModal" class="rounded-lg shadow-xl p-6 max-w-md backdrop:bg-gray-900 backdrop:bg-opacity-50">
+        <div class="mb-4">
+            <h3 class="text-xl font-bold text-red-600 mb-2">Wystąpił błąd</h3>
+            <p data-generate-target="errorMessage" class="text-gray-700 mb-4"></p>
+
+            <div class="bg-gray-50 p-4 rounded">
+                <p class="font-semibold mb-2">Co możesz zrobić:</p>
+                <ul data-generate-target="errorSuggestions" class="list-disc list-inside space-y-1 text-sm text-gray-600"></ul>
+            </div>
+        </div>
+
+        <div class="flex space-x-3">
+            <button type="button"
+                    data-action="click->generate#closeErrorModal"
+                    class="flex-1 bg-gray-200 hover:bg-gray-300 py-2 px-4 rounded transition">
+                Zamknij
+            </button>
+            <button type="button"
+                    data-action="click->generate#retryGeneration"
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition">
+                Spróbuj ponownie
+            </button>
+        </div>
+    </dialog>
+</div>
+{% endblock %}
