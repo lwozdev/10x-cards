@@ -251,15 +251,8 @@ export default class extends Controller {
             if (response.ok) {
                 const data = await response.json();
 
-                // Success! Redirect to sets list or set view
-                // TODO: Replace with actual route when implemented
-                alert(`Sukces! Zestaw "${data.name}" został zapisany z ${data.cards_count} fiszkami.`);
-
-                // Redirect to sets list (when implemented)
-                // window.location.href = '/sets';
-
-                // For now, redirect to generate
-                window.location.href = '/generate';
+                // Success! Redirect to sets list
+                window.location.href = '/sets';
             } else {
                 // Handle error
                 const errorData = await response.json();
