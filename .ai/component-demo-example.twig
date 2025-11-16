@@ -1,0 +1,226 @@
+{#
+  Example template showing Material 3 components usage
+  This file is for reference only - copy patterns to your actual templates
+#}
+
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<twig:AppScaffold
+    title="Demo komponentów"
+    :showTopBar="true"
+    :showBottomNav="true"
+    :showNavRail="true"
+    :showNavDrawer="true"
+    :navDestinations="[
+        {'icon': '#icon-home', 'label': 'Strona główna', 'path': '/'},
+        {'icon': '#icon-cards', 'label': 'Fiszki', 'path': '/sets'},
+        {'icon': '#icon-learn', 'label': 'Nauka', 'path': '/learn'},
+        {'icon': '#icon-profile', 'label': 'Profil', 'path': '/profile'}
+    ]"
+    currentPath="/"
+    fabIcon="#icon-plus"
+    fabHref="/sets/new"
+>
+    {% block content %}
+        {# Typography Examples #}
+        <section class="mb-8">
+            <h2 class="text-headline-large mb-4">Typografia</h2>
+            <div class="space-y-2">
+                <p class="text-display-small">Display Small</p>
+                <p class="text-headline-medium">Headline Medium</p>
+                <p class="text-title-large">Title Large</p>
+                <p class="text-body-large">Body Large - podstawowy tekst aplikacji</p>
+                <p class="text-label-medium">Label Medium</p>
+            </div>
+        </section>
+
+        {# Buttons #}
+        <section class="mb-8">
+            <h2 class="text-headline-medium mb-4">Przyciski</h2>
+            <div class="flex flex-wrap gap-3">
+                <twig:Button label="Filled" variant="filled" />
+                <twig:Button label="Filled Tonal" variant="filled-tonal" />
+                <twig:Button label="Outlined" variant="outlined" />
+                <twig:Button label="Text" variant="text" />
+                <twig:Button label="Elevated" variant="elevated" />
+                <twig:Button label="Wyłączony" variant="filled" :disabled="true" />
+            </div>
+        </section>
+
+        {# Text Fields #}
+        <section class="mb-8">
+            <h2 class="text-headline-medium mb-4">Pola tekstowe</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
+                <twig:TextField
+                    name="email"
+                    label="Email"
+                    type="email"
+                    variant="filled"
+                    helperText="Podaj swój adres email"
+                />
+
+                <twig:TextField
+                    name="username"
+                    label="Nazwa użytkownika"
+                    variant="outlined"
+                    :required="true"
+                />
+
+                <twig:TextField
+                    name="password"
+                    label="Hasło"
+                    type="password"
+                    variant="filled"
+                    errorText="Hasło musi mieć minimum 8 znaków"
+                />
+            </div>
+        </section>
+
+        {# Cards #}
+        <section class="mb-8">
+            <h2 class="text-headline-medium mb-4">Karty</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <twig:Card variant="elevated">
+                    <h3 class="text-title-medium mb-2">Elevated Card</h3>
+                    <p class="text-body-medium text-[var(--color-on-surface-variant)]">
+                        Karta z cieniem, najczęściej używana
+                    </p>
+                </twig:Card>
+
+                <twig:Card variant="outlined">
+                    <h3 class="text-title-medium mb-2">Outlined Card</h3>
+                    <p class="text-body-medium text-[var(--color-on-surface-variant)]">
+                        Karta z obramowaniem
+                    </p>
+                </twig:Card>
+
+                <twig:Card variant="filled" href="/example">
+                    <h3 class="text-title-medium mb-2">Filled Card Link</h3>
+                    <p class="text-body-medium text-[var(--color-on-surface-variant)]">
+                        Klikalna karta z wypełnieniem
+                    </p>
+                </twig:Card>
+            </div>
+        </section>
+
+        {# List Items #}
+        <section class="mb-8">
+            <h2 class="text-headline-medium mb-4">Elementy listy</h2>
+            <div class="bg-[var(--color-surface)] rounded-[var(--radius-md)] overflow-hidden">
+                <twig:ListItem
+                    headline="Zestaw matematyczny"
+                    supporting="20 fiszek · Utworzono dzisiaj"
+                    leadingIcon="#icon-folder"
+                    trailingIcon="#icon-chevron-right"
+                    type="navigation"
+                    href="/sets/1"
+                />
+
+                <twig:ListItem
+                    headline="Angielski poziom A2"
+                    supporting="45 fiszek · Ostatnia nauka wczoraj"
+                    leadingIcon="#icon-folder"
+                    trailingIcon="#icon-chevron-right"
+                    type="navigation"
+                    href="/sets/2"
+                />
+
+                <twig:ListItem
+                    headline="Historia Polski"
+                    supporting="30 fiszek · Utworzono 3 dni temu"
+                    leadingIcon="#icon-folder"
+                    :selected="true"
+                    trailingIcon="#icon-chevron-right"
+                />
+            </div>
+        </section>
+
+        {# Interactive Demo Buttons #}
+        <section class="mb-8">
+            <h2 class="text-headline-medium mb-4">Komponenty interaktywne</h2>
+            <div class="flex flex-wrap gap-3">
+                <twig:Button
+                    label="Pokaż modal"
+                    variant="filled"
+                    data-action="click->demo#showModal"
+                />
+
+                <twig:Button
+                    label="Pokaż snackbar"
+                    variant="filled-tonal"
+                    data-action="click->demo#showSnackbar"
+                />
+            </div>
+        </section>
+
+        {# Example Modal #}
+        <twig:Modal
+            id="demo-modal"
+            headline="Przykładowy dialog"
+            supportingText="To jest przykładowy dialog Material 3 z pełną obsługą dostępności."
+        >
+            {% block content %}
+                <p class="text-body-medium">
+                    Dialog może zawierać dowolną treść, formularze, listy itp.
+                </p>
+            {% endblock %}
+
+            {% block actions %}
+                <twig:Button
+                    label="Anuluj"
+                    variant="text"
+                    data-action="click->modal#close"
+                />
+                <twig:Button
+                    label="OK"
+                    variant="filled"
+                    data-action="click->modal#confirm"
+                />
+            {% endblock %}
+        </twig:Modal>
+
+        {# Example Snackbar #}
+        <twig:Snackbar
+            id="demo-snackbar"
+            message="To jest przykładowy snackbar!"
+            actionLabel="Cofnij"
+            status="success"
+            :duration="4000"
+        />
+
+    {% endblock %}
+</twig:AppScaffold>
+
+{# Stimulus Controller for Demo #}
+<script>
+    // Simple demo controller (integrate with your Stimulus setup)
+    document.addEventListener('DOMContentLoaded', () => {
+        // Show modal button
+        document.querySelector('[data-action="click->demo#showModal"]')?.addEventListener('click', () => {
+            const modalController = document.querySelector('#demo-modal [data-controller="modal"]');
+            if (modalController) {
+                // Trigger modal open
+                modalController.dispatchEvent(new Event('open'));
+                // Or use the open() method if accessible
+                document.getElementById('demo-modal').style.display = 'flex';
+            }
+        });
+
+        // Show snackbar button
+        document.querySelector('[data-action="click->demo#showSnackbar"]')?.addEventListener('click', () => {
+            const snackbarController = document.querySelector('#demo-snackbar [data-controller="snackbar"]');
+            if (snackbarController) {
+                // Trigger snackbar show
+                snackbarController.dispatchEvent(new Event('show'));
+                // Or call show() method
+                const snackbar = document.getElementById('demo-snackbar');
+                snackbar.style.display = 'flex';
+                setTimeout(() => {
+                    snackbar.style.display = 'none';
+                }, 4000);
+            }
+        });
+    });
+</script>
+{% endblock %}

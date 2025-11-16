@@ -1,0 +1,41 @@
+{% if isLink() %}
+    <a href="{{ href }}" class="{{ getBaseClasses() }}" {{ getAttributesString()|raw }}>
+        {% if icon %}
+            <svg class="{{ getIconSize() }}" aria-hidden="true">
+                <use href="{{ icon }}"></use>
+            </svg>
+        {% endif %}
+
+        {% if label %}
+            <span>{{ label }}</span>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+
+        {% if trailingIcon %}
+            <svg class="{{ getIconSize() }}" aria-hidden="true">
+                <use href="{{ trailingIcon }}"></use>
+            </svg>
+        {% endif %}
+    </a>
+{% else %}
+    <button class="{{ getBaseClasses() }}" {{ getAttributesString()|raw }}>
+        {% if icon %}
+            <svg class="{{ getIconSize() }}" aria-hidden="true">
+                <use href="{{ icon }}"></use>
+            </svg>
+        {% endif %}
+
+        {% if label %}
+            <span>{{ label }}</span>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+
+        {% if trailingIcon %}
+            <svg class="{{ getIconSize() }}" aria-hidden="true">
+                <use href="{{ trailingIcon }}"></use>
+            </svg>
+        {% endif %}
+    </button>
+{% endif %}

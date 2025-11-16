@@ -1,0 +1,50 @@
+<div
+    id="{{ getId() }}"
+    class="{{ getBackdropClasses() }}"
+    data-controller="modal"
+    data-modal-dismissible-value="{{ dismissible ? 'true' : 'false' }}"
+    data-action="click->modal#closeOnBackdrop keydown.esc->modal#closeOnEscape"
+    style="display: none;"
+>
+    <div
+        class="{{ getDialogClasses() }}"
+        data-modal-target="dialog"
+        data-action="click->modal#stopPropagation"
+        {{ getAttributesString()|raw }}
+    >
+        {% if headline or supportingText %}
+            <div class="{{ getHeaderClasses() }}">
+                {% if headline %}
+                    <h2 id="{{ getId() }}_headline" class="{{ getHeadlineClasses() }}">
+                        {{ headline }}
+                    </h2>
+                {% endif %}
+
+                {% if supportingText %}
+                    <p id="{{ getId() }}_description" class="{{ getSupportingTextClasses() }}">
+                        {{ supportingText }}
+                    </p>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="{{ getContentClasses() }}">
+            {% block content %}{% endblock %}
+        </div>
+
+        <div class="{{ getActionsClasses() }}">
+            {% block actions %}
+                <twig:Button
+                    label="Anuluj"
+                    variant="text"
+                    data-action="click->modal#close"
+                />
+                <twig:Button
+                    label="OK"
+                    variant="filled"
+                    data-action="click->modal#confirm"
+                />
+            {% endblock %}
+        </div>
+    </div>
+</div>

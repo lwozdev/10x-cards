@@ -1,0 +1,26 @@
+<nav class="{{ getContainerClasses() }}" {% if id %}id="{{ id }}"{% endif %}>
+    {% for destination in destinations %}
+        <a
+            href="{{ destination.path }}"
+            class="{{ getDestinationClasses(destination) }}"
+            {% if isActive(destination) %}aria-current="page"{% endif %}
+            title="{{ destination.label }}"
+        >
+            <div class="relative">
+                <svg class="{{ getIconClasses() }}" aria-hidden="true">
+                    <use href="{{ destination.icon }}"></use>
+                </svg>
+
+                {% if destination.badge is defined and destination.badge > 0 %}
+                    <span class="{{ getBadgeClasses() }}">
+                        {{ destination.badge > 99 ? '99+' : destination.badge }}
+                    </span>
+                {% endif %}
+            </div>
+
+            {% if showLabels %}
+                <span class="{{ getLabelClasses() }}">{{ destination.label }}</span>
+            {% endif %}
+        </a>
+    {% endfor %}
+</nav>

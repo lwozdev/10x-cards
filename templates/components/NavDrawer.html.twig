@@ -1,0 +1,31 @@
+<nav class="{{ getContainerClasses() }}" {% if id %}id="{{ id }}"{% endif %} {% if variant == 'modal' %}data-controller="drawer"{% endif %}>
+    {% for destination in destinations %}
+        <a
+            href="{{ destination.path }}"
+            class="{{ getDestinationClasses(destination) }}"
+            {% if isActive(destination) %}aria-current="page"{% endif %}
+        >
+            <svg class="{{ getIconClasses() }}" aria-hidden="true">
+                <use href="{{ destination.icon }}"></use>
+            </svg>
+
+            <span class="{{ getLabelClasses() }}">{{ destination.label }}</span>
+
+            {% if destination.badge is defined and destination.badge > 0 %}
+                <span class="{{ getBadgeClasses() }}">
+                    {{ destination.badge > 99 ? '99+' : destination.badge }}
+                </span>
+            {% endif %}
+        </a>
+    {% endfor %}
+</nav>
+
+{% if variant == 'modal' %}
+    {# Backdrop for modal drawer #}
+    <div
+        class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+        data-drawer-target="backdrop"
+        data-action="click->drawer#close"
+        style="display: none;"
+    ></div>
+{% endif %}

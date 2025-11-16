@@ -1,0 +1,68 @@
+<div class="{{ getContainerClasses() }}" {% if id %}id="{{ id }}"{% endif %}>
+    {# Top App Bar #}
+    {% if showTopBar %}
+        <header class="{{ getTopBarClasses() }}">
+            {% block topBarLeading %}
+                {# Menu icon or back button can go here #}
+            {% endblock %}
+
+            <h1 class="{{ getTitleClasses() }}">{{ title }}</h1>
+
+            {% block topBarActions %}
+                {# Action buttons (search, more, etc.) can go here #}
+            {% endblock %}
+        </header>
+    {% endif %}
+
+    {# Main Content Area #}
+    <div class="{{ getMainClasses() }}">
+        {# Navigation Drawer (Desktop) #}
+        {% if showNavDrawer and hasNavigation() %}
+            <twig:NavDrawer
+                :destinations="navDestinations"
+                :currentPath="currentPath"
+                variant="permanent"
+            />
+        {% endif %}
+
+        {# Navigation Rail (Tablet) #}
+        {% if showNavRail and hasNavigation() %}
+            <twig:NavRail
+                :destinations="navDestinations"
+                :currentPath="currentPath"
+            />
+        {% endif %}
+
+        {# Main Content #}
+        <main class="{{ getContentClasses() }}">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    {# Bottom Navigation (Mobile) #}
+    {% if showBottomNav and hasNavigation() %}
+        <twig:BottomNav
+            :destinations="navDestinations"
+            :currentPath="currentPath"
+        />
+    {% endif %}
+
+    {# Floating Action Button #}
+    {% if fabIcon %}
+        {% if fabHref %}
+            <a href="{{ fabHref }}" class="{{ getFabClasses() }}">
+                <svg class="{{ getFabIconClasses() }}" aria-hidden="true">
+                    <use href="{{ fabIcon }}"></use>
+                </svg>
+            </a>
+        {% else %}
+            <button type="button" class="{{ getFabClasses() }}" data-action="click->scaffold#fabClick">
+                <svg class="{{ getFabIconClasses() }}" aria-hidden="true">
+                    <use href="{{ fabIcon }}"></use>
+                </svg>
+            </button>
+        {% endif %}
+    {% endif %}
+
+    {% block fab %}{% endblock %}
+</div>
