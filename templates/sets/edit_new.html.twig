@@ -3,13 +3,11 @@
 {% block title %}Edytuj wygenerowane fiszki{% endblock %}
 
 {% block body %}
-<div class="container mx-auto px-4 py-8" data-controller="edit-set">
-    {# Hidden data for Stimulus #}
-    <div class="hidden"
-         data-edit-set-job-id-value="{{ jobId }}"
-         data-edit-set-initial-cards-value="{{ cards|json_encode }}"
-         data-edit-set-generated-count-value="{{ generatedCount }}">
-    </div>
+<div class="container mx-auto px-4 py-8"
+     data-controller="edit-set"
+     data-edit-set-job-id-value="{{ jobId }}"
+     data-edit-set-initial-cards-value="{{ cards|json_encode }}"
+     data-edit-set-generated-count-value="{{ generatedCount }}">
 
     {# PageHeader #}
     <header class="mb-8">
