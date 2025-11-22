@@ -79,6 +79,7 @@ Poniższe funkcjonalności i cechy świadomie nie wchodzą w zakres MVP, aby umo
     3.  Pod polem tekstowym wyświetla się licznik znaków i informacja o obowiązujących limitach.
     4.  Po kliknięciu przycisku "Generuj fiszki" wyświetlana jest animacja ładowania, informująca o trwającym procesie.
     5.  Po pomyślnym zakończeniu generowania, jestem przekierowany na ekran edycji i podglądu nowego zestawu.
+    6.  Funkcjonalność dostępna tylko dla zalogowanych użytkowników.
 
 ---
 *   ID: US-005
@@ -90,6 +91,7 @@ Poniższe funkcjonalności i cechy świadomie nie wchodzą w zakres MVP, aby umo
     3.  Przy każdej fiszce znajduje się przycisk do jej trwałego usunięcia z bieżącego zestawu.
     4.  Edycja fiszki jest równoznaczna z jej "zaakceptowaniem".
     5.  Usunięcie fiszki jest śledzone przez system analityczny.
+    6.  Funkcjonalność dostępna tylko dla zalogowanych użytkowników.
 
 ---
 *   ID: US-006
@@ -100,6 +102,7 @@ Poniższe funkcjonalności i cechy świadomie nie wchodzą w zakres MVP, aby umo
     2.  Aplikacja automatycznie sugeruje nazwę na podstawie analizy wklejonego tekstu.
     3.  Przycisk "Zapisz zestaw" jest aktywny, gdy nazwa zestawu została podana.
     4.  Po zapisaniu zestawu jestem przekierowywany na stronę "Moje zestawy", gdzie widzę nowo dodany element.
+    5.  Funkcjonalność dostępna tylko dla zalogowanych użytkowników.
 
 ---
 *   ID: US-007
@@ -109,6 +112,7 @@ Poniższe funkcjonalności i cechy świadomie nie wchodzą w zakres MVP, aby umo
     1.  W przypadku błędu po stronie API, stan ładowania kończy się, a na ekranie pojawia się komunikat o błędzie (np. "Nie udało się wygenerować fiszek. Spróbuj ponownie lub zmień tekst źródłowy.").
     2.  Komunikat zawiera sugestie, co można zrobić dalej.
     3.  Użytkownik pozostaje na stronie z polem tekstowym, aby móc łatwo ponowić próbę.
+    4.  Funkcjonalność dostępna tylko dla zalogowanych użytkowników.
 
 ---
 ### Przepływ Manualny i Zarządzanie Zestawami
@@ -120,6 +124,7 @@ Poniższe funkcjonalności i cechy świadomie nie wchodzą w zakres MVP, aby umo
     1.  Na stronie "Moje zestawy" znajduje się przycisk "Stwórz nowy zestaw".
     2.  Po kliknięciu jestem przekierowany na ekran tworzenia zestawu, gdzie mogę nadać mu nazwę.
     3.  Ekran zawiera formularz do dodania pierwszej fiszki (Awers/Rewers) oraz przycisk "Dodaj kolejną fiszkę".
+    4.  Funkcjonalność dostępna tylko dla zalogowanych użytkowników.
 
 ---
 *   ID: US-009
@@ -130,36 +135,22 @@ Poniższe funkcjonalności i cechy świadomie nie wchodzą w zakres MVP, aby umo
     2.  Każdy element na liście pokazuje nazwę zestawu i liczbę zawartych w nim fiszek.
     3.  Przy każdym zestawie znajdują się przyciski "Ucz się" i "Usuń".
     4.  Kliknięcie "Usuń" powoduje wyświetlenie monitu z prośbą o potwierdzenie, a następnie usunięcie zestawu.
+    5.  Funkcjonalność dostępna tylko dla zalogowanych użytkowników.
 
----
-### Moduł Nauki
+    
 ---
 *   ID: US-010
-*   Tytuł: Rozpoczynanie sesji nauki
-*   Opis: Jako użytkownik, chcę móc rozpocząć sesję nauki z wybranego zestawu, klikając odpowiedni przycisk na liście moich zestawów.
+*   Tytuł: Bezpieczny dostęp i uwierzytelnianie
+*   Opis: Jako użytkownik chcę mieć możliwość rejestracji i logowania się do systemu w sposób zapewniający bezpieczeństwo moich danych.
 *   Kryteria akceptacji:
-    1.  Na liście zestawów, kliknięcie przycisku "Ucz się" przenosi mnie do interfejsu nauki.
-    2.  System, opierając się na zintegrowanym algorytmie powtórek, wybiera fiszkę do wyświetlenia.
-    3.  Na ekranie pojawia się awers pierwszej fiszki.
-
----
-*   ID: US-011
-*   Tytuł: Interakcja z fiszką podczas nauki
-*   Opis: Jako użytkownik w trakcie sesji nauki, chcę móc odsłonić odpowiedź na fiszce, a następnie ocenić swoją wiedzę, aby system mógł zaplanować kolejne powtórki.
-*   Kryteria akceptacji:
-    1.  Po wyświetleniu awersu, kliknięcie przycisku "Pokaż odpowiedź" (lub samej fiszki) odsłania rewers.
-    2.  Po odsłonięciu rewersu pojawiają się dwa przyciski: "Wiem" i "Nie wiem".
-    3.  Kliknięcie jednego z przycisków powoduje zapisanie mojej odpowiedzi i załadowanie kolejnej fiszki zgodnie z logiką algorytmu.
-    4.  Sesja trwa, dopóki algorytm nie zdecyduje o jej zakończeniu (np. po przejrzeniu określonej liczby kart).
-
----
-*   ID: US-012
-*   Tytuł: Zakończenie sesji nauki
-*   Opis: Jako użytkownik, po zakończeniu sesji nauki, chcę zobaczyć ekran podsumowujący moje postępy.
-*   Kryteria akceptacji:
-    1.  Po ostatniej fiszce w sesji wyświetlany jest ekran podsumowania.
-    2.  Podsumowanie zawiera podstawowe informacje, np. liczbę przejrzanych fiszek i procent poprawnych odpowiedzi.
-    3.  Na ekranie podsumowania znajduje się przycisk umożliwiający powrót do listy moich zestawów.
+  - Logowanie i rejestracja odbywają się na dedykowanych stronach.
+  - Logowanie wymaga podania adresu email i hasła.
+  - Rejestracja wymaga podania adresu email, hasła i potwierdzenia hasła.
+  - Użytkownik  MOŻE korzystać z funkcji generowania fiszek bez logowania się do systemu (US-003).
+  - Użytkownik może logować się do systemu poprzez przycisk w prawym górnym rogu.
+  - Użytkownik może się wylogować z systemu poprzez przycisk w prawym górnym rogu.
+  - Nie korzystamy z zewnętrznych serwisów logowania (np. Google, GitHub).
+  - Odzyskiwanie hasła powinno być możliwe.
 
 ## 6. Metryki sukcesu
 Sukces projektu MVP będzie mierzony za pomocą dwóch kluczowych wskaźników, które odzwierciedlają jakość generowanych treści oraz przyjęcie głównej funkcjonalności przez użytkowników.
