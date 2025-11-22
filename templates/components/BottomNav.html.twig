@@ -2,10 +2,10 @@
     {% for destination in this.destinations %}
         <a
             href="{{ destination.path }}"
-            class="{{ getDestinationClasses(destination) }}"
-            {% if isActive(destination) %}aria-current="page"{% endif %}
+            class="{{ this.getDestinationClasses(destination) }}"
+            {% if this.isActive(destination) %}aria-current="page"{% endif %}
         >
-            <div class="{{ getPillClasses(isActive(destination)) }}">
+            <div class="{{ this.getPillClasses(this.isActive(destination)) }}">
                 <div class="relative">
                     <svg class="{{ this.getIconClasses() }}" aria-hidden="true">
                         <use href="{{ destination.icon }}"></use>

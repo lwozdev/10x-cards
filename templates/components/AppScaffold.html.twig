@@ -17,7 +17,7 @@
     {# Main Content Area #}
     <div class="{{ this.getMainClasses() }}">
         {# Navigation Drawer (Desktop) #}
-        {% if showNavDrawer and hasNavigation() %}
+        {% if this.showNavDrawer and this.hasNavigation() %}
             <twig:NavDrawer
                 :destinations="navDestinations"
                 :currentPath="currentPath"
@@ -26,7 +26,7 @@
         {% endif %}
 
         {# Navigation Rail (Tablet) #}
-        {% if showNavRail and hasNavigation() %}
+        {% if this.showNavRail and this.hasNavigation() %}
             <twig:NavRail
                 :destinations="navDestinations"
                 :currentPath="currentPath"
@@ -40,7 +40,7 @@
     </div>
 
     {# Bottom Navigation (Mobile) #}
-    {% if showBottomNav and hasNavigation() %}
+    {% if this.showBottomNav and this.hasNavigation() %}
         <twig:BottomNav
             :destinations="navDestinations"
             :currentPath="currentPath"

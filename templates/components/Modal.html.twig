@@ -2,7 +2,7 @@
     id="{{ this.getId() }}"
     class="{{ this.getBackdropClasses() }}"
     data-controller="modal"
-    data-modal-dismissible-value="{{ dismissible ? 'true' : 'false' }}"
+    data-modal-dismissible-value="{{ this.dismissible ? 'true' : 'false' }}"
     data-action="click->modal#closeOnBackdrop keydown.esc->modal#closeOnEscape"
     style="display: none;"
 >
@@ -12,7 +12,7 @@
         data-action="click->modal#stopPropagation"
         {{ this.getAttributesString()|raw }}
     >
-        {% if headline or supportingText %}
+        {% if this.headline or this.supportingText %}
             <div class="{{ this.getHeaderClasses() }}">
                 {% if this.headline %}
                     <h2 id="{{ this.getId() }}_headline" class="{{ this.getHeadlineClasses() }}">

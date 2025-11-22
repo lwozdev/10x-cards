@@ -1,9 +1,9 @@
-<nav class="{{ this.getContainerClasses() }}" {% if this.id %}id="{{ this.id }}"{% endif %} {% if variant == 'modal' %}data-controller="drawer"{% endif %}>
+<nav class="{{ this.getContainerClasses() }}" {% if this.id %}id="{{ this.id }}"{% endif %} {% if this.variant == 'modal' %}data-controller="drawer"{% endif %}>
     {% for destination in this.destinations %}
         <a
             href="{{ destination.path }}"
-            class="{{ getDestinationClasses(destination) }}"
-            {% if isActive(destination) %}aria-current="page"{% endif %}
+            class="{{ this.getDestinationClasses(destination) }}"
+            {% if this.isActive(destination) %}aria-current="page"{% endif %}
         >
             <svg class="{{ this.getIconClasses() }}" aria-hidden="true">
                 <use href="{{ destination.icon }}"></use>
@@ -20,7 +20,7 @@
     {% endfor %}
 </nav>
 
-{% if variant == 'modal' %}
+{% if this.variant == 'modal' %}
     {# Backdrop for modal drawer #}
     <div
         class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"

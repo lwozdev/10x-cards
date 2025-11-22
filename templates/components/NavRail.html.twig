@@ -2,8 +2,8 @@
     {% for destination in this.destinations %}
         <a
             href="{{ destination.path }}"
-            class="{{ getDestinationClasses(destination) }}"
-            {% if isActive(destination) %}aria-current="page"{% endif %}
+            class="{{ this.getDestinationClasses(destination) }}"
+            {% if this.isActive(destination) %}aria-current="page"{% endif %}
             title="{{ destination.label }}"
         >
             <div class="relative">
