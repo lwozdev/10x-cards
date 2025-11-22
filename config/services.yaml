@@ -10,11 +10,36 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            # OpenRouter configuration bindings
+            $apiKey: '%env(OPENROUTER_API_KEY)%'
+            $apiUrl: '%env(OPENROUTER_API_URL)%'
+            $defaultModel: '%env(OPENROUTER_DEFAULT_MODEL)%'
+            $defaultTimeout: '%env(int:OPENROUTER_DEFAULT_TIMEOUT)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+
+    # OpenRouter Service Configuration
+    App\Infrastructure\Integration\OpenRouter\OpenRouterServiceInterface:
+        class: App\Infrastructure\Integration\OpenRouter\OpenRouterService
+        arguments:
+            $httpClient: '@http_client'
+            $logger: '@monolog.logger'
+            $apiKey: '%env(OPENROUTER_API_KEY)%'
+            $apiUrl: '%env(OPENROUTER_API_URL)%'
+            $defaultModel: '%env(OPENROUTER_DEFAULT_MODEL)%'
+            $defaultTimeout: '%env(int:OPENROUTER_DEFAULT_TIMEOUT)%'
+
+    # AI Card Generator - Domain Interface Implementation
+    # Maps domain interface to infrastructure adapter
+    App\Domain\Service\AiCardGeneratorInterface:
+        class: App\Infrastructure\Integration\Ai\OpenRouterAiCardGenerator
+        arguments:
+            $openRouterService: '@App\Infrastructure\Integration\OpenRouter\OpenRouterServiceInterface'
+            $logger: '@monolog.logger'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
