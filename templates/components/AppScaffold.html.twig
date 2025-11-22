@@ -1,12 +1,12 @@
-<div class="{{ getContainerClasses() }}" {% if id %}id="{{ id }}"{% endif %}>
+<div class="{{ this.getContainerClasses() }}" {% if this.id %}id="{{ this.id }}"{% endif %}>
     {# Top App Bar #}
-    {% if showTopBar %}
-        <header class="{{ getTopBarClasses() }}">
+    {% if this.showTopBar %}
+        <header class="{{ this.getTopBarClasses() }}">
             {% block topBarLeading %}
                 {# Menu icon or back button can go here #}
             {% endblock %}
 
-            <h1 class="{{ getTitleClasses() }}">{{ title }}</h1>
+            <h1 class="{{ this.getTitleClasses() }}">{{ this.title }}</h1>
 
             {% block topBarActions %}
                 {# Action buttons (search, more, etc.) can go here #}
@@ -15,7 +15,7 @@
     {% endif %}
 
     {# Main Content Area #}
-    <div class="{{ getMainClasses() }}">
+    <div class="{{ this.getMainClasses() }}">
         {# Navigation Drawer (Desktop) #}
         {% if showNavDrawer and hasNavigation() %}
             <twig:NavDrawer
@@ -34,7 +34,7 @@
         {% endif %}
 
         {# Main Content #}
-        <main class="{{ getContentClasses() }}">
+        <main class="{{ this.getContentClasses() }}">
             {% block content %}{% endblock %}
         </main>
     </div>
@@ -48,17 +48,17 @@
     {% endif %}
 
     {# Floating Action Button #}
-    {% if fabIcon %}
-        {% if fabHref %}
-            <a href="{{ fabHref }}" class="{{ getFabClasses() }}">
-                <svg class="{{ getFabIconClasses() }}" aria-hidden="true">
-                    <use href="{{ fabIcon }}"></use>
+    {% if this.fabIcon %}
+        {% if this.fabHref %}
+            <a href="{{ this.fabHref }}" class="{{ this.getFabClasses() }}">
+                <svg class="{{ this.getFabIconClasses() }}" aria-hidden="true">
+                    <use href="{{ this.fabIcon }}"></use>
                 </svg>
             </a>
         {% else %}
-            <button type="button" class="{{ getFabClasses() }}" data-action="click->scaffold#fabClick">
-                <svg class="{{ getFabIconClasses() }}" aria-hidden="true">
-                    <use href="{{ fabIcon }}"></use>
+            <button type="button" class="{{ this.getFabClasses() }}" data-action="click->scaffold#fabClick">
+                <svg class="{{ this.getFabIconClasses() }}" aria-hidden="true">
+                    <use href="{{ this.fabIcon }}"></use>
                 </svg>
             </button>
         {% endif %}

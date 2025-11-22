@@ -1,5 +1,5 @@
-<nav class="{{ getContainerClasses() }}" {% if id %}id="{{ id }}"{% endif %}>
-    {% for destination in destinations %}
+<nav class="{{ this.getContainerClasses() }}" {% if this.id %}id="{{ this.id }}"{% endif %}>
+    {% for destination in this.destinations %}
         <a
             href="{{ destination.path }}"
             class="{{ getDestinationClasses(destination) }}"
@@ -7,18 +7,18 @@
         >
             <div class="{{ getPillClasses(isActive(destination)) }}">
                 <div class="relative">
-                    <svg class="{{ getIconClasses() }}" aria-hidden="true">
+                    <svg class="{{ this.getIconClasses() }}" aria-hidden="true">
                         <use href="{{ destination.icon }}"></use>
                     </svg>
 
                     {% if destination.badge is defined and destination.badge > 0 %}
-                        <span class="{{ getBadgeClasses() }}">
+                        <span class="{{ this.getBadgeClasses() }}">
                             {{ destination.badge > 99 ? '99+' : destination.badge }}
                         </span>
                     {% endif %}
                 </div>
 
-                <span class="{{ getLabelClasses() }}">{{ destination.label }}</span>
+                <span class="{{ this.getLabelClasses() }}">{{ destination.label }}</span>
             </div>
         </a>
     {% endfor %}

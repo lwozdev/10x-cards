@@ -1,18 +1,18 @@
-{% set Tag = isLink() ? 'a' : 'div' %}
+{% set Tag = this.isLink() ? 'a' : 'div' %}
 
 <{{ Tag }}
-    {% if isLink() %}href="{{ href }}"{% endif %}
-    class="{{ getContainerClasses() }}"
-    {{ getAttributesString()|raw }}
+    {% if this.isLink() %}href="{{ this.href }}"{% endif %}
+    class="{{ this.getContainerClasses() }}"
+    {{ this.getAttributesString()|raw }}
 >
     {# Leading slot #}
-    {% if leadingIcon or leadingAvatar %}
-        <div class="{{ getLeadingClasses() }}">
-            {% if leadingAvatar %}
-                <img src="{{ leadingAvatar }}" alt="" class="{{ getLeadingAvatarClasses() }}">
-            {% elseif leadingIcon %}
-                <svg class="{{ getLeadingIconClasses() }}" aria-hidden="true">
-                    <use href="{{ leadingIcon }}"></use>
+    {% if this.leadingIcon or this.leadingAvatar %}
+        <div class="{{ this.getLeadingClasses() }}">
+            {% if this.leadingAvatar %}
+                <img src="{{ this.leadingAvatar }}" alt="" class="{{ this.getLeadingAvatarClasses() }}">
+            {% elseif this.leadingIcon %}
+                <svg class="{{ this.getLeadingIconClasses() }}" aria-hidden="true">
+                    <use href="{{ this.leadingIcon }}"></use>
                 </svg>
             {% endif %}
         </div>
@@ -21,18 +21,18 @@
     {% block leading %}{% endblock %}
 
     {# Content slot #}
-    <div class="{{ getContentClasses() }}">
-        {% if headline %}
-            <div class="{{ getHeadlineClasses() }}">
-                {{ headline }}
+    <div class="{{ this.getContentClasses() }}">
+        {% if this.headline %}
+            <div class="{{ this.getHeadlineClasses() }}">
+                {{ this.headline }}
             </div>
         {% endif %}
 
         {% block headline %}{% endblock %}
 
-        {% if supporting %}
-            <div class="{{ getSupportingClasses() }}">
-                {{ supporting }}
+        {% if this.supporting %}
+            <div class="{{ this.getSupportingClasses() }}">
+                {{ this.supporting }}
             </div>
         {% endif %}
 
@@ -40,14 +40,14 @@
     </div>
 
     {# Trailing slot #}
-    {% if trailingIcon or trailing %}
-        <div class="{{ getTrailingClasses() }}">
-            {% if trailingIcon %}
-                <svg class="{{ getTrailingIconClasses() }}" aria-hidden="true">
-                    <use href="{{ trailingIcon }}"></use>
+    {% if this.trailingIcon or this.trailing %}
+        <div class="{{ this.getTrailingClasses() }}">
+            {% if this.trailingIcon %}
+                <svg class="{{ this.getTrailingIconClasses() }}" aria-hidden="true">
+                    <use href="{{ this.trailingIcon }}"></use>
                 </svg>
             {% else %}
-                {{ trailing }}
+                {{ this.trailing }}
             {% endif %}
         </div>
     {% endif %}

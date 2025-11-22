@@ -1,41 +1,22 @@
-{% if isLink() %}
-    <a href="{{ href }}" class="{{ getBaseClasses() }}" {{ getAttributesString()|raw }}>
-        {% if icon %}
-            <svg class="{{ getIconSize() }}" aria-hidden="true">
-                <use href="{{ icon }}"></use>
-            </svg>
-        {% endif %}
+{% set Tag = this.isLink() ? 'a' : 'button' %}
+<{{ Tag }}
+    {% if this.isLink() %}href="{{ this.href }}"{% endif %}
+    class="{{ this.getBaseClasses() }}"
+    {{ this.getAttributesString()|raw }}
+>
+    {% if this.icon %}
+        <svg class="{{ this.getIconSize() }}" aria-hidden="true">
+            <use href="{{ this.icon }}"></use>
+        </svg>
+    {% endif %}
 
-        {% if label %}
-            <span>{{ label }}</span>
-        {% endif %}
+    {% if this.label %}
+        <span>{{ this.label }}</span>
+    {% endif %}
 
-        {% block content %}{% endblock %}
-
-        {% if trailingIcon %}
-            <svg class="{{ getIconSize() }}" aria-hidden="true">
-                <use href="{{ trailingIcon }}"></use>
-            </svg>
-        {% endif %}
-    </a>
-{% else %}
-    <button class="{{ getBaseClasses() }}" {{ getAttributesString()|raw }}>
-        {% if icon %}
-            <svg class="{{ getIconSize() }}" aria-hidden="true">
-                <use href="{{ icon }}"></use>
-            </svg>
-        {% endif %}
-
-        {% if label %}
-            <span>{{ label }}</span>
-        {% endif %}
-
-        {% block content %}{% endblock %}
-
-        {% if trailingIcon %}
-            <svg class="{{ getIconSize() }}" aria-hidden="true">
-                <use href="{{ trailingIcon }}"></use>
-            </svg>
-        {% endif %}
-    </button>
-{% endif %}
+    {% if this.trailingIcon %}
+        <svg class="{{ this.getIconSize() }}" aria-hidden="true">
+            <use href="{{ this.trailingIcon }}"></use>
+        </svg>
+    {% endif %}
+</{{ Tag }}>

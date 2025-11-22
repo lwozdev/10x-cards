@@ -1,18 +1,18 @@
-<nav class="{{ getContainerClasses() }}" {% if id %}id="{{ id }}"{% endif %} {% if variant == 'modal' %}data-controller="drawer"{% endif %}>
-    {% for destination in destinations %}
+<nav class="{{ this.getContainerClasses() }}" {% if this.id %}id="{{ this.id }}"{% endif %} {% if variant == 'modal' %}data-controller="drawer"{% endif %}>
+    {% for destination in this.destinations %}
         <a
             href="{{ destination.path }}"
             class="{{ getDestinationClasses(destination) }}"
             {% if isActive(destination) %}aria-current="page"{% endif %}
         >
-            <svg class="{{ getIconClasses() }}" aria-hidden="true">
+            <svg class="{{ this.getIconClasses() }}" aria-hidden="true">
                 <use href="{{ destination.icon }}"></use>
             </svg>
 
-            <span class="{{ getLabelClasses() }}">{{ destination.label }}</span>
+            <span class="{{ this.getLabelClasses() }}">{{ destination.label }}</span>
 
             {% if destination.badge is defined and destination.badge > 0 %}
-                <span class="{{ getBadgeClasses() }}">
+                <span class="{{ this.getBadgeClasses() }}">
                     {{ destination.badge > 99 ? '99+' : destination.badge }}
                 </span>
             {% endif %}

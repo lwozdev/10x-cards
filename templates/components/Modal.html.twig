@@ -1,38 +1,38 @@
 <div
-    id="{{ getId() }}"
-    class="{{ getBackdropClasses() }}"
+    id="{{ this.getId() }}"
+    class="{{ this.getBackdropClasses() }}"
     data-controller="modal"
     data-modal-dismissible-value="{{ dismissible ? 'true' : 'false' }}"
     data-action="click->modal#closeOnBackdrop keydown.esc->modal#closeOnEscape"
     style="display: none;"
 >
     <div
-        class="{{ getDialogClasses() }}"
+        class="{{ this.getDialogClasses() }}"
         data-modal-target="dialog"
         data-action="click->modal#stopPropagation"
-        {{ getAttributesString()|raw }}
+        {{ this.getAttributesString()|raw }}
     >
         {% if headline or supportingText %}
-            <div class="{{ getHeaderClasses() }}">
-                {% if headline %}
-                    <h2 id="{{ getId() }}_headline" class="{{ getHeadlineClasses() }}">
-                        {{ headline }}
+            <div class="{{ this.getHeaderClasses() }}">
+                {% if this.headline %}
+                    <h2 id="{{ this.getId() }}_headline" class="{{ this.getHeadlineClasses() }}">
+                        {{ this.headline }}
                     </h2>
                 {% endif %}
 
-                {% if supportingText %}
-                    <p id="{{ getId() }}_description" class="{{ getSupportingTextClasses() }}">
-                        {{ supportingText }}
+                {% if this.supportingText %}
+                    <p id="{{ this.getId() }}_description" class="{{ this.getSupportingTextClasses() }}">
+                        {{ this.supportingText }}
                     </p>
                 {% endif %}
             </div>
         {% endif %}
 
-        <div class="{{ getContentClasses() }}">
+        <div class="{{ this.getContentClasses() }}">
             {% block content %}{% endblock %}
         </div>
 
-        <div class="{{ getActionsClasses() }}">
+        <div class="{{ this.getActionsClasses() }}">
             {% block actions %}
                 <twig:Button
                     label="Anuluj"

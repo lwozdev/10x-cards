@@ -1,35 +1,35 @@
-<div class="{{ getContainerClasses() }}">
-    <div class="{{ getInputWrapperClasses() }}">
-        {% if leadingIcon %}
-            <svg class="{{ getIconClasses() }} left-4" aria-hidden="true">
-                <use href="{{ leadingIcon }}"></use>
+<div class="{{ this.getContainerClasses() }}">
+    <div class="{{ this.getInputWrapperClasses() }}">
+        {% if this.leadingIcon %}
+            <svg class="{{ this.getIconClasses() }} left-4" aria-hidden="true">
+                <use href="{{ this.leadingIcon }}"></use>
             </svg>
         {% endif %}
 
         <input
-            type="{{ type }}"
-            id="{{ getId() }}"
-            name="{{ name }}"
-            value="{{ value }}"
-            placeholder="{{ placeholder ?: label }}"
-            class="{{ getInputClasses() }} peer"
-            {{ getAttributesString()|raw }}
+            type="{{ this.type }}"
+            id="{{ this.getId() }}"
+            name="{{ this.name }}"
+            value="{{ this.value }}"
+            placeholder="{{ this.placeholder ?: this.label }}"
+            class="{{ this.getInputClasses() }} peer"
+            {{ this.getAttributesString()|raw }}
         >
 
-        <label for="{{ getId() }}" class="{{ getLabelClasses() }} peer-placeholder-shown:top-[18px] peer-placeholder-shown:text-body-large peer-placeholder-shown:scale-100 peer-focus:top-[8px] peer-focus:text-label-small peer-focus:scale-100">
-            {{ label }}{% if required %}<span class="text-[var(--color-error)] ml-0.5">*</span>{% endif %}
+        <label for="{{ this.getId() }}" class="{{ this.getLabelClasses() }} peer-placeholder-shown:top-[18px] peer-placeholder-shown:text-body-large peer-placeholder-shown:scale-100 peer-focus:top-[8px] peer-focus:text-label-small peer-focus:scale-100">
+            {{ this.label }}{% if this.required %}<span class="text-[var(--color-error)] ml-0.5">*</span>{% endif %}
         </label>
 
-        {% if trailingIcon %}
-            <svg class="{{ getIconClasses() }} right-4" aria-hidden="true">
-                <use href="{{ trailingIcon }}"></use>
+        {% if this.trailingIcon %}
+            <svg class="{{ this.getIconClasses() }} right-4" aria-hidden="true">
+                <use href="{{ this.trailingIcon }}"></use>
             </svg>
         {% endif %}
     </div>
 
-    {% if getSupportingText() %}
-        <div id="{{ getId() }}_support" class="{{ getSupportingTextClasses() }}">
-            {{ getSupportingText() }}
+    {% if this.getSupportingText() %}
+        <div id="{{ this.getId() }}_support" class="{{ this.getSupportingTextClasses() }}">
+            {{ this.getSupportingText() }}
         </div>
     {% endif %}
 </div>

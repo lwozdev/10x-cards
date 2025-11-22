@@ -1,27 +1,27 @@
 <div
-    id="{{ getId() }}"
-    class="{{ getContainerClasses() }}"
+    id="{{ this.getId() }}"
+    class="{{ this.getContainerClasses() }}"
     data-controller="snackbar"
-    data-snackbar-duration-value="{{ duration }}"
+    data-snackbar-duration-value="{{ this.duration }}"
     role="status"
     aria-live="polite"
     style="display: none;"
 >
-    <span class="{{ getMessageClasses() }}">{{ message }}</span>
+    <span class="{{ this.getMessageClasses() }}">{{ this.message }}</span>
 
-    {% if actionLabel %}
+    {% if this.actionLabel %}
         <button
             type="button"
-            class="{{ getActionButtonClasses() }}"
+            class="{{ this.getActionButtonClasses() }}"
             data-action="click->snackbar#action"
         >
-            {{ actionLabel }}
+            {{ this.actionLabel }}
         </button>
     {% endif %}
 
     <button
         type="button"
-        class="{{ getCloseButtonClasses() }}"
+        class="{{ this.getCloseButtonClasses() }}"
         data-action="click->snackbar#close"
         aria-label="Zamknij"
     >

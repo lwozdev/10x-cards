@@ -1,9 +1,8 @@
-{% if isLink() %}
-    <a href="{{ href }}" class="{{ getContainerClasses() }}" {{ getAttributesString()|raw }}>
-        {% block content %}{% endblock %}
-    </a>
-{% else %}
-    <div class="{{ getContainerClasses() }}" {{ getAttributesString()|raw }}>
-        {% block content %}{% endblock %}
-    </div>
-{% endif %}
+{% set Tag = this.isLink() ? 'a' : 'div' %}
+<{{ Tag }}
+    {% if this.isLink() %}href="{{ this.href }}"{% endif %}
+    class="{{ this.getContainerClasses() }}"
+    {{ this.getAttributesString()|raw }}
+>
+    {% block content %}{% endblock %}
+</{{ Tag }}>
