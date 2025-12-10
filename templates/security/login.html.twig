@@ -1,0 +1,92 @@
+{% extends '_auth_layout.html.twig' %}
+
+{% block title %}Logowanie - Fiszki AI{% endblock %}
+
+{% block auth_content %}
+<twig:Card variant="elevated" class="p-6">
+    {# Page Header #}
+    <div class="mb-6 text-center">
+        <h1 class="text-headline-large mb-2">Zaloguj się</h1>
+        <p class="text-body-medium text-[var(--color-on-surface-variant)]">
+            Wpisz swoje dane, aby uzyskać dostęp do konta
+        </p>
+    </div>
+
+    {# Login Form #}
+    <form method="post" data-controller="form-validation" novalidate>
+        {# CSRF Token #}
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+        <div class="space-y-4">
+            {# Email Field #}
+            <div>
+                <twig:TextField
+                    name="_username"
+                    label="Email"
+                    type="email"
+                    variant="outlined"
+                    :required="true"
+                    value="{{ last_username ?? '' }}"
+                    helperText="Adres email użyty podczas rejestracji"
+                    data-form-validation-target="email"
+                    data-action="blur->form-validation#validateEmail"
+                    autocomplete="email"
+                />
+                <div data-form-validation-target="emailError" class="text-body-small text-[var(--color-error)] mt-1 hidden"></div>
+            </div>
+
+            {# Password Field #}
+            <div>
+                <twig:TextField
+                    name="_password"
+                    label="Hasło"
+                    type="password"
+                    variant="outlined"
+                    :required="true"
+                    data-form-validation-target="password"
+                    data-action="blur->form-validation#validatePassword"
+                    autocomplete="current-password"
+                />
+                <div data-form-validation-target="passwordError" class="text-body-small text-[var(--color-error)] mt-1 hidden"></div>
+            </div>
+
+            {# Remember Me (Optional - can be added later) #}
+            {# <div class="flex items-center">
+                <input type="checkbox" name="_remember_me" id="remember_me" class="mr-2">
+                <label for="remember_me" class="text-body-medium">Zapamiętaj mnie</label>
+            </div> #}
+
+            {# Forgot Password Link #}
+            <div class="text-right">
+                <a href="{{ path('app_reset_password_request') }}"
+                   class="text-body-medium text-[var(--color-primary)] hover:underline">
+                    Zapomniałeś hasła?
+                </a>
+            </div>
+
+            {# Submit Button #}
+            <div class="pt-2">
+                <twig:Button
+                    label="Zaloguj się"
+                    variant="filled"
+                    type="submit"
+                    size="large"
+                    class="w-full"
+                    data-form-validation-target="submitButton"
+                />
+            </div>
+        </div>
+    </form>
+
+    {# Registration Link #}
+    <div class="mt-6 pt-6 border-t border-[var(--color-outline-variant)] text-center">
+        <p class="text-body-medium text-[var(--color-on-surface-variant)]">
+            Nie masz jeszcze konta?
+            <a href="{{ path('app_register') }}"
+               class="text-[var(--color-primary)] font-medium hover:underline">
+                Zarejestruj się
+            </a>
+        </p>
+    </div>
+</twig:Card>
+{% endblock %}
