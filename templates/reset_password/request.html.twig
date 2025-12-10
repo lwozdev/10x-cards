@@ -1,0 +1,79 @@
+{% extends '_auth_layout.html.twig' %}
+
+{% block title %}Resetowanie hasła - Fiszki AI{% endblock %}
+
+{% block auth_content %}
+<twig:Card variant="elevated" class="p-6">
+    {# Page Header #}
+    <div class="mb-6 text-center">
+        <h1 class="text-headline-large mb-2">Zresetuj hasło</h1>
+        <p class="text-body-medium text-[var(--color-on-surface-variant)]">
+            Podaj adres email, a wyślemy Ci link do ustawienia nowego hasła
+        </p>
+    </div>
+
+    {# Reset Request Form #}
+    <form method="post" data-controller="form-validation" novalidate>
+        {# CSRF Token #}
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('reset_password') }}">
+
+        <div class="space-y-4">
+            {# Email Field #}
+            <div>
+                <twig:TextField
+                    name="email"
+                    label="Email"
+                    type="email"
+                    variant="outlined"
+                    :required="true"
+                    helperText="Adres email powiązany z Twoim kontem"
+                    data-form-validation-target="email"
+                    data-action="blur->form-validation#validateEmail"
+                    autocomplete="email"
+                />
+                <div data-form-validation-target="emailError" class="text-body-small text-[var(--color-error)] mt-1 hidden"></div>
+            </div>
+
+            {# Info Box #}
+            <div class="bg-[var(--color-surface-container)] p-4 rounded-lg">
+                <div class="flex gap-3">
+                    <svg class="w-5 h-5 flex-shrink-0 text-[var(--color-primary)] mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    <div>
+                        <p class="text-body-small text-[var(--color-on-surface)]">
+                            Jeśli podany adres email istnieje w naszym systemie, otrzymasz wiadomość z instrukcjami resetowania hasła.
+                        </p>
+                        <p class="text-body-small text-[var(--color-on-surface-variant)] mt-2">
+                            Link będzie ważny przez 1 godzinę.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {# Submit Button #}
+            <div class="pt-2">
+                <twig:Button
+                    label="Wyślij link resetujący"
+                    variant="filled"
+                    type="submit"
+                    size="large"
+                    class="w-full"
+                    data-form-validation-target="submitButton"
+                />
+            </div>
+        </div>
+    </form>
+
+    {# Back to Login Link #}
+    <div class="mt-6 pt-6 border-t border-[var(--color-outline-variant)] text-center">
+        <a href="{{ path('app_login') }}"
+           class="text-body-medium text-[var(--color-primary)] font-medium hover:underline inline-flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+            </svg>
+            Powrót do logowania
+        </a>
+    </div>
+</twig:Card>
+{% endblock %}

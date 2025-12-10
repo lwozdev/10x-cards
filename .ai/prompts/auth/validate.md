@@ -1,0 +1,3 @@
+Porównaj @.ai/prd.md oraz stack z @.ai/auth-spec.md w poszukiwaniu sprzecznych i nadmiarowych założeń. Upewnij się, że każde
+User Story może być zrealizowane w oparciu o przygotowany plan. Jeśli zauważasz sprzeczności, zaktualizuj @.ai/auth-spec.md
+zgodnie z nową wiedzą.

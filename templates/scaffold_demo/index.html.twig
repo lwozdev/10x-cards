@@ -1,0 +1,176 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}AppScaffold Demo - Material 3{% endblock %}
+
+{% block body %}
+<twig:AppScaffold
+    title="Demo AppScaffold"
+    :showTopBar="true"
+    :showBottomNav="true"
+    :showNavRail="true"
+    :showNavDrawer="true"
+    :navDestinations="navDestinations"
+    currentPath="{{ currentPath }}"
+    fabIcon="#icon-plus"
+    fabHref="/sets/new"
+>
+    {% block topBarActions %}
+        <twig:Button
+            label="Szukaj"
+            variant="text"
+            size="sm"
+        />
+        <twig:Button
+            label="Więcej"
+            variant="text"
+            size="sm"
+        />
+    {% endblock %}
+
+    {% block content %}
+        {# Welcome Section #}
+        <section class="mb-8">
+            <h2 class="text-headline-large mb-2">Witaj w demonstracji AppScaffold!</h2>
+            <p class="text-body-large text-[var(--color-on-surface-variant)] max-w-3xl">
+                To jest przykład pełnego layoutu aplikacji z responsywną nawigacją.
+                Zmień rozmiar okna przeglądarki aby zobaczyć jak nawigacja automatycznie
+                przełącza się między BottomNav (mobile), NavRail (tablet) i NavDrawer (desktop).
+            </p>
+        </section>
+
+        {# Stats Cards #}
+        <section class="mb-8">
+            <h3 class="text-title-large mb-4">Statystyki</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <twig:Card variant="filled">
+                    <p class="text-label-large text-[var(--color-on-surface-variant)] mb-1">Wszystkie fiszki</p>
+                    <p class="text-display-small">{{ flashcards|length }}</p>
+                </twig:Card>
+
+                <twig:Card variant="filled">
+                    <p class="text-label-large text-[var(--color-on-surface-variant)] mb-1">Do nauki</p>
+                    <p class="text-display-small">24</p>
+                </twig:Card>
+
+                <twig:Card variant="filled">
+                    <p class="text-label-large text-[var(--color-on-surface-variant)] mb-1">Opanowane</p>
+                    <p class="text-display-small">156</p>
+                </twig:Card>
+            </div>
+        </section>
+
+        {# Flashcard Sets Grid #}
+        <section class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-title-large">Twoje zestawy</h3>
+                <twig:Button
+                    label="Zobacz wszystkie"
+                    variant="text"
+                    href="/sets"
+                />
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {% for card in flashcards %}
+                    <twig:Card variant="elevated" href="/sets/{{ card.id }}">
+                        <div class="flex items-start justify-between mb-3">
+                            <h4 class="text-title-medium flex-1">{{ card.name }}</h4>
+                        </div>
+                        <p class="text-body-large text-[var(--color-on-surface-variant)] mb-1">
+                            {{ card.count }} fiszek
+                        </p>
+                        <p class="text-body-small text-[var(--color-on-surface-variant)]">
+                            Utworzono {{ card.created }}
+                        </p>
+                    </twig:Card>
+                {% endfor %}
+            </div>
+        </section>
+
+        {# Recent Activity #}
+        <section class="mb-8">
+            <h3 class="text-title-large mb-4">Ostatnia aktywność</h3>
+            <twig:Card variant="outlined">
+                <twig:ListItem
+                    headline="Ukończyłeś sesję nauki"
+                    supporting="Matematyka - Geometria · 15 minut temu"
+                    lines="2"
+                />
+                <twig:ListItem
+                    headline="Utworzyłeś nowy zestaw"
+                    supporting="Angielski A2 · 2 godziny temu"
+                    lines="2"
+                />
+                <twig:ListItem
+                    headline="Dodałeś 10 nowych fiszek"
+                    supporting="Historia Polski · wczoraj"
+                    lines="2"
+                />
+            </twig:Card>
+        </section>
+
+        {# Info Section #}
+        <section class="mb-8">
+            <twig:Card variant="filled">
+                <h3 class="text-title-medium mb-3">💡 Wskazówka</h3>
+                <p class="text-body-medium mb-4">
+                    Ten layout wykorzystuje komponent <code class="bg-[var(--color-surface)] px-2 py-1 rounded">AppScaffold</code>,
+                    który automatycznie zarządza responsywną nawigacją i strukturą aplikacji.
+                </p>
+                <div class="flex gap-3">
+                    <twig:Button
+                        label="Dokumentacja"
+                        variant="filled-tonal"
+                        href="/kitchen-sink"
+                    />
+                    <twig:Button
+                        label="Zobacz kod"
+                        variant="text"
+                    />
+                </div>
+            </twig:Card>
+        </section>
+
+        {# Form Example #}
+        <section class="mb-8">
+            <h3 class="text-title-large mb-4">Przykładowy formularz</h3>
+            <twig:Card variant="elevated">
+                <h4 class="text-title-medium mb-4">Utwórz nowy zestaw</h4>
+
+                <form class="space-y-4">
+                    <twig:TextField
+                        name="set_name"
+                        label="Nazwa zestawu"
+                        variant="filled"
+                        :required="true"
+                        helperText="Podaj nazwę dla swojego zestawu fiszek"
+                    />
+
+                    <twig:TextField
+                        name="description"
+                        label="Opis (opcjonalny)"
+                        variant="filled"
+                        helperText="Krótki opis zestawu"
+                    />
+
+                    <div class="flex gap-3 justify-end pt-4">
+                        <twig:Button
+                            label="Anuluj"
+                            variant="text"
+                        />
+                        <twig:Button
+                            label="Utwórz"
+                            variant="filled"
+                            type="submit"
+                        />
+                    </div>
+                </form>
+            </twig:Card>
+        </section>
+    {% endblock %}
+
+    {% block fab %}
+        {# FAB is already defined in the scaffold component #}
+    {% endblock %}
+</twig:AppScaffold>
+{% endblock %}

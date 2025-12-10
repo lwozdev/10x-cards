@@ -1,0 +1,123 @@
+{% extends '_auth_layout.html.twig' %}
+
+{% block title %}Rejestracja - Fiszki AI{% endblock %}
+
+{% block auth_content %}
+<twig:Card variant="elevated" class="p-6">
+    {# Page Header #}
+    <div class="mb-6 text-center">
+        <h1 class="text-headline-large mb-2">Utwórz konto</h1>
+        <p class="text-body-medium text-[var(--color-on-surface-variant)]">
+            Zacznij tworzyć fiszki za pomocą AI
+        </p>
+    </div>
+
+    {# Registration Form #}
+    <form method="post" data-controller="form-validation" novalidate>
+        {# CSRF Token #}
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('registration') }}">
+
+        <div class="space-y-4">
+            {# Email Field #}
+            <div>
+                <twig:TextField
+                    name="email"
+                    label="Email"
+                    type="email"
+                    variant="outlined"
+                    :required="true"
+                    helperText="Użyjemy go do logowania i komunikacji"
+                    data-form-validation-target="email"
+                    data-action="blur->form-validation#validateEmail input->form-validation#validateEmailRealtime"
+                    autocomplete="email"
+                />
+                <div data-form-validation-target="emailError" class="text-body-small text-[var(--color-error)] mt-1 hidden"></div>
+            </div>
+
+            {# Password Field #}
+            <div>
+                <twig:TextField
+                    name="password"
+                    label="Hasło"
+                    type="password"
+                    variant="outlined"
+                    :required="true"
+                    helperText="Minimum 8 znaków"
+                    data-form-validation-target="password"
+                    data-action="blur->form-validation#validatePassword input->form-validation#validatePasswordRealtime"
+                    autocomplete="new-password"
+                />
+                <div data-form-validation-target="passwordError" class="text-body-small text-[var(--color-error)] mt-1 hidden"></div>
+
+                {# Password Strength Indicator #}
+                <div class="mt-2">
+                    <div class="flex gap-1">
+                        <div data-form-validation-target="strengthBar1" class="h-1 flex-1 bg-[var(--color-surface-variant)] rounded transition-colors"></div>
+                        <div data-form-validation-target="strengthBar2" class="h-1 flex-1 bg-[var(--color-surface-variant)] rounded transition-colors"></div>
+                        <div data-form-validation-target="strengthBar3" class="h-1 flex-1 bg-[var(--color-surface-variant)] rounded transition-colors"></div>
+                        <div data-form-validation-target="strengthBar4" class="h-1 flex-1 bg-[var(--color-surface-variant)] rounded transition-colors"></div>
+                    </div>
+                    <p data-form-validation-target="strengthText" class="text-body-small text-[var(--color-on-surface-variant)] mt-1"></p>
+                </div>
+            </div>
+
+            {# Password Confirmation Field #}
+            <div>
+                <twig:TextField
+                    name="password_confirm"
+                    label="Potwierdź hasło"
+                    type="password"
+                    variant="outlined"
+                    :required="true"
+                    helperText="Wpisz hasło ponownie"
+                    data-form-validation-target="passwordConfirm"
+                    data-action="blur->form-validation#validatePasswordMatch input->form-validation#validatePasswordMatchRealtime"
+                    autocomplete="new-password"
+                />
+                <div data-form-validation-target="passwordConfirmError" class="text-body-small text-[var(--color-error)] mt-1 hidden"></div>
+            </div>
+
+            {# Terms Acceptance (Optional) #}
+            <div class="flex items-start gap-2 pt-2">
+                <input
+                    type="checkbox"
+                    name="agree_terms"
+                    id="agree_terms"
+                    required
+                    class="mt-1"
+                    data-form-validation-target="terms"
+                >
+                <label for="agree_terms" class="text-body-small text-[var(--color-on-surface-variant)]">
+                    Akceptuję
+                    <a href="#" class="text-[var(--color-primary)] hover:underline">regulamin</a>
+                    i
+                    <a href="#" class="text-[var(--color-primary)] hover:underline">politykę prywatności</a>
+                </label>
+            </div>
+
+            {# Submit Button #}
+            <div class="pt-2">
+                <twig:Button
+                    label="Utwórz konto"
+                    variant="filled"
+                    type="submit"
+                    size="large"
+                    class="w-full"
+                    data-form-validation-target="submitButton"
+                />
+            </div>
+        </div>
+    </form>
+
+    {# Login Link #}
+    <div class="mt-6 pt-6 border-t border-[var(--color-outline-variant)] text-center">
+        <p class="text-body-medium text-[var(--color-on-surface-variant)]">
+            Masz już konto?
+            <a href="{{ path('app_login') }}"
+               class="text-[var(--color-primary)] font-medium hover:underline">
+                Zaloguj się
+            </a>
+        </p>
+    </div>
+</twig:Card>
+{% endblock %}

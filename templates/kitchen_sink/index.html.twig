@@ -1,0 +1,686 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Material 3 Components - Kitchen Sink{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-[var(--color-background)]">
+    {# Simple top bar for this demo #}
+    <header class="sticky top-0 z-30 h-16 bg-[var(--color-surface)] border-b border-[var(--color-outline-variant)] flex items-center px-6 gap-4">
+        <h1 class="text-title-large text-[var(--color-on-surface)]">Material 3 Components - Kitchen Sink</h1>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6 space-y-12">
+        {# Introduction #}
+        <section>
+            <h2 class="text-headline-large mb-4">Przewodnik po komponentach</h2>
+            <p class="text-body-large text-[var(--color-on-surface-variant)] max-w-3xl">
+                Ta strona prezentuje wszystkie komponenty Material 3 dostępne w aplikacji.
+                Każdy komponent został zaimplementowany zgodnie z wytycznymi Google Material Design 3
+                i używa Tailwind 4 z design tokens.
+            </p>
+        </section>
+
+        {# Typography #}
+        <section>
+            <h2 class="text-headline-large mb-6 pb-2 border-b-2 border-[var(--color-outline-variant)]">1. Typografia</h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Display</h3>
+                    <div class="space-y-2 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <p class="text-display-large">Display Large (57px)</p>
+                        <p class="text-display-medium">Display Medium (45px)</p>
+                        <p class="text-display-small">Display Small (36px)</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Headline</h3>
+                    <div class="space-y-2 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <p class="text-headline-large">Headline Large (32px)</p>
+                        <p class="text-headline-medium">Headline Medium (28px)</p>
+                        <p class="text-headline-small">Headline Small (24px)</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Title</h3>
+                    <div class="space-y-2 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <p class="text-title-large">Title Large (22px)</p>
+                        <p class="text-title-medium">Title Medium (16px)</p>
+                        <p class="text-title-small">Title Small (14px)</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Body</h3>
+                    <div class="space-y-2 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <p class="text-body-large">Body Large (16px) - Większy tekst dla lepszej czytelności</p>
+                        <p class="text-body-medium">Body Medium (14px) - Standardowy tekst aplikacji</p>
+                        <p class="text-body-small">Body Small (12px) - Mniejszy tekst dla notatek</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Label</h3>
+                    <div class="space-y-2 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <p class="text-label-large">Label Large (14px) - Przyciski</p>
+                        <p class="text-label-medium">Label Medium (12px) - Nawigacja</p>
+                        <p class="text-label-small">Label Small (11px) - Badge</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# Buttons #}
+        <section>
+            <h2 class="text-headline-large mb-6 pb-2 border-b-2 border-[var(--color-outline-variant)]">2. Przyciski (Button)</h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Warianty</h3>
+                    <div class="flex flex-wrap gap-3 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <twig:Button label="Filled" variant="filled" />
+                        <twig:Button label="Filled Tonal" variant="filled-tonal" />
+                        <twig:Button label="Outlined" variant="outlined" />
+                        <twig:Button label="Text" variant="text" />
+                        <twig:Button label="Elevated" variant="elevated" />
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Rozmiary</h3>
+                    <div class="flex flex-wrap items-center gap-3 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <twig:Button label="Mały" variant="filled" size="sm" />
+                        <twig:Button label="Średni" variant="filled" size="md" />
+                        <twig:Button label="Duży" variant="filled" size="lg" />
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Z ikonami (demo bez SVG)</h3>
+                    <div class="flex flex-wrap gap-3 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <twig:Button label="Dodaj" variant="filled" />
+                        <twig:Button label="Edytuj" variant="outlined" />
+                        <twig:Button label="Usuń" variant="text" />
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Stany</h3>
+                    <div class="flex flex-wrap gap-3 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <twig:Button label="Normalny" variant="filled" />
+                        <twig:Button label="Wyłączony" variant="filled" :disabled="true" />
+                        <twig:Button label="Link" variant="filled" href="/example" />
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Hierarchia akcji</h3>
+                    <div class="flex flex-wrap gap-3 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <twig:Button label="Główna akcja" variant="filled" />
+                        <twig:Button label="Dodatkowa akcja" variant="filled-tonal" />
+                        <twig:Button label="Anuluj" variant="outlined" />
+                        <twig:Button label="Pomoc" variant="text" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# Text Fields #}
+        <section>
+            <h2 class="text-headline-large mb-6 pb-2 border-b-2 border-[var(--color-outline-variant)]">3. Pola tekstowe (TextField)</h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Warianty</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <twig:TextField
+                            name="demo_filled"
+                            label="Filled variant"
+                            variant="filled"
+                            helperText="To jest pole filled"
+                        />
+                        <twig:TextField
+                            name="demo_outlined"
+                            label="Outlined variant"
+                            variant="outlined"
+                            helperText="To jest pole outlined"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Typy pól</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <twig:TextField
+                            name="email"
+                            label="Email"
+                            type="email"
+                            variant="filled"
+                            :required="true"
+                        />
+                        <twig:TextField
+                            name="password"
+                            label="Hasło"
+                            type="password"
+                            variant="filled"
+                            helperText="Minimum 8 znaków"
+                        />
+                        <twig:TextField
+                            name="number"
+                            label="Wiek"
+                            type="number"
+                            variant="outlined"
+                        />
+                        <twig:TextField
+                            name="tel"
+                            label="Telefon"
+                            type="tel"
+                            variant="outlined"
+                            placeholder="+48 123 456 789"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Stany</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <twig:TextField
+                            name="normal"
+                            label="Pole normalne"
+                            variant="filled"
+                        />
+                        <twig:TextField
+                            name="required"
+                            label="Pole wymagane"
+                            variant="filled"
+                            :required="true"
+                        />
+                        <twig:TextField
+                            name="error"
+                            label="Pole z błędem"
+                            variant="filled"
+                            value="zły@email"
+                            errorText="Podaj poprawny adres email"
+                        />
+                        <twig:TextField
+                            name="disabled"
+                            label="Pole wyłączone"
+                            variant="filled"
+                            value="Wartość tylko do odczytu"
+                            :disabled="true"
+                        />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# Cards #}
+        <section>
+            <h2 class="text-headline-large mb-6 pb-2 border-b-2 border-[var(--color-outline-variant)]">4. Karty (Card)</h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Warianty</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <twig:Card variant="elevated">
+                            <h3 class="text-title-medium mb-2">Elevated Card</h3>
+                            <p class="text-body-medium text-[var(--color-on-surface-variant)]">
+                                Karta z cieniem (shadow-elevation-1). Najczęściej używany wariant.
+                            </p>
+                        </twig:Card>
+
+                        <twig:Card variant="outlined">
+                            <h3 class="text-title-medium mb-2">Outlined Card</h3>
+                            <p class="text-body-medium text-[var(--color-on-surface-variant)]">
+                                Karta z obramowaniem. Używana gdy potrzebujemy mniej wizualnej wagi.
+                            </p>
+                        </twig:Card>
+
+                        <twig:Card variant="filled">
+                            <h3 class="text-title-medium mb-2">Filled Card</h3>
+                            <p class="text-body-medium text-[var(--color-on-surface-variant)]">
+                                Karta z wypełnieniem (surface-variant). Dla wyróżnienia treści.
+                            </p>
+                        </twig:Card>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Interaktywne karty</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {% for card in sampleCards %}
+                            <twig:Card variant="elevated" href="/sets/{{ card.id }}">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h3 class="text-title-medium flex-1">{{ card.name }}</h3>
+                                </div>
+                                <p class="text-body-medium text-[var(--color-on-surface-variant)]">
+                                    {{ card.count }} fiszek
+                                </p>
+                                <p class="text-body-small text-[var(--color-on-surface-variant)] mt-2">
+                                    Utworzono {{ card.created }}
+                                </p>
+                            </twig:Card>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# List Items #}
+        <section>
+            <h2 class="text-headline-large mb-6 pb-2 border-b-2 border-[var(--color-outline-variant)]">5. Elementy listy (ListItem)</h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Podstawowe użycie</h3>
+                    <div class="bg-[var(--color-surface)] rounded-[var(--radius-md)] overflow-hidden">
+                        <twig:ListItem
+                            headline="Pojedyncza linia"
+                            lines="1"
+                        />
+                        <twig:ListItem
+                            headline="Dwie linie"
+                            supporting="Dodatkowy opis w drugiej linii"
+                            lines="2"
+                        />
+                        <twig:ListItem
+                            headline="Trzy linie"
+                            supporting="Dłuższy opis który może się rozciągać na więcej miejsca i zawierać dodatkowe informacje"
+                            lines="3"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Lista zestawów fiszek</h3>
+                    <div class="bg-[var(--color-surface)] rounded-[var(--radius-md)] overflow-hidden">
+                        {% for card in sampleCards %}
+                            <twig:ListItem
+                                headline="{{ card.name }}"
+                                supporting="{{ card.count }} fiszek · Utworzono {{ card.created }}"
+                                type="navigation"
+                                href="/sets/{{ card.id }}"
+                                selected="{{ loop.first ? true : false }}"
+                            />
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Z trailing elementami</h3>
+                    <div class="bg-[var(--color-surface)] rounded-[var(--radius-md)] overflow-hidden">
+                        <twig:ListItem
+                            headline="Element z tekstem"
+                            supporting="Dodatkowy opis"
+                            trailing="15 fiszek"
+                        />
+                        <twig:ListItem
+                            headline="Element z akcją"
+                            supporting="Kliknij aby zobaczyć więcej"
+                            type="navigation"
+                        />
+                        <twig:ListItem
+                            headline="Element zaznaczony"
+                            supporting="Aktualnie wybrany"
+                            :selected="true"
+                        />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# Modals #}
+        <section>
+            <h2 class="text-headline-large mb-6 pb-2 border-b-2 border-[var(--color-outline-variant)]">6. Okna dialogowe (Modal)</h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Przykłady</h3>
+                    <div class="flex flex-wrap gap-3 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <twig:Button
+                            label="Podstawowy dialog"
+                            variant="filled"
+                            data-action="click->demo#showBasicModal"
+                        />
+                        <twig:Button
+                            label="Dialog z formularzem"
+                            variant="filled-tonal"
+                            data-action="click->demo#showFormModal"
+                        />
+                        <twig:Button
+                            label="Dialog potwierdzenia"
+                            variant="outlined"
+                            data-action="click->demo#showConfirmModal"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {# Modal Examples - Note: Modals are defined but styling only, not functional in this demo #}
+            <div style="display: none;">
+                <twig:Modal
+                    id="basic-modal"
+                    headline="Podstawowy dialog"
+                    supportingText="To jest przykładowy dialog Material 3 z pełną obsługą dostępności, focus trap i obsługą klawiatury."
+                    variant="basic"
+                />
+
+                <twig:Modal
+                    id="form-modal"
+                    headline="Dialog z formularzem"
+                    supportingText="Wypełnij poniższe pola"
+                    variant="scrollable"
+                />
+
+                <twig:Modal
+                    id="confirm-modal"
+                    headline="Czy na pewno?"
+                    supportingText="Ta akcja jest nieodwracalna. Czy na pewno chcesz kontynuować?"
+                    variant="basic"
+                />
+            </div>
+        </section>
+
+        {# Snackbars #}
+        <section>
+            <h2 class="text-headline-large mb-6 pb-2 border-b-2 border-[var(--color-outline-variant)]">7. Powiadomienia (Snackbar)</h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Przykłady</h3>
+                    <div class="flex flex-wrap gap-3 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <twig:Button
+                            label="Info"
+                            variant="filled"
+                            data-action="click->demo#showInfoSnackbar"
+                        />
+                        <twig:Button
+                            label="Sukces"
+                            variant="filled"
+                            data-action="click->demo#showSuccessSnackbar"
+                        />
+                        <twig:Button
+                            label="Ostrzeżenie"
+                            variant="filled"
+                            data-action="click->demo#showWarningSnackbar"
+                        />
+                        <twig:Button
+                            label="Błąd"
+                            variant="filled"
+                            data-action="click->demo#showErrorSnackbar"
+                        />
+                        <twig:Button
+                            label="Z akcją"
+                            variant="filled-tonal"
+                            data-action="click->demo#showActionSnackbar"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {# Snackbar Examples #}
+            <twig:Snackbar
+                id="info-snackbar"
+                message="To jest wiadomość informacyjna"
+                status="info"
+                :duration="3000"
+            />
+
+            <twig:Snackbar
+                id="success-snackbar"
+                message="Operacja zakończona pomyślnie!"
+                status="success"
+                :duration="3000"
+            />
+
+            <twig:Snackbar
+                id="warning-snackbar"
+                message="Uwaga! To jest ostrzeżenie"
+                status="warning"
+                :duration="4000"
+            />
+
+            <twig:Snackbar
+                id="error-snackbar"
+                message="Wystąpił błąd podczas operacji"
+                status="error"
+                :duration="5000"
+            />
+
+            <twig:Snackbar
+                id="action-snackbar"
+                message="Element został usunięty"
+                actionLabel="Cofnij"
+                status="info"
+                :duration="5000"
+            />
+        </section>
+
+        {# Navigation Components #}
+        <section>
+            <h2 class="text-headline-large mb-6 pb-2 border-b-2 border-[var(--color-outline-variant)]">8. Nawigacja</h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Responsywna nawigacja</h3>
+                    <div class="bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <p class="text-body-medium mb-4">
+                            System nawigacji automatycznie dostosowuje się do rozmiaru ekranu:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-body-medium text-[var(--color-on-surface-variant)]">
+                            <li><strong>Mobile (< 768px):</strong> BottomNav - dolna nawigacja z ikonami i etykietami</li>
+                            <li><strong>Tablet (768px - 1024px):</strong> NavRail - pionowa nawigacja boczna</li>
+                            <li><strong>Desktop (> 1024px):</strong> NavDrawer - pełna szuflada nawigacyjna</li>
+                        </ul>
+                        <p class="text-body-medium mt-4">
+                            Zobacz demonstrację w komponencie AppScaffold poniżej lub zmień rozmiar okna aby zobaczyć przejścia.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# App Scaffold Demo #}
+        <section>
+            <h2 class="text-headline-large mb-6 pb-2 border-b-2 border-[var(--color-outline-variant)]">9. Layout aplikacji (AppScaffold)</h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Przykład kompletnego layoutu</h3>
+                    <div class="bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <p class="text-body-medium mb-4">
+                            Komponent AppScaffold zapewnia kompletną strukturę aplikacji z:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-body-medium text-[var(--color-on-surface-variant)]">
+                            <li>Top bar z tytułem i akcjami</li>
+                            <li>Responsywną nawigacją (BottomNav/NavRail/NavDrawer)</li>
+                            <li>Głównym obszarem treści z automatycznymi marginami</li>
+                            <li>Opcjonalnym Floating Action Button (FAB)</li>
+                        </ul>
+                        <div class="mt-4">
+                            <twig:Button
+                                label="Zobacz pełny przykład"
+                                variant="filled"
+                                href="/scaffold-demo"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# Design Tokens #}
+        <section>
+            <h2 class="text-headline-large mb-6 pb-2 border-b-2 border-[var(--color-outline-variant)]">10. Design Tokens</h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Kolory</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="space-y-2">
+                            <div class="h-20 rounded-[var(--radius-sm)] bg-[var(--color-primary)] flex items-center justify-center">
+                                <span class="text-[var(--color-on-primary)] text-label-large">Primary</span>
+                            </div>
+                            <p class="text-body-small text-center">--color-primary</p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="h-20 rounded-[var(--radius-sm)] bg-[var(--color-secondary)] flex items-center justify-center">
+                                <span class="text-[var(--color-on-secondary)] text-label-large">Secondary</span>
+                            </div>
+                            <p class="text-body-small text-center">--color-secondary</p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="h-20 rounded-[var(--radius-sm)] bg-[var(--color-tertiary)] flex items-center justify-center">
+                                <span class="text-[var(--color-on-tertiary)] text-label-large">Tertiary</span>
+                            </div>
+                            <p class="text-body-small text-center">--color-tertiary</p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="h-20 rounded-[var(--radius-sm)] bg-[var(--color-error)] flex items-center justify-center">
+                                <span class="text-[var(--color-on-error)] text-label-large">Error</span>
+                            </div>
+                            <p class="text-body-small text-center">--color-error</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Elevation (cienie)</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <div class="h-20 rounded-[var(--radius-sm)] bg-[var(--color-surface)] shadow-[var(--shadow-elevation-1)] flex items-center justify-center">
+                            <span class="text-label-small">Level 1</span>
+                        </div>
+                        <div class="h-20 rounded-[var(--radius-sm)] bg-[var(--color-surface)] shadow-[var(--shadow-elevation-2)] flex items-center justify-center">
+                            <span class="text-label-small">Level 2</span>
+                        </div>
+                        <div class="h-20 rounded-[var(--radius-sm)] bg-[var(--color-surface)] shadow-[var(--shadow-elevation-3)] flex items-center justify-center">
+                            <span class="text-label-small">Level 3</span>
+                        </div>
+                        <div class="h-20 rounded-[var(--radius-sm)] bg-[var(--color-surface)] shadow-[var(--shadow-elevation-4)] flex items-center justify-center">
+                            <span class="text-label-small">Level 4</span>
+                        </div>
+                        <div class="h-20 rounded-[var(--radius-sm)] bg-[var(--color-surface)] shadow-[var(--shadow-elevation-5)] flex items-center justify-center">
+                            <span class="text-label-small">Level 5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-title-medium mb-3 text-[var(--color-primary)]">Shape (zaokrąglenia)</h3>
+                    <div class="grid grid-cols-3 md:grid-cols-7 gap-4 bg-[var(--color-surface)] p-4 rounded-[var(--radius-md)]">
+                        <div class="space-y-2">
+                            <div class="h-16 bg-[var(--color-primary-container)] rounded-[var(--radius-none)]"></div>
+                            <p class="text-label-small text-center">none</p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="h-16 bg-[var(--color-primary-container)] rounded-[var(--radius-xs)]"></div>
+                            <p class="text-label-small text-center">xs (4px)</p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="h-16 bg-[var(--color-primary-container)] rounded-[var(--radius-sm)]"></div>
+                            <p class="text-label-small text-center">sm (8px)</p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="h-16 bg-[var(--color-primary-container)] rounded-[var(--radius-md)]"></div>
+                            <p class="text-label-small text-center">md (12px)</p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="h-16 bg-[var(--color-primary-container)] rounded-[var(--radius-lg)]"></div>
+                            <p class="text-label-small text-center">lg (16px)</p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="h-16 bg-[var(--color-primary-container)] rounded-[var(--radius-xl)]"></div>
+                            <p class="text-label-small text-center">xl (28px)</p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="h-16 bg-[var(--color-primary-container)] rounded-[var(--radius-full)]"></div>
+                            <p class="text-label-small text-center">full</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {# Documentation #}
+        <section class="pb-12">
+            <h2 class="text-headline-large mb-6 pb-2 border-b-2 border-[var(--color-outline-variant)]">Dokumentacja</h2>
+
+            <div class="bg-[var(--color-surface)] p-6 rounded-[var(--radius-md)]">
+                <h3 class="text-title-large mb-4">Dalsze informacje</h3>
+                <p class="text-body-large mb-4">
+                    Pełna dokumentacja użycia komponentów znajduje się w pliku:
+                </p>
+                <code class="block bg-[var(--color-surface-variant)] px-4 py-2 rounded-[var(--radius-sm)] text-body-medium mb-4">
+                    .ai/material-3-components-usage.md
+                </code>
+                <p class="text-body-medium text-[var(--color-on-surface-variant)]">
+                    Dokument zawiera szczegółowe przykłady użycia wszystkich komponentów,
+                    listę wszystkich props, wskazówki dotyczące dostępności oraz best practices.
+                </p>
+            </div>
+        </section>
+    </main>
+</div>
+
+{# Stimulus Controller for Demos #}
+<div data-controller="demo"></div>
+
+<script>
+// Simple demo controller
+document.addEventListener('DOMContentLoaded', () => {
+    // Modal demos
+    document.querySelector('[data-action="click->demo#showBasicModal"]')?.addEventListener('click', () => {
+        document.getElementById('basic-modal').style.display = 'flex';
+    });
+
+    document.querySelector('[data-action="click->demo#showFormModal"]')?.addEventListener('click', () => {
+        document.getElementById('form-modal').style.display = 'flex';
+    });
+
+    document.querySelector('[data-action="click->demo#showConfirmModal"]')?.addEventListener('click', () => {
+        document.getElementById('confirm-modal').style.display = 'flex';
+    });
+
+    // Snackbar demos
+    const showSnackbar = (id) => {
+        const snackbar = document.getElementById(id);
+        snackbar.style.display = 'flex';
+        setTimeout(() => {
+            snackbar.style.opacity = '1';
+        }, 10);
+    };
+
+    document.querySelector('[data-action="click->demo#showInfoSnackbar"]')?.addEventListener('click', () => {
+        showSnackbar('info-snackbar');
+    });
+
+    document.querySelector('[data-action="click->demo#showSuccessSnackbar"]')?.addEventListener('click', () => {
+        showSnackbar('success-snackbar');
+    });
+
+    document.querySelector('[data-action="click->demo#showWarningSnackbar"]')?.addEventListener('click', () => {
+        showSnackbar('warning-snackbar');
+    });
+
+    document.querySelector('[data-action="click->demo#showErrorSnackbar"]')?.addEventListener('click', () => {
+        showSnackbar('error-snackbar');
+    });
+
+    document.querySelector('[data-action="click->demo#showActionSnackbar"]')?.addEventListener('click', () => {
+        showSnackbar('action-snackbar');
+    });
+
+    // Listen for snackbar action
+    document.addEventListener('snackbar:action', (e) => {
+        alert('Akcja Cofnij została kliknięta!');
+    });
+
+    // Listen for modal confirm
+    document.addEventListener('modal:confirmed', (e) => {
+        console.log('Modal confirmed:', e.target.id);
+    });
+});
+</script>
+{% endblock %}

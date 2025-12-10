@@ -1,0 +1,98 @@
+{% extends '_auth_layout.html.twig' %}
+
+{% block title %}Ustaw nowe hasło - Fiszki AI{% endblock %}
+
+{% block auth_content %}
+<twig:Card variant="elevated" class="p-6">
+    {# Page Header #}
+    <div class="mb-6 text-center">
+        <h1 class="text-headline-large mb-2">Nowe hasło</h1>
+        <p class="text-body-medium text-[var(--color-on-surface-variant)]">
+            Ustaw nowe, bezpieczne hasło do swojego konta
+        </p>
+    </div>
+
+    {# Reset Password Form #}
+    <form method="post" data-controller="form-validation" novalidate>
+        {# CSRF Token #}
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('reset_password') }}">
+
+        <div class="space-y-4">
+            {# New Password Field #}
+            <div>
+                <twig:TextField
+                    name="password"
+                    label="Nowe hasło"
+                    type="password"
+                    variant="outlined"
+                    :required="true"
+                    helperText="Minimum 8 znaków"
+                    data-form-validation-target="password"
+                    data-action="blur->form-validation#validatePassword input->form-validation#validatePasswordRealtime"
+                    autocomplete="new-password"
+                />
+                <div data-form-validation-target="passwordError" class="text-body-small text-[var(--color-error)] mt-1 hidden"></div>
+
+                {# Password Strength Indicator #}
+                <div class="mt-2">
+                    <div class="flex gap-1">
+                        <div data-form-validation-target="strengthBar1" class="h-1 flex-1 bg-[var(--color-surface-variant)] rounded transition-colors"></div>
+                        <div data-form-validation-target="strengthBar2" class="h-1 flex-1 bg-[var(--color-surface-variant)] rounded transition-colors"></div>
+                        <div data-form-validation-target="strengthBar3" class="h-1 flex-1 bg-[var(--color-surface-variant)] rounded transition-colors"></div>
+                        <div data-form-validation-target="strengthBar4" class="h-1 flex-1 bg-[var(--color-surface-variant)] rounded transition-colors"></div>
+                    </div>
+                    <p data-form-validation-target="strengthText" class="text-body-small text-[var(--color-on-surface-variant)] mt-1"></p>
+                </div>
+            </div>
+
+            {# Password Confirmation Field #}
+            <div>
+                <twig:TextField
+                    name="password_confirm"
+                    label="Potwierdź nowe hasło"
+                    type="password"
+                    variant="outlined"
+                    :required="true"
+                    helperText="Wpisz hasło ponownie"
+                    data-form-validation-target="passwordConfirm"
+                    data-action="blur->form-validation#validatePasswordMatch input->form-validation#validatePasswordMatchRealtime"
+                    autocomplete="new-password"
+                />
+                <div data-form-validation-target="passwordConfirmError" class="text-body-small text-[var(--color-error)] mt-1 hidden"></div>
+            </div>
+
+            {# Security Tips #}
+            <div class="bg-[var(--color-primary-container)] p-4 rounded-lg">
+                <p class="text-body-small font-medium text-[var(--color-on-primary-container)] mb-2">
+                    Wskazówki dotyczące bezpiecznego hasła:
+                </p>
+                <ul class="text-body-small text-[var(--color-on-primary-container)] space-y-1 ml-4 list-disc">
+                    <li>Minimum 8 znaków</li>
+                    <li>Połączenie wielkich i małych liter</li>
+                    <li>Co najmniej jedna cyfra</li>
+                    <li>Znak specjalny (opcjonalnie)</li>
+                </ul>
+            </div>
+
+            {# Submit Button #}
+            <div class="pt-2">
+                <twig:Button
+                    label="Zmień hasło"
+                    variant="filled"
+                    type="submit"
+                    size="large"
+                    class="w-full"
+                    data-form-validation-target="submitButton"
+                />
+            </div>
+        </div>
+    </form>
+
+    {# Info about success #}
+    <div class="mt-6 pt-6 border-t border-[var(--color-outline-variant)] text-center">
+        <p class="text-body-small text-[var(--color-on-surface-variant)]">
+            Po zmianie hasła zostaniesz automatycznie przekierowany do strony logowania
+        </p>
+    </div>
+</twig:Card>
+{% endblock %}
