@@ -12,6 +12,32 @@
         </p>
     </div>
 
+    {# Error Message #}
+    {% if error %}
+        <div class="mb-6 p-4 bg-[var(--color-error-container)] border-l-4 border-[var(--color-error)] rounded" role="alert">
+            <div class="flex items-start">
+                <svg class="w-5 h-5 text-[var(--color-error)] mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                <div class="flex-1">
+                    <h3 class="text-title-small text-[var(--color-on-error-container)] font-medium">
+                        Błąd logowania
+                    </h3>
+                    <p class="text-body-medium text-[var(--color-on-error-container)] mt-1">
+                        Nieprawidłowy email lub hasło. Sprawdź wprowadzone dane i spróbuj ponownie.
+                    </p>
+                    {# Debug info - remove in production #}
+                    {% if app.environment == 'dev' %}
+                        <details class="mt-2 text-xs text-[var(--color-on-error-container)] opacity-70">
+                            <summary class="cursor-pointer">Debug info</summary>
+                            <pre class="mt-1">{{ error.messageKey }}</pre>
+                        </details>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     {# Login Form #}
     <form method="post" data-controller="form-validation" novalidate>
         {# CSRF Token #}
@@ -56,13 +82,13 @@
                 <label for="remember_me" class="text-body-medium">Zapamiętaj mnie</label>
             </div> #}
 
-            {# Forgot Password Link #}
-            <div class="text-right">
+            {# Forgot Password Link - not yet implemented #}
+            {# <div class="text-right">
                 <a href="{{ path('app_reset_password_request') }}"
                    class="text-body-medium text-[var(--color-primary)] hover:underline">
                     Zapomniałeś hasła?
                 </a>
-            </div>
+            </div> #}
 
             {# Submit Button #}
             <div class="pt-2">

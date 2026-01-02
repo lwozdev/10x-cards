@@ -5,13 +5,17 @@ security:
 
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        # In-memory test user for development/testing
-        # TODO: Replace with Doctrine user provider when authentication is implemented
+        # Custom User Provider using Domain repository (Clean Architecture)
+        # Loads users from PostgreSQL via UserRepositoryInterface
+        app_user_provider:
+            id: App\Infrastructure\Security\UserProvider
+
+        # In-memory test user for development/testing (kept for API testing)
+        # Can be used with http_basic in test environment
         test_users:
             memory:
                 users:
                     # Test user: test@example.com / test123
-                    # User identifier will be used as UUID for testing
                     test@example.com:
                         password: '$2y$13$6V7zoNYDttt38XdNcqJUyOuFLi1j6r1/edxlV68Kd2yYxVa3/3Lou'  # test123
                         roles: ['ROLE_USER']
@@ -23,23 +27,62 @@ security:
 
         main:
             lazy: true
-            provider: test_users
+            provider: app_user_provider
 
-            # HTTP Basic Auth for development/testing
-            # Usage: curl -u test@example.com:test123 ...
-            http_basic:
-                realm: 'Flashcards API - DEV ONLY'
+            # Form-based login (session-based authentication)
+            # Handles POST /login and creates authenticated session
+            form_login:
+                # Login form page (GET /login)
+                login_path: app_login
+                # Target to process login submission (POST /login)
+                check_path: app_login
+                # Redirect to this route after successful login
+                default_target_path: generate_view
+                # Always use default_target_path (ignore previous URL)
+                always_use_default_target_path: false
+                # Enable CSRF protection for login form
+                enable_csrf: true
+                # Username parameter name in login form
+                username_parameter: _username
+                # Password parameter name in login form
+                password_parameter: _password
 
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
+            # Logout configuration
+            logout:
+                # Logout route (GET /logout)
+                path: app_logout
+                # Redirect to home page after logout
+                target: generate_view
+                # Invalidate session on logout (security best practice)
+                invalidate_session: true
+
+            # Remember me functionality (optional, can be enabled later)
+            # remember_me:
+            #     secret: '%kernel.secret%'
+            #     lifetime: 604800 # 1 week in seconds
+            #     path: /
+            #     always_remember_me: false
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # Require authentication for API endpoints
-        - { path: ^/api, roles: ROLE_USER }
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        # Public routes (no authentication required)
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/reset-password, roles: PUBLIC_ACCESS }
+
+        # Public access to AI generation (PRD US-003, US-010)
+        # Users can generate flashcards WITHOUT logging in
+        - { path: ^/generate, roles: PUBLIC_ACCESS }
+        - { path: ^/api/generate, roles: PUBLIC_ACCESS }
+
+        # Protected routes (require ROLE_USER)
+        - { path: ^/sets, roles: ROLE_USER }
+        - { path: ^/api/sets, roles: ROLE_USER }
+        - { path: ^/api/learning, roles: ROLE_USER }
+
+        # Everything else is public by default
+        # - { path: ^/, roles: PUBLIC_ACCESS }
 
 when@test:
     security:
