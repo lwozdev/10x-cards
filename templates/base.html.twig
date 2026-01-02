@@ -19,6 +19,21 @@
         <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
     {% endblock %}
 
+    <script>
+        (function () {
+            const root = document.documentElement;
+            const key = 'theme';
+            const saved = localStorage.getItem(key) || 'system';
+
+            if (saved === 'dark') root.classList.add('dark');
+            else if (saved === 'light') root.classList.remove('dark');
+            else {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                root.classList.toggle('dark', prefersDark);
+            }
+        })();
+    </script>
+
 
 </head>
 <body>
@@ -59,6 +74,15 @@
                             Wyloguj
                         </a>
                     {% endif %}
+                    <button
+                        type="button"
+                        data-controller="theme"
+                        data-action="click->theme#toggle"
+                        class="inline-flex items-center gap-2 rounded-md px-3 py-2"
+                    >
+                        <span data-theme-target="icon">🌙</span>
+                        <span data-theme-target="label" class="text-sm">system</span>
+                    </button>
                 {% endblock %}
             </div>
         </div>

@@ -1,4 +1,4 @@
-import { startStimulusApp } from '@symfony/stimulus-bundle';
+import {startStimulusApp} from '@symfony/stimulus-bundle';
 import GenerateController from './controllers/generate_controller.js';
 import EditSetController from './controllers/edit_set_controller.js';
 import SetListController from './controllers/set_list_controller.js';
@@ -17,3 +17,4 @@ app.register('hello', HelloController);
 app.register('form-validation', FormValidationController);
 app.register('modal', ModalController);
 app.register('snackbar', SnackbarController);
+app.register('theme', ThemeController);
