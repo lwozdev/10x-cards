@@ -67,6 +67,9 @@
                             size="medium"
                         />
                     {% else %}
+                        <span class="text-body-medium text-[var(--color-on-surface-variant)] font-medium">
+                            {{ app.user.userIdentifier }}
+                        </span>
                         <a href="{{ path('set_list') }}" class="text-body-medium text-[var(--color-on-surface)]">
                             Moje zestawy
                         </a>

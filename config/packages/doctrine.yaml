@@ -8,6 +8,19 @@ doctrine:
 
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
+
+        # Custom Doctrine DBAL Types for PostgreSQL enums
+        types:
+            card_origin: App\Infrastructure\Doctrine\Type\CardOriginType
+            ai_job_status: App\Infrastructure\Doctrine\Type\AiJobStatusType
+
+        # Map database types to Doctrine types
+        # This tells Doctrine that PostgreSQL enums should be treated as our custom types
+        mapping_types:
+            card_origin: card_origin
+            ai_job_status: ai_job_status
+            # PostgreSQL citext extension (case-insensitive text) maps to string
+            citext: string
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true

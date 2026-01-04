@@ -32,29 +32,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'last_login_at', type: 'datetime_immutable', nullable: true)]
     private ?DateTimeImmutable $lastLoginAt = null;
 
+    #[ORM\Column(name: 'is_verified', type: 'boolean')]
+    private bool $isVerified = false;
+
     private function __construct(
         UserId $id,
         Email $email,
         string $passwordHash,
-        DateTimeImmutable $createdAt
+        DateTimeImmutable $createdAt,
+        bool $isVerified = false
     ) {
         $this->id = $id->toString();
         $this->email = $email->toString();
         $this->passwordHash = $passwordHash;
         $this->createdAt = $createdAt;
+        $this->isVerified = $isVerified;
     }
 
     public static function create(
         UserId $id,
         Email $email,
         string $passwordHash,
-        DateTimeImmutable $createdAt
+        DateTimeImmutable $createdAt,
+        bool $isVerified = false
     ): self {
         if (strlen($passwordHash) < 60) {
             throw new \InvalidArgumentException('Password hash must be at least 60 characters');
         }
 
-        return new self($id, $email, $passwordHash, $createdAt);
+        return new self($id, $email, $passwordHash, $createdAt, $isVerified);
     }
 
     public function getId(): UserId
@@ -102,5 +108,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getPassword(): string
     {
         return $this->passwordHash;
+    }
+
+    // Email verification methods
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function markAsVerified(): void
+    {
+        $this->isVerified = true;
     }
 }

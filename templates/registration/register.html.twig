@@ -12,42 +12,55 @@
         </p>
     </div>
 
+    {# Flash Messages #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="mb-6 p-4 {% if label == 'error' %}bg-[var(--color-error-container)] border-l-4 border-[var(--color-error)]{% else %}bg-[var(--color-primary-container)] border-l-4 border-[var(--color-primary)]{% endif %} rounded" role="alert">
+                <p class="text-body-medium {% if label == 'error' %}text-[var(--color-on-error-container)]{% else %}text-[var(--color-on-primary-container)]{% endif %}">
+                    {{ message }}
+                </p>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
     {# Registration Form #}
-    <form method="post" data-controller="form-validation" novalidate>
-        {# CSRF Token #}
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token('registration') }}">
+    {{ form_start(registrationForm, {'attr': {'novalidate': 'novalidate', 'data-controller': 'form-validation'}}) }}
 
         <div class="space-y-4">
             {# Email Field #}
             <div>
-                <twig:TextField
-                    name="email"
-                    label="Email"
-                    type="email"
-                    variant="outlined"
-                    :required="true"
-                    helperText="Użyjemy go do logowania i komunikacji"
-                    data-form-validation-target="email"
-                    data-action="blur->form-validation#validateEmail input->form-validation#validateEmailRealtime"
-                    autocomplete="email"
-                />
+                {{ form_widget(registrationForm.email, {
+                    'attr': {
+                        'class': 'w-full px-4 py-3 rounded-lg border border-[var(--color-outline)] bg-[var(--color-surface)] text-[var(--color-on-surface)]',
+                        'placeholder': 'twój@email.pl',
+                        'data-form-validation-target': 'email',
+                        'data-action': 'blur->form-validation#validateEmail input->form-validation#validateEmailRealtime'
+                    }
+                }) }}
                 <div data-form-validation-target="emailError" class="text-body-small text-[var(--color-error)] mt-1 hidden"></div>
+                {{ form_errors(registrationForm.email, {
+                    'attr': {
+                        'class': 'text-body-small text-[var(--color-error)] mt-1'
+                    }
+                }) }}
             </div>
 
             {# Password Field #}
             <div>
-                <twig:TextField
-                    name="password"
-                    label="Hasło"
-                    type="password"
-                    variant="outlined"
-                    :required="true"
-                    helperText="Minimum 8 znaków"
-                    data-form-validation-target="password"
-                    data-action="blur->form-validation#validatePassword input->form-validation#validatePasswordRealtime"
-                    autocomplete="new-password"
-                />
+                {{ form_widget(registrationForm.plainPassword, {
+                    'attr': {
+                        'class': 'w-full px-4 py-3 rounded-lg border border-[var(--color-outline)] bg-[var(--color-surface)] text-[var(--color-on-surface)]',
+                        'placeholder': 'Minimum 8 znaków',
+                        'data-form-validation-target': 'password',
+                        'data-action': 'blur->form-validation#validatePassword input->form-validation#validatePasswordRealtime'
+                    }
+                }) }}
                 <div data-form-validation-target="passwordError" class="text-body-small text-[var(--color-error)] mt-1 hidden"></div>
+                {{ form_errors(registrationForm.plainPassword, {
+                    'attr': {
+                        'class': 'text-body-small text-[var(--color-error)] mt-1'
+                    }
+                }) }}
 
                 {# Password Strength Indicator #}
                 <div class="mt-2">
@@ -63,51 +76,55 @@
 
             {# Password Confirmation Field #}
             <div>
-                <twig:TextField
-                    name="password_confirm"
-                    label="Potwierdź hasło"
-                    type="password"
-                    variant="outlined"
-                    :required="true"
-                    helperText="Wpisz hasło ponownie"
-                    data-form-validation-target="passwordConfirm"
-                    data-action="blur->form-validation#validatePasswordMatch input->form-validation#validatePasswordMatchRealtime"
-                    autocomplete="new-password"
-                />
+                {{ form_widget(registrationForm.passwordConfirm, {
+                    'attr': {
+                        'class': 'w-full px-4 py-3 rounded-lg border border-[var(--color-outline)] bg-[var(--color-surface)] text-[var(--color-on-surface)]',
+                        'placeholder': 'Wpisz hasło ponownie',
+                        'data-form-validation-target': 'passwordConfirm',
+                        'data-action': 'blur->form-validation#validatePasswordMatch input->form-validation#validatePasswordMatchRealtime'
+                    }
+                }) }}
                 <div data-form-validation-target="passwordConfirmError" class="text-body-small text-[var(--color-error)] mt-1 hidden"></div>
+                {{ form_errors(registrationForm.passwordConfirm, {
+                    'attr': {
+                        'class': 'text-body-small text-[var(--color-error)] mt-1'
+                    }
+                }) }}
             </div>
 
-            {# Terms Acceptance (Optional) #}
+            {# Terms Acceptance #}
             <div class="flex items-start gap-2 pt-2">
-                <input
-                    type="checkbox"
-                    name="agree_terms"
-                    id="agree_terms"
-                    required
-                    class="mt-1"
-                    data-form-validation-target="terms"
-                >
-                <label for="agree_terms" class="text-body-small text-[var(--color-on-surface-variant)]">
+                {{ form_widget(registrationForm.agreeTerms, {
+                    'attr': {
+                        'class': 'mt-1',
+                        'data-form-validation-target': 'terms',
+                        'data-action': 'change->form-validation#updateSubmitButtonState'
+                    }
+                }) }}
+                <label for="{{ registrationForm.agreeTerms.vars.id }}" class="text-body-small text-[var(--color-on-surface-variant)]">
                     Akceptuję
                     <a href="#" class="text-[var(--color-primary)] hover:underline">regulamin</a>
                     i
                     <a href="#" class="text-[var(--color-primary)] hover:underline">politykę prywatności</a>
                 </label>
             </div>
+            {{ form_errors(registrationForm.agreeTerms, {
+                'attr': {
+                    'class': 'text-body-small text-[var(--color-error)] mt-1'
+                }
+            }) }}
 
             {# Submit Button #}
             <div class="pt-2">
-                <twig:Button
-                    label="Utwórz konto"
-                    variant="filled"
-                    type="submit"
-                    size="large"
-                    class="w-full"
-                    data-form-validation-target="submitButton"
-                />
+                <button type="submit"
+                        class="w-full px-6 py-3 bg-[var(--color-primary)] text-[var(--color-on-primary)] rounded-lg font-medium hover:opacity-90 transition-opacity"
+                        data-form-validation-target="submitButton">
+                    Utwórz konto
+                </button>
             </div>
         </div>
-    </form>
+
+    {{ form_end(registrationForm) }}
 
     {# Login Link #}
     <div class="mt-6 pt-6 border-t border-[var(--color-outline-variant)] text-center">

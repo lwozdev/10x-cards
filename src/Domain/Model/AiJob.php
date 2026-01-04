@@ -43,7 +43,7 @@ class AiJob
     #[ORM\Column(type: 'uuid', nullable: true)]
     private ?Uuid $setId = null;
 
-    #[ORM\Column(type: 'string', length: 20, enumType: AiJobStatus::class)]
+    #[ORM\Column(type: 'ai_job_status')]
     private AiJobStatus $status;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

@@ -30,8 +30,10 @@ final class SetListController extends AbstractController
 
     public function __invoke(): Response
     {
+
         // 1. Get current user ID
         $user = $this->getUser();
+
         if ($user === null) {
             return $this->json([
                 'error' => 'Authentication required',
@@ -39,11 +41,8 @@ final class SetListController extends AbstractController
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        // TEMPORARY: Hardcoded user ID for testing (same as other controllers)
-        // TODO: Replace with: UserId::fromString($user->getUserIdentifier())
-        $userId = UserId::fromString('7c9bda17-fdec-4e89-82e9-5d93b10a9c40');
+        $userId = $user->getId();
 
-        // 2. Fetch all active sets for user (sorted by updated_at DESC)
         $sets = $this->setRepository->findActiveOwnedBy($userId);
 
         // 3. Transform to view DTOs

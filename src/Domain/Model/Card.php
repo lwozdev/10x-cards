@@ -22,7 +22,7 @@ class Card
     #[ORM\Column(name: 'set_id', type: 'guid')]
     private string $setId;
 
-    #[ORM\Column(type: 'string', length: 20, enumType: CardOrigin::class)]
+    #[ORM\Column(type: 'card_origin')]
     private CardOrigin $origin;
 
     #[ORM\Column(type: 'text')]

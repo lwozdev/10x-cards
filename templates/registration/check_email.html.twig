@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sprawdź swoją skrzynkę email - Fiszki AI{% endblock %}
+
+{% block content %}
+<twig:Card variant="elevated" class="p-6">
+    {# Success Icon #}
+    <div class="flex justify-center mb-6">
+        <div class="w-16 h-16 rounded-full bg-[var(--color-primary-container)] flex items-center justify-center">
+            <svg class="w-10 h-10 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+        </div>
+    </div>
+
+    {# Page Header #}
+    <div class="mb-6 text-center">
+        <h1 class="text-headline-large mb-2">Sprawdź swoją skrzynkę email</h1>
+        <p class="text-body-large text-[var(--color-on-surface-variant)]">
+            Wysłaliśmy link aktywacyjny na podany adres email
+        </p>
+    </div>
+
+    {# Instructions #}
+    <div class="space-y-4 mb-6">
+        <div class="p-4 bg-[var(--color-surface-variant)] rounded-lg">
+            <h2 class="text-title-medium mb-2">Co dalej?</h2>
+            <ol class="list-decimal list-inside space-y-2 text-body-medium text-[var(--color-on-surface-variant)]">
+                <li>Otwórz swoją skrzynkę email</li>
+                <li>Znajdź wiadomość od Fiszki AI</li>
+                <li>Kliknij w link aktywacyjny</li>
+                <li>Zaloguj się do swojego konta</li>
+            </ol>
+        </div>
+
+        <div class="p-4 bg-[var(--color-tertiary-container)] rounded-lg border-l-4 border-[var(--color-tertiary)]">
+            <div class="flex items-start">
+                <svg class="w-5 h-5 text-[var(--color-on-tertiary-container)] mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                    <h3 class="text-title-small text-[var(--color-on-tertiary-container)] font-medium mb-1">
+                        Nie otrzymałeś emaila?
+                    </h3>
+                    <ul class="text-body-small text-[var(--color-on-tertiary-container)] space-y-1">
+                        <li>• Sprawdź folder SPAM</li>
+                        <li>• Poczekaj kilka minut - dostarczenie może chwilę potrwać</li>
+                        <li>• Upewnij się, że podałeś poprawny adres email</li>
+                        <li>• Link jest ważny przez 1 godzinę</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Back to Homepage #}
+    <div class="text-center pt-4 border-t border-[var(--color-outline-variant)]">
+        <a href="{{ path('generate_view') }}"
+           class="text-body-medium text-[var(--color-primary)] hover:underline font-medium">
+            Wróć do strony głównej
+        </a>
+    </div>
+</twig:Card>
+{% endblock %}

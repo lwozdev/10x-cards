@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -50,6 +48,19 @@ services:
       - flashcards_network
     depends_on:
       - backend
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: flashcards-mailpit
+    ports:
+      - "8026:8025"  # Web UI (using 8026 to avoid conflicts with other projects)
+      - "1026:1025"  # SMTP server (using 1026 to avoid conflicts)
+    networks:
+      - flashcards_network
+    environment:
+      MP_MAX_MESSAGES: 500
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
 volumes:
   postgres_data:

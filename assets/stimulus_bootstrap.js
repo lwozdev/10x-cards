@@ -6,6 +6,7 @@ import HelloController from './controllers/hello_controller.js';
 import FormValidationController from './controllers/form_validation_controller.js';
 import ModalController from './controllers/modal_controller.js';
 import SnackbarController from './controllers/snackbar_controller.js';
+import ThemeController from './controllers/theme_controller.js';
 
 const app = startStimulusApp();
 
