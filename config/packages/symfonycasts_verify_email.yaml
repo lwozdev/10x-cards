@@ -1,0 +1,5 @@
+symfonycasts_verify_email:
+    # Lifetime of the verification link (1 hour = 3600 seconds)
+    # After this time, the link will expire and user must request a new one
+    # Auth-spec.md section 3.5.3 specifies 1 hour expiration
+    lifetime: 3600

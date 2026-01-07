@@ -54,7 +54,7 @@ services:
     container_name: flashcards-mailpit
     ports:
       - "8026:8025"  # Web UI (using 8026 to avoid conflicts with other projects)
-      - "1026:1025"  # SMTP server (using 1026 to avoid conflicts)
+      - "1035:1025"  # SMTP server (using 1026 to avoid conflicts)
     networks:
       - flashcards_network
     environment:
