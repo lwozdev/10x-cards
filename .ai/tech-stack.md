@@ -43,6 +43,22 @@ Główną rekomendacją jest **uproszczenie architektury** w celu maksymalnego p
     *   **Rola:** Dostęp do modeli językowych w celu generowania fiszek.
     *   **Uzasadnienie:** Elastyczność i kontrola kosztów. Pozostaje bez zmian.
 
+**Narzędzia Testowe**
+*   **PHPUnit 12.4:**
+    *   **Rola:** Framework do testów jednostkowych i integracyjnych.
+    *   **Uzasadnienie:** Standard branżowy w ekosystemie PHP/Symfony, zapewnia pełne wsparcie dla testowania jednostek, serwisów, repozytoriów i kontrolerów.
+*   **Symfony Panther:**
+    *   **Rola:** Testy E2E (end-to-end) z użyciem prawdziwych przeglądarek (Chrome/Firefox).
+    *   **Uzasadnienie:** Umożliwia testowanie pełnych ścieżek użytkownika w rzeczywistej przeglądarce, w tym interakcji JavaScript (Stimulus), co jest kluczowe dla walidacji UX aplikacji z Symfony UX.
+*   **Faker:**
+    *   **Rola:** Generowanie realistycznych danych testowych.
+    *   **Uzasadnienie:** Przyspiesza tworzenie fixtures i testów poprzez automatyczne generowanie losowych, ale wiarygodnych danych.
+
+**Strategia Testowania:**
+*   **Testy jednostkowe (PHPUnit):** Testowanie logiki biznesowej w izolacji - serwisy, repozytoria, encje, walidatory.
+*   **Testy integracyjne (PHPUnit + WebTestCase):** Testowanie kontrolerów, formularzy i pełnego cyklu request/response bez przeglądarki.
+*   **Testy E2E (Panther):** Testowanie krytycznych ścieżek użytkownika w rzeczywistej przeglądarce, szczególnie flowów z interakcją JavaScript (generowanie fiszek, edycja, nauka).
+
 **CI/CD i Hosting**
 *   **GitHub Actions, Docker, DigitalOcean:**
     *   **Rola:** Automatyzacja, konteneryzacja i hosting aplikacji.

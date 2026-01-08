@@ -59,10 +59,12 @@ AI Flashcard Generator is a web application (MVP) that transforms student notes 
 - **GitHub Actions** - CI/CD automation
 - **DigitalOcean** - Hosting platform
 
-### Development Tools
-- **PHPUnit 12.4** - Testing framework
+### Development & Testing Tools
+- **PHPUnit 12.4** - Unit and integration testing framework
+- **Symfony Panther** - E2E testing with real browsers (ChromeDriver/Firefox)
 - **Symfony Maker Bundle** - Code generation
 - **Symfony Web Profiler** - Debugging and profiling
+- **Faker** - Test data generation
 
 ## Getting Started Locally
 
@@ -171,6 +173,8 @@ php bin/console make:form
 ```
 
 ### Testing
+
+#### Unit & Integration Tests
 ```bash
 # Run all tests
 vendor/bin/phpunit
@@ -178,8 +182,23 @@ vendor/bin/phpunit
 # Run specific test file
 vendor/bin/phpunit tests/PathToTest.php
 
+# Run only unit tests
+vendor/bin/phpunit --testsuite unit
+
 # Run tests with coverage report
 vendor/bin/phpunit --coverage-html var/coverage
+```
+
+#### E2E Tests (Browser-based)
+```bash
+# Install ChromeDriver (first time only)
+vendor/bin/panther-install
+
+# Run E2E tests
+vendor/bin/phpunit --testsuite e2e
+
+# Run E2E tests with visible browser (for debugging)
+PANTHER_NO_HEADLESS=1 vendor/bin/phpunit --testsuite e2e
 ```
 
 ### Docker Commands

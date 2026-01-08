@@ -1,0 +1,27 @@
+# Testing artifacts and generated files
+
+# PHPUnit
+/.phpunit.cache
+/var/coverage/
+
+# Playwright
+/test-results/
+/var/playwright-report/
+/var/.auth/
+
+# Vitest
+/var/coverage/frontend/
+
+# Test databases
+*.db
+*.sqlite
+
+# Screenshots and traces
+/tests/e2e/screenshots/
+/tests/e2e/traces/
+/playwright-report/
+/blob-report/
+
+# Coverage reports
+coverage/
+*.lcov
