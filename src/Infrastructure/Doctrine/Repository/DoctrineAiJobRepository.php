@@ -56,9 +56,13 @@ class DoctrineAiJobRepository extends ServiceEntityRepository implements AiJobRe
 
     public function countFailedByUser(UserId $userId): int
     {
-        return $this->count([
-            'userId' => $userId->toString(),
-            'status' => AiJobStatus::FAILED
-        ]);
+        return (int) $this->createQueryBuilder('aj')
+            ->select('COUNT(aj.id)')
+            ->where('aj.userId = :userId')
+            ->andWhere('aj.status = :status')
+            ->setParameter('userId', $userId->toString())
+            ->setParameter('status', AiJobStatus::FAILED)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }
