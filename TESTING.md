@@ -47,31 +47,29 @@ This project uses a **hybrid testing approach** with multiple test types:
 
 ### Prerequisites
 
-- Docker & Docker Compose (for PostgreSQL)
-- PHP 8.2+
-- Composer
-- Node.js 18+ & npm
+- **Docker & Docker Compose** (wszystkie testy uruchamiamy w kontenerach)
+- **Make** (opcjonalne, ale zdecydowanie zalecane)
+
+**⚠️ WAŻNE:** Wszystkie środowiska testowe (PHP, Node.js, PostgreSQL, Chromium) działają w kontenerach Docker. Nie potrzebujesz lokalnego PHP ani Node.js!
 
 ### Installation
 
 ```bash
-# 1. Install PHP dependencies
-composer install
+# Metoda 1: Użyj Makefile (ZALECANE)
+make docker-up           # Start all Docker containers
+make install            # Install dependencies in containers
+make setup-test-db      # Create test database
 
-# 2. Install Node.js dependencies
-npm install
-
-# 3. Install Playwright browsers (Chromium only)
-npm run playwright:install
-
-# 4. Create test database
-docker-compose up -d postgres
-php bin/console doctrine:database:create --env=test
-php bin/console doctrine:migrations:migrate --env=test --no-interaction
+# Metoda 2: Ręcznie z Docker Compose
+docker compose up -d                                    # Start containers
+docker compose exec backend composer install            # PHP deps
+docker compose exec node npm install                    # Node deps (już done podczas build)
+docker compose exec backend php bin/console doctrine:database:create --env=test
+docker compose exec backend php bin/console doctrine:migrations:migrate --env=test --no-interaction
 
 # 5. Verify setup
-composer test
-npm test
+make test               # Run all tests (fast: PHP + JS)
+make test-all          # Run ALL tests (including E2E)
 ```
 
 ### Test Database Configuration
@@ -86,62 +84,114 @@ The test database is automatically created with `_test` suffix and isolated from
 
 ---
 
+## Docker Architecture for Testing
+
+Wszystkie testy uruchamiamy w kontenerach Docker dla spójności środowiska.
+
+### Kontenery
+
+```yaml
+services:
+  postgres:        # PostgreSQL 16 - baza danych testowa
+  backend:         # PHP 8.2 + Symfony - testy PHPUnit
+  node:            # Node.js 20 + Chromium - testy Vitest + Playwright
+  nginx:           # Serwer web dla testów E2E
+```
+
+### Kontener Node.js
+
+Specjalnie skonfigurowany dla testów frontend i E2E:
+
+- **Obraz**: Node.js 20 Alpine
+- **Chromium**: Zainstalowany systemowo (dla Playwright)
+- **Środowisko**: Wszystkie zmienne dla testów E2E
+- **Wolumen**: `node_modules` zmontowany jako osobny volume
+
+```bash
+# Sprawdź status kontenerów
+docker compose ps
+
+# Zobacz logi Node.js
+make docker-logs-node
+
+# Wejdź do kontenera Node.js
+docker compose exec node sh
+
+# Wejdź do kontenera Backend
+docker compose exec backend bash
+```
+
+### Dlaczego Docker?
+
+✅ **Spójność środowiska**: Wszyscy developerzy i CI używają identycznej konfiguracji
+✅ **Izolacja**: Testy nie kolidują z lokalnym środowiskiem
+✅ **Chromium preinstalowany**: Nie trzeba pobierać przeglądarki lokalnie
+✅ **PostgreSQL RLS**: Wymaga prawdziwego PostgreSQL 16
+✅ **Łatwe cleanup**: `docker compose down` czyści wszystko
+
+---
+
 ## Running Tests
+
+**💡 TIP:** Używaj komend `make` dla uproszczenia. Zobacz `make help` dla pełnej listy.
 
 ### PHP Tests (PHPUnit)
 
 ```bash
-# Run all PHP tests
-composer test
+# ✅ ZALECANE: Użyj Makefile
+make test-php                  # All PHP tests in Docker
+make test-unit                 # Unit tests only
+make test-integration          # Integration tests only
+make test-functional           # Functional tests only
 
-# Run specific test suite
-composer test:unit           # Unit tests only
-composer test:integration    # Integration tests only
-composer test:functional     # Functional tests only
+# Alternatywnie: Docker Compose bezpośrednio
+docker compose exec backend vendor/bin/phpunit
+docker compose exec backend vendor/bin/phpunit --testsuite=Unit
 
 # Run with coverage report
-composer test:coverage       # Generates HTML report in var/coverage/
-
-# Run single test file
-vendor/bin/phpunit tests/Unit/Domain/ValueObject/SourceTextTest.php
-
-# Run tests with filter
-vendor/bin/phpunit --filter testCannotCreateWithTextBelowMinimumLength
+make coverage-php              # Generates HTML report in var/coverage/
 ```
 
 ### JavaScript Tests (Vitest)
 
 ```bash
-# Run all frontend tests
-npm test
+# ✅ ZALECANE: Użyj Makefile
+make test-js                   # Run frontend tests in Docker
+make test-js-watch             # Watch mode (re-run on changes)
+make test-js-ui                # UI mode (visual test explorer)
 
-# Watch mode (re-run on file changes)
-npm run test:watch
-
-# UI mode (visual test explorer)
-npm run test:ui
+# Alternatywnie: Docker Compose bezpośrednio
+docker compose exec node npm run test:unit
+docker compose exec node npm run test:watch
+docker compose exec node npm run test:ui
 
 # Coverage report
-npm run test:coverage        # Generates report in var/coverage/frontend/
+make coverage-js               # Generates report in var/coverage/frontend/
 ```
 
 ### E2E Tests (Playwright)
 
 ```bash
-# Run all E2E tests (headless)
-npm run test:e2e
+# ✅ ZALECANE: Użyj Makefile
+make test-e2e                  # Run E2E tests (headless) in Docker
+make test-e2e-ui               # UI mode (visual test runner)
+make test-e2e-headed           # Headed mode (see browser)
+make test-e2e-debug            # Debug mode (step through tests)
 
-# Run with UI mode (visual test runner)
-npm run test:e2e:ui
-
-# Run in headed mode (see browser)
-npm run test:e2e:headed
-
-# Debug mode (step through tests)
-npm run test:e2e:debug
+# Alternatywnie: Docker Compose bezpośrednio
+docker compose exec -e BASE_URL=http://nginx node npm run test:e2e
+docker compose exec -e BASE_URL=http://nginx node npm run test:e2e:ui
 
 # Generate test code with Codegen
-npm run playwright:codegen
+docker compose exec node npm run playwright:codegen
+```
+
+### Wszystkie Testy Naraz
+
+```bash
+make test                      # PHP + JS (fast, no E2E)
+make test-all                  # PHP + JS + E2E (complete suite)
+make ci                        # Full CI pipeline (setup + test + analyze)
 ```
 
 ### Static Analysis (PHPStan)
@@ -518,4 +568,57 @@ php -d memory_limit=512M vendor/bin/phpunit
 
 ---
 
-**Testing Status:** Environment configured, example tests created, ready for implementation.
+## 🎯 Quick Reference - Makefile Commands
+
+```bash
+# ═══ Setup ═══
+make install                  # Install all dependencies (PHP + Node in Docker)
+make setup-test-db           # Create and migrate test database
+make docker-up               # Start all Docker containers
+make docker-down             # Stop all Docker containers
+
+# ═══ Run Tests ═══
+make test                    # PHP + JS (fast, no E2E)
+make test-all               # PHP + JS + E2E (complete suite)
+make test-php               # All PHP tests (Unit + Integration + Functional)
+make test-unit              # PHP unit tests only
+make test-integration       # PHP integration tests only
+make test-functional        # PHP functional tests only
+make test-js                # Frontend tests (Vitest)
+make test-js-watch          # Vitest watch mode
+make test-js-ui             # Vitest UI mode
+make test-e2e               # E2E tests (Playwright)
+make test-e2e-ui            # Playwright UI mode
+make test-e2e-headed        # Playwright headed mode
+make test-e2e-debug         # Playwright debug mode
+
+# ═══ Coverage ═══
+make coverage               # Generate all coverage reports
+make coverage-php           # PHP coverage → var/coverage/html/index.html
+make coverage-js            # JS coverage → var/coverage/frontend/index.html
+
+# ═══ Code Quality ═══
+make phpstan                # Run PHPStan static analysis (level 8)
+
+# ═══ Docker ═══
+make docker-up              # Start all containers
+make docker-down            # Stop all containers
+make docker-logs            # Show logs for all containers
+make docker-logs-node       # Show Node.js container logs
+
+# ═══ Cleanup ═══
+make clean                  # Clean cache and temp files
+make clean-test             # Clean test artifacts (coverage, reports)
+
+# ═══ CI/CD ═══
+make ci                     # Full CI pipeline (setup + test + analyze)
+
+# ═══ Help ═══
+make help                   # Show all available commands
+```
+
+---
+
+**Testing Status:** ✅ Environment fully configured with Docker, Vitest, Playwright, and PHPUnit ready for implementation.
+
+**Next:** Start implementing tests based on [.ai/test-plan.md](.ai/test-plan.md) priorities (RLS first, then AI generation).

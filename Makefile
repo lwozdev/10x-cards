@@ -36,7 +36,7 @@ test-all: test-php test-js test-e2e ## Run ALL tests including E2E
 
 test-php: ## Run all PHP tests (Unit + Integration + Functional)
 	@echo "${GREEN}Running PHP tests...${NC}"
-	vendor/bin/phpunit
+	docker compose exec backend vendor/bin/phpunit
 
 test-unit: ## Run PHP unit tests only
 	@echo "${GREEN}Running PHP unit tests...${NC}"
