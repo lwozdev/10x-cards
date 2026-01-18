@@ -1,18 +1,24 @@
-FROM node:20-alpine
+FROM node:20-bookworm
 
-# Install dependencies for Playwright (Chromium)
-RUN apk add --no-cache \
-    chromium \
-    nss \
-    freetype \
-    harfbuzz \
-    ca-certificates \
-    ttf-freefont \
-    font-noto-emoji
-
-# Set Playwright to use system-installed Chromium
-ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
-    PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
+# Install dependencies for Playwright browsers
+RUN apt-get update && apt-get install -y \
+    libnss3 \
+    libnspr4 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libdbus-1-3 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libasound2 \
+    libpango-1.0-0 \
+    libcairo2 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
 WORKDIR /app
@@ -20,9 +26,11 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-# Use npm install if package-lock.json doesn't exist, npm ci if it does
+# Install npm dependencies
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+# Install Playwright browsers (only Chromium for E2E tests)
+RUN npx playwright install --with-deps chromium
 
 # Keep container running
 CMD ["tail", "-f", "/dev/null"]

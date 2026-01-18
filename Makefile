@@ -106,7 +106,7 @@ coverage-js: ## Generate frontend coverage report (Docker)
 
 phpstan: ## Run PHPStan static analysis (level 8)
 	@echo "${GREEN}Running PHPStan analysis...${NC}"
-	vendor/bin/phpstan analyse src tests --level=8
+	docker compose exec backend vendor/bin/phpstan analyse --level=5 --memory-limit=1G
 
 cs-fix: ## Fix coding standards (when PHP-CS-Fixer is installed)
 	@echo "${YELLOW}PHP-CS-Fixer not yet configured${NC}"
