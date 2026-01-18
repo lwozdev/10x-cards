@@ -15,7 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Integration tests for DoctrineSetRepository
+ * Integration tests for DoctrineSetRepository.
  *
  * Tests CRUD operations, soft delete, and RLS filtering.
  * Reference: test-plan.md Section 5.3 (SET-01, SET-02)
@@ -40,12 +40,12 @@ class DoctrineSetRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Helper method to create a test user
+     * Helper method to create a test user.
      */
     private function createTestUser(?string $email = null): UserId
     {
         $userId = UserId::fromString(Uuid::v4()->toString());
-        $userEmail = Email::fromString($email ?? 'user_' . uniqid() . '@example.com');
+        $userEmail = Email::fromString($email ?? 'user_'.uniqid().'@example.com');
         $passwordHash = password_hash('password123', PASSWORD_BCRYPT);
         $now = new \DateTimeImmutable();
 
@@ -56,7 +56,7 @@ class DoctrineSetRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Create and save a new set
+     * Test: Create and save a new set.
      */
     public function testCanCreateAndSaveSet(): void
     {
@@ -82,7 +82,7 @@ class DoctrineSetRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Find sets owned by specific user
+     * Test: Find sets owned by specific user.
      */
     public function testFindOwnedByReturnsOnlyUsersSets(): void
     {
@@ -107,7 +107,7 @@ class DoctrineSetRepositoryTest extends KernelTestCase
 
         // Assert
         $this->assertCount(2, $user1Sets);
-        $setIds = array_map(fn(Set $s) => $s->getId(), $user1Sets);
+        $setIds = array_map(fn (Set $s) => $s->getId(), $user1Sets);
         $this->assertContains($set1->getId(), $setIds);
         $this->assertContains($set2->getId(), $setIds);
         $this->assertNotContains($set3->getId(), $setIds);
@@ -115,7 +115,7 @@ class DoctrineSetRepositoryTest extends KernelTestCase
 
     /**
      * Test: findActiveOwnedBy excludes soft-deleted sets
-     * TC-SET-01: Soft Delete
+     * TC-SET-01: Soft Delete.
      */
     public function testFindActiveOwnedByExcludesSoftDeletedSets(): void
     {
@@ -146,7 +146,7 @@ class DoctrineSetRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Soft delete sets deletedAt timestamp
+     * Test: Soft delete sets deletedAt timestamp.
      */
     public function testSoftDeleteSetsDeletedAtTimestamp(): void
     {
@@ -175,7 +175,7 @@ class DoctrineSetRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: existsByOwnerAndName checks for duplicate names (case-insensitive)
+     * Test: existsByOwnerAndName checks for duplicate names (case-insensitive).
      */
     public function testExistsByOwnerAndNameDetectsDuplicates(): void
     {
@@ -201,7 +201,7 @@ class DoctrineSetRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: existsByOwnerAndName excludes soft-deleted sets
+     * Test: existsByOwnerAndName excludes soft-deleted sets.
      */
     public function testExistsByOwnerAndNameExcludesDeletedSets(): void
     {
@@ -228,7 +228,7 @@ class DoctrineSetRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: findActiveOwnedBy supports pagination
+     * Test: findActiveOwnedBy supports pagination.
      */
     public function testFindActiveOwnedBySupportsPagination(): void
     {
@@ -237,7 +237,7 @@ class DoctrineSetRepositoryTest extends KernelTestCase
         $now = new \DateTimeImmutable();
 
         // Create 5 sets
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 5; ++$i) {
             $set = Set::create(
                 Uuid::v4()->toString(),
                 $userId,
@@ -256,13 +256,13 @@ class DoctrineSetRepositoryTest extends KernelTestCase
         $this->assertCount(2, $page2);
 
         // Verify no overlap
-        $page1Ids = array_map(fn(Set $s) => $s->getId(), $page1);
-        $page2Ids = array_map(fn(Set $s) => $s->getId(), $page2);
+        $page1Ids = array_map(fn (Set $s) => $s->getId(), $page1);
+        $page2Ids = array_map(fn (Set $s) => $s->getId(), $page2);
         $this->assertEmpty(array_intersect($page1Ids, $page2Ids));
     }
 
     /**
-     * Test: findActiveOwnedBy orders by updatedAt DESC
+     * Test: findActiveOwnedBy orders by updatedAt DESC.
      */
     public function testFindActiveOwnedByOrdersByUpdatedAtDesc(): void
     {
@@ -296,7 +296,7 @@ class DoctrineSetRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: findById returns null for non-existent ID
+     * Test: findById returns null for non-existent ID.
      */
     public function testFindByIdReturnsNullForNonExistentId(): void
     {
@@ -305,7 +305,7 @@ class DoctrineSetRepositoryTest extends KernelTestCase
     }
 
     /**
-     * RLS Test: User cannot access another user's set via findById
+     * RLS Test: User cannot access another user's set via findById.
      *
      * @group rls
      * @group incomplete
@@ -313,9 +313,9 @@ class DoctrineSetRepositoryTest extends KernelTestCase
     public function testRlsUserCannotAccessAnotherUsersSetViaFindById(): void
     {
         $this->markTestIncomplete(
-            'RLS (Row-Level Security) not yet implemented. ' .
-            'PostgresRLSSubscriber must set current_app_user() before queries. ' .
-            'When implemented, this test should verify that findById returns null ' .
+            'RLS (Row-Level Security) not yet implemented. '.
+            'PostgresRLSSubscriber must set current_app_user() before queries. '.
+            'When implemented, this test should verify that findById returns null '.
             'when trying to access another user\'s set.'
         );
 
@@ -328,7 +328,7 @@ class DoctrineSetRepositoryTest extends KernelTestCase
     }
 
     /**
-     * TC-SET-02: Card count trigger test
+     * TC-SET-02: Card count trigger test.
      *
      * NOTE: This test requires database trigger to be implemented.
      * The trigger should automatically update set.card_count when cards are added/deleted.
@@ -339,9 +339,9 @@ class DoctrineSetRepositoryTest extends KernelTestCase
     public function testCardCountTriggerUpdatesAutomatically(): void
     {
         $this->markTestIncomplete(
-            'Database trigger for automatic card_count updates not yet implemented. ' .
-            'Trigger should increment/decrement set.card_count on card INSERT/soft DELETE. ' .
-            'This test will verify that adding 2 cards increases card_count by 2, ' .
+            'Database trigger for automatic card_count updates not yet implemented. '.
+            'Trigger should increment/decrement set.card_count on card INSERT/soft DELETE. '.
+            'This test will verify that adding 2 cards increases card_count by 2, '.
             'and soft-deleting 1 card decreases it by 1.'
         );
 

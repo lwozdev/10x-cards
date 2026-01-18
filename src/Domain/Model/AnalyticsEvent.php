@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Model;
 
 use App\Domain\Value\UserId;
-use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -34,15 +33,15 @@ class AnalyticsEvent
     private array $payload;
 
     #[ORM\Column(name: 'occurred_at', type: 'datetime_immutable')]
-    private DateTimeImmutable $occurredAt;
+    private \DateTimeImmutable $occurredAt;
 
     private function __construct(
         string $eventType,
         UserId $userId,
         array $payload,
-        DateTimeImmutable $occurredAt,
+        \DateTimeImmutable $occurredAt,
         ?string $setId = null,
-        ?string $cardId = null
+        ?string $cardId = null,
     ) {
         if (empty($eventType)) {
             throw new \InvalidArgumentException('Event type cannot be empty');
@@ -60,9 +59,9 @@ class AnalyticsEvent
         string $eventType,
         UserId $userId,
         array $payload,
-        DateTimeImmutable $occurredAt,
+        \DateTimeImmutable $occurredAt,
         ?string $setId = null,
-        ?string $cardId = null
+        ?string $cardId = null,
     ): self {
         return new self($eventType, $userId, $payload, $occurredAt, $setId, $cardId);
     }
@@ -97,7 +96,7 @@ class AnalyticsEvent
         return $this->payload;
     }
 
-    public function getOccurredAt(): DateTimeImmutable
+    public function getOccurredAt(): \DateTimeImmutable
     {
         return $this->occurredAt;
     }

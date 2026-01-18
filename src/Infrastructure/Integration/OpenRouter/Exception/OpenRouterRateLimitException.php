@@ -15,7 +15,7 @@ class OpenRouterRateLimitException extends OpenRouterApiException
         int $httpStatusCode,
         ?array $apiResponse = null,
         private readonly ?int $retryAfterSeconds = null,
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ) {
         parent::__construct($message, $httpStatusCode, $apiResponse, $previous);
     }

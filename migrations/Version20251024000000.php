@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Initial database schema migration for AI Flashcard Generator MVP
+ * Initial database schema migration for AI Flashcard Generator MVP.
  *
  * Purpose: Creates complete database structure for flashcard application
  * Tables affected: users, sets, cards, review_states, review_events, ai_jobs, analytics_events

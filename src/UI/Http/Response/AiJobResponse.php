@@ -15,7 +15,8 @@ final readonly class AiJobResponse
     public function __construct(
         public string $jobId,
         public string $status,
-    ) {}
+    ) {
+    }
 
     /**
      * Convert to array for JSON serialization.

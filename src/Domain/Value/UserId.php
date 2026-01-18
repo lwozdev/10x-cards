@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace App\Domain\Value;
 
-use InvalidArgumentException;
-
 final readonly class UserId
 {
     private function __construct(
-        public string $value
+        public string $value,
     ) {
         if (!$this->isValidUuid($value)) {
-            throw new InvalidArgumentException('Invalid UUID format');
+            throw new \InvalidArgumentException('Invalid UUID format');
         }
     }
 
@@ -25,8 +23,8 @@ final readonly class UserId
     {
         // Generate UUID v4
         $data = random_bytes(16);
-        $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // Version 4
-        $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // Variant
+        $data[6] = chr(ord($data[6]) & 0x0F | 0x40); // Version 4
+        $data[8] = chr(ord($data[8]) & 0x3F | 0x80); // Variant
 
         return new self(vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4)));
     }

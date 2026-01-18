@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * AI Job - tracks AI flashcard generation for KPI metrics
+ * AI Job - tracks AI flashcard generation for KPI metrics.
  *
  * Purpose: Optional KPI tracking only. No server-side preview.
  * Flow:
@@ -38,7 +38,7 @@ class AiJob
 
     /**
      * Set ID - filled when user saves the set (POST /api/sets)
-     * NULL until then
+     * NULL until then.
      */
     #[ORM\Column(type: 'uuid', nullable: true)]
     private ?Uuid $setId = null;
@@ -53,19 +53,19 @@ class AiJob
     private ?string $requestPrompt = null;
 
     /**
-     * How many cards AI generated
+     * How many cards AI generated.
      */
     #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
     private int $generatedCount = 0;
 
     /**
-     * How many cards user saved (filled when POST /api/sets)
+     * How many cards user saved (filled when POST /api/sets).
      */
     #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
     private int $acceptedCount = 0;
 
     /**
-     * How many saved cards were edited before saving (filled when POST /api/sets)
+     * How many saved cards were edited before saving (filled when POST /api/sets).
      */
     #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
     private int $editedCount = 0;
@@ -99,7 +99,7 @@ class AiJob
     }
 
     /**
-     * Create new successful AI generation job
+     * Create new successful AI generation job.
      */
     public static function createSucceeded(
         Uuid $userId,
@@ -108,7 +108,7 @@ class AiJob
         ?string $suggestedName,
         string $modelName,
         int $tokensIn,
-        int $tokensOut
+        int $tokensOut,
     ): self {
         $job = new self();
         $job->userId = $userId;
@@ -125,12 +125,12 @@ class AiJob
     }
 
     /**
-     * Create new failed AI generation job
+     * Create new failed AI generation job.
      */
     public static function createFailed(
         Uuid $userId,
         string $requestPrompt,
-        string $errorMessage
+        string $errorMessage,
     ): self {
         $job = new self();
         $job->userId = $userId;
@@ -240,11 +240,11 @@ class AiJob
     }
 
     /**
-     * Calculate acceptance rate (target: 75%)
+     * Calculate acceptance rate (target: 75%).
      */
     public function getAcceptanceRate(): float
     {
-        if ($this->generatedCount === 0) {
+        if (0 === $this->generatedCount) {
             return 0.0;
         }
 
@@ -255,15 +255,14 @@ class AiJob
 
     /**
      * Link this job to a saved Set and record KPI metrics
-     * Called when user saves cards via POST /api/sets
+     * Called when user saves cards via POST /api/sets.
      *
-     * @param Uuid $setId
      * @param int $acceptedCount Number of cards user saved
-     * @param int $editedCount Number of saved cards that were edited
+     * @param int $editedCount   Number of saved cards that were edited
      */
     public function linkToSet(Uuid $setId, int $acceptedCount, int $editedCount): void
     {
-        if ($this->setId !== null) {
+        if (null !== $this->setId) {
             throw new \DomainException('Job already linked to a set');
         }
 

@@ -38,7 +38,7 @@ final class GenerateCardsHandler
     }
 
     /**
-     * @throws AiTimeoutException When AI takes longer than 30s (re-thrown for HTTP 504)
+     * @throws AiTimeoutException    When AI takes longer than 30s (re-thrown for HTTP 504)
      * @throws AiGenerationException When AI service fails (re-thrown for HTTP 500)
      */
     public function handle(GenerateCardsCommand $command): GenerateCardsHandlerResult
@@ -100,13 +100,13 @@ final class GenerateCardsHandler
     }
 
     /**
-     * Handle failure by creating failed AiJob and logging error
+     * Handle failure by creating failed AiJob and logging error.
      */
     private function handleFailure(
         Uuid $userId,
         string $sourceText,
         \Throwable $exception,
-        string $errorType
+        string $errorType,
     ): void {
         $aiJob = AiJob::createFailed(
             userId: $userId,
@@ -126,7 +126,7 @@ final class GenerateCardsHandler
     }
 
     /**
-     * Truncate error message to fit DB constraint (max 255 chars in error_message)
+     * Truncate error message to fit DB constraint (max 255 chars in error_message).
      */
     private function truncateErrorMessage(string $message): string
     {
@@ -134,6 +134,6 @@ final class GenerateCardsHandler
             return $message;
         }
 
-        return mb_substr($message, 0, 252, 'UTF-8') . '...';
+        return mb_substr($message, 0, 252, 'UTF-8').'...';
     }
 }

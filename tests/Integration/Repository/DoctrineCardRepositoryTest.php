@@ -20,7 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Integration tests for DoctrineCardRepository
+ * Integration tests for DoctrineCardRepository.
  *
  * Tests CRUD operations on cards, soft delete, and RLS filtering.
  * Reference: test-plan.md Section 5.3
@@ -47,12 +47,12 @@ class DoctrineCardRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Helper method to create a test user
+     * Helper method to create a test user.
      */
     private function createTestUser(?string $email = null): UserId
     {
         $userId = UserId::fromString(Uuid::v4()->toString());
-        $userEmail = Email::fromString($email ?? 'user_' . uniqid() . '@example.com');
+        $userEmail = Email::fromString($email ?? 'user_'.uniqid().'@example.com');
         $passwordHash = password_hash('password123', PASSWORD_BCRYPT);
         $now = new \DateTimeImmutable();
 
@@ -63,7 +63,7 @@ class DoctrineCardRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Helper: Create a test set
+     * Helper: Create a test set.
      */
     private function createTestSet(UserId $userId, string $setName): Set
     {
@@ -79,7 +79,7 @@ class DoctrineCardRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Create and save a card
+     * Test: Create and save a card.
      */
     public function testCanCreateAndSaveCard(): void
     {
@@ -110,7 +110,7 @@ class DoctrineCardRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Create card with wasEditedByUser flag
+     * Test: Create card with wasEditedByUser flag.
      */
     public function testCanCreateCardWithEditedFlag(): void
     {
@@ -134,7 +134,7 @@ class DoctrineCardRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Find active cards by set ID
+     * Test: Find active cards by set ID.
      */
     public function testFindActiveBySetIdReturnsOnlyNonDeletedCards(): void
     {
@@ -181,14 +181,14 @@ class DoctrineCardRepositoryTest extends KernelTestCase
         $activeCards = $this->cardRepository->findActiveBySetId($set->getId());
 
         $this->assertCount(2, $activeCards);
-        $cardIds = array_map(fn(Card $c) => $c->getId(), $activeCards);
+        $cardIds = array_map(fn (Card $c) => $c->getId(), $activeCards);
         $this->assertContains($card1->getId(), $cardIds);
         $this->assertContains($card2->getId(), $cardIds);
         $this->assertNotContains($card3->getId(), $cardIds);
     }
 
     /**
-     * Test: Soft delete sets deletedAt timestamp
+     * Test: Soft delete sets deletedAt timestamp.
      */
     public function testSoftDeleteSetsDeletedAtTimestamp(): void
     {
@@ -222,7 +222,7 @@ class DoctrineCardRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Count active cards by set ID
+     * Test: Count active cards by set ID.
      */
     public function testCountActiveBySetIdExcludesDeletedCards(): void
     {
@@ -232,7 +232,7 @@ class DoctrineCardRepositoryTest extends KernelTestCase
         $now = new \DateTimeImmutable();
 
         // Create 3 cards
-        for ($i = 1; $i <= 3; $i++) {
+        for ($i = 1; $i <= 3; ++$i) {
             $card = Card::create(
                 Uuid::v4()->toString(),
                 $set->getId(),
@@ -258,7 +258,7 @@ class DoctrineCardRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: saveAll persists multiple cards in batch
+     * Test: saveAll persists multiple cards in batch.
      */
     public function testSaveAllPersistsMultipleCards(): void
     {
@@ -268,7 +268,7 @@ class DoctrineCardRepositoryTest extends KernelTestCase
         $now = new \DateTimeImmutable();
 
         $cards = [];
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 5; ++$i) {
             $cards[] = Card::create(
                 Uuid::v4()->toString(),
                 $set->getId(),
@@ -288,7 +288,7 @@ class DoctrineCardRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Edit card updates front, back, and editedByUserAt
+     * Test: Edit card updates front, back, and editedByUserAt.
      */
     public function testEditCardUpdatesFieldsAndTimestamp(): void
     {
@@ -327,7 +327,7 @@ class DoctrineCardRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: findActiveBySetId orders by createdAt ASC
+     * Test: findActiveBySetId orders by createdAt ASC.
      */
     public function testFindActiveBySetIdOrdersByCreatedAtAsc(): void
     {
@@ -377,7 +377,7 @@ class DoctrineCardRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: findById returns null for non-existent ID
+     * Test: findById returns null for non-existent ID.
      */
     public function testFindByIdReturnsNullForNonExistentId(): void
     {
@@ -386,7 +386,7 @@ class DoctrineCardRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Cards from different sets are isolated
+     * Test: Cards from different sets are isolated.
      */
     public function testCardsFromDifferentSetsAreIsolated(): void
     {
@@ -429,7 +429,7 @@ class DoctrineCardRepositoryTest extends KernelTestCase
     }
 
     /**
-     * RLS Test: User cannot access cards from another user's set
+     * RLS Test: User cannot access cards from another user's set.
      *
      * @group rls
      * @group incomplete
@@ -437,9 +437,9 @@ class DoctrineCardRepositoryTest extends KernelTestCase
     public function testRlsUserCannotAccessAnotherUsersCards(): void
     {
         $this->markTestIncomplete(
-            'RLS (Row-Level Security) not yet implemented. ' .
-            'When implemented, this test should verify that findActiveBySetId ' .
-            'and findById return no results when trying to access cards from ' .
+            'RLS (Row-Level Security) not yet implemented. '.
+            'When implemented, this test should verify that findActiveBySetId '.
+            'and findById return no results when trying to access cards from '.
             'another user\'s set.'
         );
 

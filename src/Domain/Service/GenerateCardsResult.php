@@ -25,7 +25,7 @@ final readonly class GenerateCardsResult
         public SuggestedSetName $suggestedName,
         public string $modelName,
         public int $tokensIn,
-        public int $tokensOut
+        public int $tokensOut,
     ) {
     }
 

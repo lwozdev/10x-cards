@@ -14,7 +14,7 @@ class OpenRouterApiException extends OpenRouterException
         string $message,
         private readonly int $httpStatusCode,
         private readonly ?array $apiResponse = null,
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ) {
         parent::__construct($message, 0, $previous);
     }

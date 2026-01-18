@@ -43,7 +43,7 @@ final readonly class CreateSetHandler
 
     /**
      * @throws DuplicateSetNameException When set name already exists for this user
-     * @throws AiJobNotFoundException When job_id is provided but job not found
+     * @throws AiJobNotFoundException    When job_id is provided but job not found
      */
     public function __invoke(CreateSetCommand $command): CreateSetResult
     {
@@ -55,10 +55,10 @@ final readonly class CreateSetHandler
 
         // Step 2: Verify AI job exists and belongs to user (if provided)
         $aiJob = null;
-        if ($command->jobId !== null) {
+        if (null !== $command->jobId) {
             $aiJob = $this->aiJobRepository->findById($command->jobId->toString());
 
-            if ($aiJob === null) {
+            if (null === $aiJob) {
                 throw AiJobNotFoundException::forId($command->jobId->toString());
             }
 
@@ -96,11 +96,11 @@ final readonly class CreateSetHandler
             $cards[] = $card;
 
             // Track KPI metrics for AI-generated cards
-            if ($cardDto->origin === CardOrigin::AI) {
-                $aiAcceptedCount++;
+            if (CardOrigin::AI === $cardDto->origin) {
+                ++$aiAcceptedCount;
 
                 if ($cardDto->wasEdited) {
-                    $aiEditedCount++;
+                    ++$aiEditedCount;
                 }
             }
         }
@@ -114,7 +114,7 @@ final readonly class CreateSetHandler
         }
 
         // Step 7: Link AI job to set (if provided)
-        if ($aiJob !== null) {
+        if (null !== $aiJob) {
             $aiJob->linkToSet(
                 Uuid::fromString($setId),
                 $aiAcceptedCount,

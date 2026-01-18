@@ -9,7 +9,6 @@ use App\Domain\Repository\UserRepositoryInterface;
 use App\Domain\Value\Email;
 use App\Domain\Value\UserId;
 use App\Form\RegistrationFormType;
-use DateTimeImmutable;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -87,14 +86,15 @@ final class RegistrationController extends AbstractController
      * - Re-render form with validation errors
      * - Pre-fill email field
      *
-     * @param Request $request HTTP request
+     * @param Request                     $request        HTTP request
      * @param UserPasswordHasherInterface $passwordHasher Symfony service for password hashing
+     *
      * @return Response Rendered form or redirect
      */
     #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
     public function register(
         Request $request,
-        UserPasswordHasherInterface $passwordHasher
+        UserPasswordHasherInterface $passwordHasher,
     ): Response {
         // Redirect authenticated users away from registration
         if ($this->getUser()) {
@@ -113,6 +113,7 @@ final class RegistrationController extends AbstractController
 
             if ($plainPassword !== $passwordConfirm) {
                 $this->addFlash('error', 'Hasła nie są identyczne');
+
                 return $this->render('registration/register.html.twig', [
                     'registrationForm' => $form->createView(),
                 ], new Response('', 422));
@@ -124,6 +125,7 @@ final class RegistrationController extends AbstractController
                 // Check if email already exists (auth-spec.md section 1.3.1)
                 if ($this->userRepository->exists($email)) {
                     $this->addFlash('error', 'Ten adres email jest już zarejestrowany');
+
                     return $this->render('registration/register.html.twig', [
                         'registrationForm' => $form->createView(),
                     ], new Response('', 422));
@@ -135,7 +137,7 @@ final class RegistrationController extends AbstractController
                     id: UserId::fromString(Uuid::v4()->toString()),
                     email: $email,
                     passwordHash: str_repeat('x', 60), // Placeholder hash (minimum 60 chars)
-                    createdAt: new DateTimeImmutable(),
+                    createdAt: new \DateTimeImmutable(),
                     isVerified: false
                 );
 
@@ -147,7 +149,7 @@ final class RegistrationController extends AbstractController
                     id: UserId::fromString(Uuid::v4()->toString()),
                     email: $email,
                     passwordHash: $hashedPassword,
-                    createdAt: new DateTimeImmutable(),
+                    createdAt: new \DateTimeImmutable(),
                     isVerified: false // User must verify email first
                 );
 
@@ -159,9 +161,9 @@ final class RegistrationController extends AbstractController
 
                 // Redirect to "check your email" page
                 return $this->redirectToRoute('app_verify_email_sent');
-
             } catch (\InvalidArgumentException $e) {
                 $this->addFlash('error', $e->getMessage());
+
                 return $this->render('registration/register.html.twig', [
                     'registrationForm' => $form->createView(),
                 ], new Response('', 422));
@@ -222,6 +224,7 @@ final class RegistrationController extends AbstractController
      * - User not found: error message
      *
      * @param Request $request HTTP request with token in query string
+     *
      * @return Response Redirect to login or error page
      */
     #[Route('/verify/email', name: 'app_verify_email')]
@@ -240,6 +243,7 @@ final class RegistrationController extends AbstractController
 
             if (!$user) {
                 $this->addFlash('error', 'Użytkownik nie został znaleziony');
+
                 return $this->redirectToRoute('app_register');
             }
 
@@ -253,6 +257,7 @@ final class RegistrationController extends AbstractController
             // Check if already verified (prevents duplicate verification)
             if ($user->isVerified()) {
                 $this->addFlash('info', 'Email został już zweryfikowany. Możesz się zalogować.');
+
                 return $this->redirectToRoute('app_login');
             }
 
@@ -264,13 +269,14 @@ final class RegistrationController extends AbstractController
             $this->addFlash('success', 'Email został zweryfikowany! Możesz się teraz zalogować.');
 
             return $this->redirectToRoute('app_login');
-
         } catch (VerifyEmailExceptionInterface $e) {
             // Handle verification errors (invalid signature, expired, etc.)
             $this->addFlash('error', 'Link weryfikacyjny jest nieprawidłowy lub wygasł. Zarejestruj się ponownie.');
+
             return $this->redirectToRoute('app_register');
         } catch (\Exception $e) {
-            $this->addFlash('error', 'Wystąpił błąd podczas weryfikacji: ' . $e->getMessage());
+            $this->addFlash('error', 'Wystąpił błąd podczas weryfikacji: '.$e->getMessage());
+
             return $this->redirectToRoute('app_register');
         }
     }
@@ -289,7 +295,7 @@ final class RegistrationController extends AbstractController
      * /verify/email?token={signature}&id={user_id}&expires={timestamp}
      *
      * @param User $user User entity to send verification to
-     * @return void
+     *
      * @throws \Symfony\Component\Mailer\Exception\TransportExceptionInterface
      */
     private function sendVerificationEmail(User $user): void

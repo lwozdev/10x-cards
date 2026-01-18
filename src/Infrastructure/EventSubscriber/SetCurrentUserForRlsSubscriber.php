@@ -47,7 +47,7 @@ final class SetCurrentUserForRlsSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly Security $security,
         private readonly EntityManagerInterface $entityManager,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -67,9 +67,6 @@ final class SetCurrentUserForRlsSubscriber implements EventSubscriberInterface
      * Set PostgreSQL session variable for authenticated user.
      *
      * Executed on every request (master request only, not sub-requests).
-     *
-     * @param RequestEvent $event
-     * @return void
      */
     public function onKernelRequest(RequestEvent $event): void
     {
@@ -102,7 +99,6 @@ final class SetCurrentUserForRlsSubscriber implements EventSubscriberInterface
      *   $$ LANGUAGE sql STABLE;
      *
      * @param string $userId User's UUID as string
-     * @return void
      */
     private function setCurrentUserForRls(string $userId): void
     {
@@ -145,8 +141,6 @@ final class SetCurrentUserForRlsSubscriber implements EventSubscriberInterface
      * - current_setting('app.current_user_id', true) returns NULL if not set
      * - Setting to empty string makes intent explicit
      * - RLS function current_app_user() will fail to cast '' to UUID (intended)
-     *
-     * @return void
      */
     private function clearCurrentUserForRls(): void
     {

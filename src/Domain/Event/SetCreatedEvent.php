@@ -15,12 +15,12 @@ namespace App\Domain\Event;
 final readonly class SetCreatedEvent
 {
     /**
-     * @param string $setId UUID of the newly created set
-     * @param string $userId UUID of the user who created the set
-     * @param int $totalCardCount Total number of cards created with the set
-     * @param int $aiCardCount Number of AI-generated cards in the set
-     * @param int $editedAiCardCount Number of AI cards that were edited before saving
-     * @param string|null $jobId Optional AI job ID that generated the cards
+     * @param string      $setId             UUID of the newly created set
+     * @param string      $userId            UUID of the user who created the set
+     * @param int         $totalCardCount    Total number of cards created with the set
+     * @param int         $aiCardCount       Number of AI-generated cards in the set
+     * @param int         $editedAiCardCount Number of AI cards that were edited before saving
+     * @param string|null $jobId             Optional AI job ID that generated the cards
      */
     public function __construct(
         public string $setId,
@@ -33,7 +33,7 @@ final readonly class SetCreatedEvent
     }
 
     /**
-     * Calculate the number of manual cards in the set
+     * Calculate the number of manual cards in the set.
      */
     public function getManualCardCount(): int
     {
@@ -42,11 +42,11 @@ final readonly class SetCreatedEvent
 
     /**
      * Calculate the percentage of AI cards that were edited
-     * Returns 0.0 if no AI cards
+     * Returns 0.0 if no AI cards.
      */
     public function getAiEditRate(): float
     {
-        if ($this->aiCardCount === 0) {
+        if (0 === $this->aiCardCount) {
             return 0.0;
         }
 

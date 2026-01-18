@@ -16,10 +16,10 @@ use App\Domain\Value\CardFront;
 final readonly class CreateSetCardDto
 {
     /**
-     * @param CardFront $front Front side of the card (max 1000 chars)
-     * @param CardBack $back Back side of the card (max 1000 chars)
-     * @param CardOrigin $origin Source of the card (AI or MANUAL)
-     * @param bool $wasEdited Whether the user edited this card before saving
+     * @param CardFront  $front     Front side of the card (max 1000 chars)
+     * @param CardBack   $back      Back side of the card (max 1000 chars)
+     * @param CardOrigin $origin    Source of the card (AI or MANUAL)
+     * @param bool       $wasEdited Whether the user edited this card before saving
      */
     public function __construct(
         public CardFront $front,

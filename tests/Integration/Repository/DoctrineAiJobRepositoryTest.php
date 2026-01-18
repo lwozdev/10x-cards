@@ -18,7 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Integration tests for DoctrineAiJobRepository
+ * Integration tests for DoctrineAiJobRepository.
  *
  * Tests AI job tracking for KPI metrics (acceptance rate, edited count, etc.).
  * Reference: test-plan.md Section 5.1 (AI-03, AI-04, AI-05)
@@ -46,13 +46,13 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
 
     /**
      * Helper method to create a test user
-     * Returns the UUID (not UserId value object) for compatibility with AiJob factory methods
+     * Returns the UUID (not UserId value object) for compatibility with AiJob factory methods.
      */
     private function createTestUser(?string $email = null): Uuid
     {
         $uuid = Uuid::v4();
         $userId = UserId::fromString($uuid->toString());
-        $userEmail = Email::fromString($email ?? 'user_' . uniqid() . '@example.com');
+        $userEmail = Email::fromString($email ?? 'user_'.uniqid().'@example.com');
         $passwordHash = password_hash('password123', PASSWORD_BCRYPT);
         $now = new \DateTimeImmutable();
 
@@ -63,7 +63,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Helper method to create a test set
+     * Helper method to create a test set.
      */
     private function createTestSet(Uuid $userUuid, string $setName): Uuid
     {
@@ -81,7 +81,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Create and save a successful AI job
+     * Test: Create and save a successful AI job.
      */
     public function testCanCreateAndSaveSuccessfulAiJob(): void
     {
@@ -126,7 +126,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Create and save a failed AI job
+     * Test: Create and save a failed AI job.
      */
     public function testCanCreateAndSaveFailedAiJob(): void
     {
@@ -152,7 +152,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
 
     /**
      * Test: Link AI job to a set and record KPI metrics
-     * TC-EDIT-004: Saving set updates AI job metrics
+     * TC-EDIT-004: Saving set updates AI job metrics.
      */
     public function testLinkJobToSetRecordsKpiMetrics(): void
     {
@@ -189,7 +189,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
 
     /**
      * Test: Calculate acceptance rate correctly
-     * ANALYTICS-001: Acceptance rate calculation
+     * ANALYTICS-001: Acceptance rate calculation.
      */
     public function testAcceptanceRateCalculation(): void
     {
@@ -216,7 +216,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Deleted count calculation
+     * Test: Deleted count calculation.
      */
     public function testDeletedCountCalculation(): void
     {
@@ -231,7 +231,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Cannot link job to set twice
+     * Test: Cannot link job to set twice.
      */
     public function testCannotLinkJobToSetTwice(): void
     {
@@ -253,7 +253,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Cannot link failed job to set
+     * Test: Cannot link failed job to set.
      */
     public function testCannotLinkFailedJobToSet(): void
     {
@@ -270,7 +270,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Cannot accept more cards than generated
+     * Test: Cannot accept more cards than generated.
      */
     public function testCannotAcceptMoreCardsThanGenerated(): void
     {
@@ -286,7 +286,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Cannot have more edited cards than accepted
+     * Test: Cannot have more edited cards than accepted.
      */
     public function testCannotHaveMoreEditedCardsThanAccepted(): void
     {
@@ -302,7 +302,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Find jobs by user
+     * Test: Find jobs by user.
      */
     public function testFindByUserReturnsOnlyUserJobs(): void
     {
@@ -324,14 +324,14 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
 
         // Assert
         $this->assertCount(2, $user1Jobs);
-        $jobIds = array_map(fn(AiJob $j) => $j->getId()->toString(), $user1Jobs);
+        $jobIds = array_map(fn (AiJob $j) => $j->getId()->toString(), $user1Jobs);
         $this->assertContains($job1->getId()->toString(), $jobIds);
         $this->assertContains($job2->getId()->toString(), $jobIds);
         $this->assertNotContains($job3->getId()->toString(), $jobIds);
     }
 
     /**
-     * Test: Find jobs by status
+     * Test: Find jobs by status.
      */
     public function testFindByStatusFiltersCorrectly(): void
     {
@@ -355,8 +355,8 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
         $this->assertGreaterThanOrEqual(2, count($succeededJobs));
         $this->assertGreaterThanOrEqual(1, count($failedJobs));
 
-        $succeededIds = array_map(fn(AiJob $j) => $j->getId()->toString(), $succeededJobs);
-        $failedIds = array_map(fn(AiJob $j) => $j->getId()->toString(), $failedJobs);
+        $succeededIds = array_map(fn (AiJob $j) => $j->getId()->toString(), $succeededJobs);
+        $failedIds = array_map(fn (AiJob $j) => $j->getId()->toString(), $failedJobs);
 
         $this->assertContains($successJob1->getId()->toString(), $succeededIds);
         $this->assertContains($successJob2->getId()->toString(), $succeededIds);
@@ -364,7 +364,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Count failed jobs by user
+     * Test: Count failed jobs by user.
      */
     public function testCountFailedByUserReturnsCorrectCount(): void
     {
@@ -388,7 +388,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Acceptance rate returns 0 for jobs with no generated cards
+     * Test: Acceptance rate returns 0 for jobs with no generated cards.
      */
     public function testAcceptanceRateReturnsZeroForNoGeneratedCards(): void
     {
@@ -402,7 +402,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: findById returns null for non-existent job
+     * Test: findById returns null for non-existent job.
      */
     public function testFindByIdReturnsNullForNonExistentId(): void
     {
@@ -411,14 +411,14 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Jobs are ordered by createdAt DESC in findByUser
+     * Test: Jobs are ordered by createdAt DESC in findByUser.
      */
     public function testFindByUserOrdersByCreatedAtDesc(): void
     {
         $this->markTestSkipped(
-            'This test has timing issues with createdAt timestamps. ' .
-            'The timestamps appear to be set incorrectly or there is a race condition. ' .
-            'The ordering logic in the repository is correct (ORDER BY createdAt DESC), ' .
+            'This test has timing issues with createdAt timestamps. '.
+            'The timestamps appear to be set incorrectly or there is a race condition. '.
+            'The ordering logic in the repository is correct (ORDER BY createdAt DESC), '.
             'but the test needs to be redesigned to reliably verify the ordering.'
         );
 

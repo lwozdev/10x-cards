@@ -33,7 +33,7 @@ class CardOriginType extends Type
 
     public function convertToPHPValue($value, AbstractPlatform $platform): ?CardOrigin
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 
@@ -42,7 +42,7 @@ class CardOriginType extends Type
 
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 
@@ -50,11 +50,7 @@ class CardOriginType extends Type
             return $value->value;
         }
 
-        throw new \InvalidArgumentException(sprintf(
-            'Expected %s, got %s',
-            CardOrigin::class,
-            get_debug_type($value)
-        ));
+        throw new \InvalidArgumentException(sprintf('Expected %s, got %s', CardOrigin::class, get_debug_type($value)));
     }
 
     public function getName(): string

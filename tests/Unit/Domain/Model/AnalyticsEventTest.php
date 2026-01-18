@@ -6,13 +6,12 @@ namespace App\Tests\Unit\Domain\Model;
 
 use App\Domain\Model\AnalyticsEvent;
 use App\Domain\Value\UserId;
-use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Unit tests for AnalyticsEvent Domain Model
+ * Unit tests for AnalyticsEvent Domain Model.
  *
  * Business rules:
  * - Event type cannot be empty
@@ -113,7 +112,7 @@ final class AnalyticsEventTest extends TestCase
         $payload = [];
         $occurredAt = new \DateTimeImmutable('2024-01-15 10:00:00');
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Event type cannot be empty');
 
         AnalyticsEvent::create('', $userId, $payload, $occurredAt);

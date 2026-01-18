@@ -18,5 +18,6 @@ final readonly class GenerateFlashcardsCommand
     public function __construct(
         public UserId $userId,
         public string $sourceText,
-    ) {}
+    ) {
+    }
 }

@@ -7,7 +7,6 @@ namespace App\Infrastructure\Doctrine\Repository;
 use App\Domain\Model\ReviewState;
 use App\Domain\Repository\ReviewStateRepositoryInterface;
 use App\Domain\Value\UserId;
-use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -25,11 +24,11 @@ class DoctrineReviewStateRepository extends ServiceEntityRepository implements R
     {
         return $this->findOneBy([
             'userId' => $userId->toString(),
-            'cardId' => $cardId
+            'cardId' => $cardId,
         ]);
     }
 
-    public function findDueForUser(UserId $userId, DateTimeImmutable $now, int $limit = 20): array
+    public function findDueForUser(UserId $userId, \DateTimeImmutable $now, int $limit = 20): array
     {
         return $this->createQueryBuilder('rs')
             ->where('rs.userId = :userId')
@@ -48,7 +47,7 @@ class DoctrineReviewStateRepository extends ServiceEntityRepository implements R
         $this->getEntityManager()->flush();
     }
 
-    public function countDueForUser(UserId $userId, DateTimeImmutable $now): int
+    public function countDueForUser(UserId $userId, \DateTimeImmutable $now): int
     {
         return (int) $this->createQueryBuilder('rs')
             ->select('COUNT(rs.userId)')

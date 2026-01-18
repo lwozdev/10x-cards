@@ -25,7 +25,7 @@ final class NavDrawer
             'py-3',
         ];
 
-        if ($this->variant === 'permanent') {
+        if ('permanent' === $this->variant) {
             $classes[] = 'hidden';
             $classes[] = 'lg:flex'; // Show on large screens
             $classes[] = 'fixed';

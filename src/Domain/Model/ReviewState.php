@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Model;
 
 use App\Domain\Value\UserId;
-use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -22,7 +21,7 @@ class ReviewState
     private string $cardId;
 
     #[ORM\Column(name: 'due_at', type: 'datetime_immutable')]
-    private DateTimeImmutable $dueAt;
+    private \DateTimeImmutable $dueAt;
 
     #[ORM\Column(type: 'decimal', precision: 4, scale: 2)]
     private string $ease;
@@ -37,15 +36,15 @@ class ReviewState
     private ?int $lastGrade = null;
 
     #[ORM\Column(name: 'updated_at', type: 'datetime_immutable')]
-    private DateTimeImmutable $updatedAt;
+    private \DateTimeImmutable $updatedAt;
 
     private function __construct(
         UserId $userId,
         string $cardId,
-        DateTimeImmutable $dueAt,
+        \DateTimeImmutable $dueAt,
         float $ease = 2.50,
         int $intervalDays = 0,
-        int $reps = 0
+        int $reps = 0,
     ) {
         $this->userId = $userId->toString();
         $this->cardId = $cardId;
@@ -59,7 +58,7 @@ class ReviewState
     public static function initialize(
         UserId $userId,
         string $cardId,
-        DateTimeImmutable $dueAt
+        \DateTimeImmutable $dueAt,
     ): self {
         return new self($userId, $cardId, $dueAt);
     }
@@ -74,7 +73,7 @@ class ReviewState
         return $this->cardId;
     }
 
-    public function getDueAt(): DateTimeImmutable
+    public function getDueAt(): \DateTimeImmutable
     {
         return $this->dueAt;
     }
@@ -99,27 +98,27 @@ class ReviewState
         return $this->lastGrade;
     }
 
-    public function getUpdatedAt(): DateTimeImmutable
+    public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
-    public function isDue(DateTimeImmutable $now): bool
+    public function isDue(\DateTimeImmutable $now): bool
     {
         return $this->dueAt <= $now;
     }
 
     /**
-     * Update review state after answering
+     * Update review state after answering.
      *
      * @param int $grade 0 = "Don't know", 1 = "Know"
      */
     public function updateAfterReview(
         int $grade,
-        DateTimeImmutable $nextDueAt,
+        \DateTimeImmutable $nextDueAt,
         float $newEase,
         int $newIntervalDays,
-        DateTimeImmutable $updatedAt
+        \DateTimeImmutable $updatedAt,
     ): void {
         if ($grade < 0 || $grade > 1) {
             throw new \InvalidArgumentException('Grade must be 0 or 1');
@@ -129,7 +128,7 @@ class ReviewState
         $this->dueAt = $nextDueAt;
         $this->ease = number_format($newEase, 2, '.', '');
         $this->intervalDays = $newIntervalDays;
-        $this->reps++;
+        ++$this->reps;
         $this->updatedAt = $updatedAt;
     }
 }

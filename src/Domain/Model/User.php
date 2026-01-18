@@ -6,7 +6,6 @@ namespace App\Domain\Model;
 
 use App\Domain\Value\Email;
 use App\Domain\Value\UserId;
-use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -27,10 +26,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $passwordHash;
 
     #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]
-    private DateTimeImmutable $createdAt;
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(name: 'last_login_at', type: 'datetime_immutable', nullable: true)]
-    private ?DateTimeImmutable $lastLoginAt = null;
+    private ?\DateTimeImmutable $lastLoginAt = null;
 
     #[ORM\Column(name: 'is_verified', type: 'boolean')]
     private bool $isVerified = false;
@@ -39,8 +38,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         UserId $id,
         Email $email,
         string $passwordHash,
-        DateTimeImmutable $createdAt,
-        bool $isVerified = false
+        \DateTimeImmutable $createdAt,
+        bool $isVerified = false,
     ) {
         $this->id = $id->toString();
         $this->email = $email->toString();
@@ -53,8 +52,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         UserId $id,
         Email $email,
         string $passwordHash,
-        DateTimeImmutable $createdAt,
-        bool $isVerified = false
+        \DateTimeImmutable $createdAt,
+        bool $isVerified = false,
     ): self {
         if (strlen($passwordHash) < 60) {
             throw new \InvalidArgumentException('Password hash must be at least 60 characters');
@@ -73,17 +72,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return Email::fromString($this->email);
     }
 
-    public function getCreatedAt(): DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getLastLoginAt(): ?DateTimeImmutable
+    public function getLastLoginAt(): ?\DateTimeImmutable
     {
         return $this->lastLoginAt;
     }
 
-    public function updateLastLogin(DateTimeImmutable $lastLoginAt): void
+    public function updateLastLogin(\DateTimeImmutable $lastLoginAt): void
     {
         $this->lastLoginAt = $lastLoginAt;
     }

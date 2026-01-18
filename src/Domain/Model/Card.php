@@ -6,7 +6,6 @@ namespace App\Domain\Model;
 
 use App\Domain\Value\CardBack;
 use App\Domain\Value\CardFront;
-use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -32,16 +31,16 @@ class Card
     private string $back;
 
     #[ORM\Column(name: 'edited_by_user_at', type: 'datetime_immutable', nullable: true)]
-    private ?DateTimeImmutable $editedByUserAt = null;
+    private ?\DateTimeImmutable $editedByUserAt = null;
 
     #[ORM\Column(name: 'deleted_at', type: 'datetime_immutable', nullable: true)]
-    private ?DateTimeImmutable $deletedAt = null;
+    private ?\DateTimeImmutable $deletedAt = null;
 
     #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]
-    private DateTimeImmutable $createdAt;
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(name: 'updated_at', type: 'datetime_immutable')]
-    private DateTimeImmutable $updatedAt;
+    private \DateTimeImmutable $updatedAt;
 
     private function __construct(
         string $id,
@@ -49,7 +48,7 @@ class Card
         CardOrigin $origin,
         CardFront $front,
         CardBack $back,
-        DateTimeImmutable $createdAt
+        \DateTimeImmutable $createdAt,
     ) {
         $this->id = $id;
         $this->setId = $setId;
@@ -66,8 +65,8 @@ class Card
         CardOrigin $origin,
         CardFront $front,
         CardBack $back,
-        DateTimeImmutable $createdAt,
-        bool $wasEditedByUser = false
+        \DateTimeImmutable $createdAt,
+        bool $wasEditedByUser = false,
     ): self {
         $card = new self($id, $setId, $origin, $front, $back, $createdAt);
 
@@ -103,40 +102,40 @@ class Card
         return CardBack::fromString($this->back);
     }
 
-    public function getCreatedAt(): DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): DateTimeImmutable
+    public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
-    public function getEditedByUserAt(): ?DateTimeImmutable
+    public function getEditedByUserAt(): ?\DateTimeImmutable
     {
         return $this->editedByUserAt;
     }
 
-    public function getDeletedAt(): ?DateTimeImmutable
+    public function getDeletedAt(): ?\DateTimeImmutable
     {
         return $this->deletedAt;
     }
 
     public function isDeleted(): bool
     {
-        return $this->deletedAt !== null;
+        return null !== $this->deletedAt;
     }
 
     public function wasEditedByUser(): bool
     {
-        return $this->editedByUserAt !== null;
+        return null !== $this->editedByUserAt;
     }
 
     public function editFrontBack(
         CardFront $front,
         CardBack $back,
-        DateTimeImmutable $editedAt
+        \DateTimeImmutable $editedAt,
     ): void {
         $this->front = $front->toString();
         $this->back = $back->toString();
@@ -144,7 +143,7 @@ class Card
         $this->updatedAt = $editedAt;
     }
 
-    public function softDelete(DateTimeImmutable $deletedAt): void
+    public function softDelete(\DateTimeImmutable $deletedAt): void
     {
         $this->deletedAt = $deletedAt;
         $this->updatedAt = $deletedAt;

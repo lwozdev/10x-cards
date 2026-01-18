@@ -29,7 +29,8 @@ final readonly class PostgresRLSSubscriber implements EventSubscriberInterface
         private EntityManagerInterface $entityManager,
         private Security $security,
         private LoggerInterface $logger,
-    ) {}
+    ) {
+    }
 
     public static function getSubscribedEvents(): array
     {
@@ -71,7 +72,6 @@ final readonly class PostgresRLSSubscriber implements EventSubscriberInterface
                 'user_id' => $userId,
                 'request_uri' => $event->getRequest()->getRequestUri(),
             ]);
-
         } catch (DBALException $e) {
             // Log error but don't break the request
             // RLS will fail-safe by denying access if variable is not set

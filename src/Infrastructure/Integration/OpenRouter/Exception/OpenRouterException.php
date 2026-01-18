@@ -10,6 +10,6 @@ use RuntimeException;
  * Base exception for all OpenRouter-related errors.
  * Extends RuntimeException to indicate errors that occur during runtime.
  */
-class OpenRouterException extends RuntimeException
+class OpenRouterException extends \RuntimeException
 {
 }

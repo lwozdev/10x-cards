@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\UI\Http\Controller;
 
 use App\Domain\Repository\SetRepositoryInterface;
-use App\Domain\Value\UserId;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -30,11 +29,10 @@ final class SetListController extends AbstractController
 
     public function __invoke(): Response
     {
-
         // 1. Get current user ID
         $user = $this->getUser();
 
-        if ($user === null) {
+        if (null === $user) {
             return $this->json([
                 'error' => 'Authentication required',
                 'code' => 'unauthorized',
@@ -54,7 +52,7 @@ final class SetListController extends AbstractController
                 $reflection = new \ReflectionClass($set);
                 $property = $reflection->getProperty('generatedAt');
                 $property->setAccessible(true);
-                $isAiGenerated = $property->getValue($set) !== null;
+                $isAiGenerated = null !== $property->getValue($set);
             } catch (\ReflectionException $e) {
                 // Fallback: assume manual if reflection fails
                 $isAiGenerated = false;

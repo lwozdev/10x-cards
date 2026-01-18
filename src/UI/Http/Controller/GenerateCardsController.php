@@ -82,14 +82,14 @@ final class GenerateCardsController extends AbstractController
 
             // 4. Get current user ID from security context
             $user = $this->getUser();
-            if ($user === null) {
+            if (null === $user) {
                 return $this->json([
                     'error' => 'unauthorized',
                     'message' => 'Authentication required',
                 ], Response::HTTP_UNAUTHORIZED);
             }
 
-            //$userId = UserId::fromString($user->getUserIdentifier());
+            // $userId = UserId::fromString($user->getUserIdentifier());
             $userId = $this->getUser()->getId();
 
             // 5. Create command and call handler
@@ -105,7 +105,7 @@ final class GenerateCardsController extends AbstractController
                 jobId: $result->jobId->toString(),
                 suggestedName: $result->suggestedName->toString(),
                 cards: array_map(
-                    fn($card) => new CardPreviewDto($card->front, $card->back),
+                    fn ($card) => new CardPreviewDto($card->front, $card->back),
                     $result->cards
                 ),
                 generatedCount: $result->generatedCount
@@ -116,7 +116,7 @@ final class GenerateCardsController extends AbstractController
                 'job_id' => $response->jobId,
                 'suggested_name' => $response->suggestedName,
                 'cards' => array_map(
-                    fn($card) => [
+                    fn ($card) => [
                         'front' => $card->front,
                         'back' => $card->back,
                     ],
@@ -128,7 +128,6 @@ final class GenerateCardsController extends AbstractController
 
             // 8. Serialize and return JSON response
             return $this->json($response, Response::HTTP_OK);
-
         } catch (AiTimeoutException $e) {
             // AI timeout (>30s) - return 504 Gateway Timeout
             $this->logger->warning('AI generation timeout', [
@@ -139,7 +138,6 @@ final class GenerateCardsController extends AbstractController
                 'error' => 'ai_timeout',
                 'message' => 'Generowanie fiszek przekroczyło limit czasu (30s). Spróbuj ponownie z krótszym tekstem.',
             ], Response::HTTP_GATEWAY_TIMEOUT);
-
         } catch (AiGenerationException $e) {
             // AI service error - return 500 Internal Server Error
             $this->logger->error('AI generation error', [
@@ -151,7 +149,6 @@ final class GenerateCardsController extends AbstractController
                 'error' => 'ai_service_error',
                 'message' => 'Wystąpił błąd podczas generowania fiszek. Spróbuj ponownie później.',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
-
         } catch (\Throwable $e) {
             // Unexpected error - log and return generic 500
             $this->logger->error('Unexpected error in generate cards endpoint', [
@@ -168,7 +165,7 @@ final class GenerateCardsController extends AbstractController
     }
 
     /**
-     * Format validation errors for JSON response
+     * Format validation errors for JSON response.
      */
     private function validationErrorResponse($violations): JsonResponse
     {

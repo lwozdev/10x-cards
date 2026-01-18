@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Exception;
 
-use DomainException;
-
 /**
  * Thrown when an AI job ID is provided but the job doesn't exist
  * or doesn't belong to the current user (RLS prevents access).
  */
-final class AiJobNotFoundException extends DomainException
+final class AiJobNotFoundException extends \DomainException
 {
     public static function forId(string $jobId): self
     {

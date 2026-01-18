@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Add new fields to ai_jobs table for preview functionality
+ * Add new fields to ai_jobs table for preview functionality.
  *
  * Purpose: Extends ai_jobs to store preview cards and statistics
  * Tables affected: ai_jobs
@@ -37,29 +37,29 @@ final class Version20251028193900 extends AbstractMigration
 
         // Add generated_count: tracks how many cards AI produced (right after completion)
         // Includes CHECK constraint as per db-plan.md
-        $this->addSql("
+        $this->addSql('
             ALTER TABLE ai_jobs
             ADD COLUMN generated_count INT NOT NULL DEFAULT 0
                 CHECK (generated_count >= 0)
-        ");
+        ');
 
         // Add edited_count: tracks how many cards user edited in preview
-        $this->addSql("
+        $this->addSql('
             ALTER TABLE ai_jobs
             ADD COLUMN edited_count INT NOT NULL DEFAULT 0
-        ");
+        ');
 
         // Add deleted_count: tracks how many cards user deleted in preview
-        $this->addSql("
+        $this->addSql('
             ALTER TABLE ai_jobs
             ADD COLUMN deleted_count INT NOT NULL DEFAULT 0
-        ");
+        ');
 
         // Add suggested_name: AI-suggested name for the set
-        $this->addSql("
+        $this->addSql('
             ALTER TABLE ai_jobs
             ADD COLUMN suggested_name TEXT NULL
-        ");
+        ');
     }
 
     public function down(Schema $schema): void

@@ -19,12 +19,12 @@ class ScaffoldDemoController extends AbstractController
         ];
 
         $flashcards = [];
-        for ($i = 1; $i <= 12; $i++) {
+        for ($i = 1; $i <= 12; ++$i) {
             $flashcards[] = [
                 'id' => $i,
-                'name' => 'Zestaw fiszek #' . $i,
+                'name' => 'Zestaw fiszek #'.$i,
                 'count' => rand(10, 50),
-                'created' => rand(1, 30) . ' dni temu',
+                'created' => rand(1, 30).' dni temu',
             ];
         }
 

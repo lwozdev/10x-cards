@@ -17,7 +17,7 @@ interface SetRepositoryInterface
     public function findOwnedBy(UserId $ownerId): array;
 
     /**
-     * Find active (not soft-deleted) sets owned by user, ordered by updated_at DESC
+     * Find active (not soft-deleted) sets owned by user, ordered by updated_at DESC.
      *
      * @return Set[]
      */

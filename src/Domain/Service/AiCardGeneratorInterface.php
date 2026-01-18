@@ -23,12 +23,13 @@ interface AiCardGeneratorInterface
      * Generate flashcards from source text using AI.
      *
      * @param SourceText $sourceText Text to generate flashcards from (1000-10000 chars)
+     *
      * @return GenerateCardsResult Contains generated cards, suggested name, and metadata
      *
      * @throws \App\Infrastructure\Integration\Ai\Exception\AiTimeoutException
-     *         When AI service takes longer than 30 seconds to respond
+     *                                                                            When AI service takes longer than 30 seconds to respond
      * @throws \App\Infrastructure\Integration\Ai\Exception\AiGenerationException
-     *         When AI service returns an error or invalid response
+     *                                                                            When AI service returns an error or invalid response
      */
     public function generate(SourceText $sourceText): GenerateCardsResult;
 }

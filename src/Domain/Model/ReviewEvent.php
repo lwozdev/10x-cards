@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Model;
 
 use App\Domain\Value\UserId;
-use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -26,7 +25,7 @@ class ReviewEvent
     private ?string $cardId;
 
     #[ORM\Column(name: 'answered_at', type: 'datetime_immutable')]
-    private DateTimeImmutable $answeredAt;
+    private \DateTimeImmutable $answeredAt;
 
     #[ORM\Column(type: 'smallint')]
     private int $grade;
@@ -37,9 +36,9 @@ class ReviewEvent
     private function __construct(
         UserId $userId,
         ?string $cardId,
-        DateTimeImmutable $answeredAt,
+        \DateTimeImmutable $answeredAt,
         int $grade,
-        ?int $durationMs = null
+        ?int $durationMs = null,
     ) {
         if ($grade < 0 || $grade > 1) {
             throw new \InvalidArgumentException('Grade must be 0 (Don\'t know) or 1 (Know)');
@@ -55,9 +54,9 @@ class ReviewEvent
     public static function record(
         UserId $userId,
         string $cardId,
-        DateTimeImmutable $answeredAt,
+        \DateTimeImmutable $answeredAt,
         int $grade,
-        ?int $durationMs = null
+        ?int $durationMs = null,
     ): self {
         return new self($userId, $cardId, $answeredAt, $grade, $durationMs);
     }
@@ -77,7 +76,7 @@ class ReviewEvent
         return $this->cardId;
     }
 
-    public function getAnsweredAt(): DateTimeImmutable
+    public function getAnsweredAt(): \DateTimeImmutable
     {
         return $this->answeredAt;
     }
@@ -94,6 +93,6 @@ class ReviewEvent
 
     public function wasCorrect(): bool
     {
-        return $this->grade === 1;
+        return 1 === $this->grade;
     }
 }

@@ -37,7 +37,7 @@ final class UpdateLastLoginSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -53,9 +53,6 @@ final class UpdateLastLoginSubscriber implements EventSubscriberInterface
 
     /**
      * Update user's last_login_at timestamp after successful login.
-     *
-     * @param LoginSuccessEvent $event
-     * @return void
      */
     public function onLoginSuccess(LoginSuccessEvent $event): void
     {

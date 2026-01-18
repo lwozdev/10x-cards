@@ -28,6 +28,7 @@ final readonly class OpenRouterResponse
      * Factory method to create OpenRouterResponse from API response array.
      *
      * @param array<string, mixed> $response Raw API response
+     *
      * @throws OpenRouterParseException If response structure is invalid
      */
     public static function fromApiResponse(array $response): self
@@ -68,6 +69,7 @@ final readonly class OpenRouterResponse
      * Useful when response_format is set to json_schema.
      *
      * @return array<string, mixed>
+     *
      * @throws OpenRouterParseException If content is not valid JSON
      */
     public function getJsonContent(): array
@@ -81,7 +83,7 @@ final readonly class OpenRouterResponse
 
             return $decoded;
         } catch (\JsonException $e) {
-            throw new OpenRouterParseException('Failed to parse JSON content: ' . $e->getMessage(), 0, $e);
+            throw new OpenRouterParseException('Failed to parse JSON content: '.$e->getMessage(), 0, $e);
         }
     }
 }

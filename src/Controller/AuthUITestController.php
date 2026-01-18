@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Temporary controller for testing authentication UI
- * DELETE THIS FILE after backend implementation
+ * DELETE THIS FILE after backend implementation.
  */
 #[Route('/test-auth')]
 class AuthUITestController extends AbstractController

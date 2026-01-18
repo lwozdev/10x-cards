@@ -109,7 +109,8 @@ phpstan: ## Run PHPStan static analysis (level 8)
 	docker compose exec backend vendor/bin/phpstan analyse --level=5 --memory-limit=1G
 
 cs-fix: ## Fix coding standards (when PHP-CS-Fixer is installed)
-	@echo "${YELLOW}PHP-CS-Fixer not yet configured${NC}"
+	@echo "${YELLOW}Running PHP-CS-Fixer ...{NC}"
+	docker compose exec backend vendor/bin/php-cs-fixer fix
 
 ##
 ## Development

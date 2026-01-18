@@ -26,8 +26,9 @@ final class EditNewSetController extends AbstractController
         $pendingSet = $request->getSession()->get('pending_set');
 
         // 2. If no data in session, redirect to /generate with flash message
-        if ($pendingSet === null) {
+        if (null === $pendingSet) {
             $this->addFlash('error', 'Brak danych do edycji. Wygeneruj najpierw fiszki.');
+
             return $this->redirectToRoute('generate_view');
         }
 

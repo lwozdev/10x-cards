@@ -20,10 +20,10 @@ use App\Domain\Value\UserId;
 final readonly class CreateSetCommand
 {
     /**
-     * @param UserId $userId Owner of the set
-     * @param SetName $name Name of the set (unique per user, case-insensitive)
-     * @param CreateSetCardDto[] $cards Array of cards to create with the set
-     * @param AiJobId|null $jobId Optional AI job ID for KPI linkage
+     * @param UserId             $userId Owner of the set
+     * @param SetName            $name   Name of the set (unique per user, case-insensitive)
+     * @param CreateSetCardDto[] $cards  Array of cards to create with the set
+     * @param AiJobId|null       $jobId  Optional AI job ID for KPI linkage
      */
     public function __construct(
         public UserId $userId,

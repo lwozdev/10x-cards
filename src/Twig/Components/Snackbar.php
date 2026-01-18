@@ -17,7 +17,7 @@ final class Snackbar
 
     public function getId(): string
     {
-        return $this->id ?: 'snackbar_' . uniqid();
+        return $this->id ?: 'snackbar_'.uniqid();
     }
 
     public function getContainerClasses(): string

@@ -29,14 +29,15 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * - Return response
  */
 #[Route('/generate', name: 'flashcard_generate', methods: ['POST'])]
-##[IsGranted('IS_AUTHENTICATED_FULLY')]
+// #[IsGranted('IS_AUTHENTICATED_FULLY')]
 final class FlashcardGeneratorController extends AbstractController
 {
     public function __construct(
         private readonly ValidatorInterface $validator,
         private readonly GenerateFlashcardsHandler $handler,
         private readonly LoggerInterface $logger,
-    ) {}
+    ) {
+    }
 
     /**
      * Generate flashcards from source text using AI.
@@ -80,7 +81,6 @@ final class FlashcardGeneratorController extends AbstractController
                 $response->toArray(),
                 Response::HTTP_ACCEPTED
             );
-
         } catch (\InvalidArgumentException $e) {
             $this->logger->warning('Validation error in flashcard generation', [
                 'error' => $e->getMessage(),
@@ -94,7 +94,6 @@ final class FlashcardGeneratorController extends AbstractController
                 ],
                 Response::HTTP_UNPROCESSABLE_ENTITY
             );
-
         } catch (\Exception $e) {
             $this->logger->error('Failed to create AI job', [
                 'exception' => $e->getMessage(),
@@ -129,7 +128,6 @@ final class FlashcardGeneratorController extends AbstractController
             return new GenerateFlashcardsRequest(
                 sourceText: (string) $data['source_text']
             );
-
         } catch (\JsonException $e) {
             $this->logger->warning('Invalid JSON in request', ['error' => $e->getMessage()]);
 
@@ -166,9 +164,6 @@ final class FlashcardGeneratorController extends AbstractController
      * Supports both:
      * - Doctrine User entity (production) - has getId() method
      * - In-memory test user (development) - uses fixed UUID
-     *
-     * @param mixed $user
-     * @return UserId
      */
     private function getUserId($user): UserId
     {

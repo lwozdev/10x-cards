@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Domain\Value;
 
 use App\Domain\Value\Email;
-use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Unit tests for Email Value Object
+ * Unit tests for Email Value Object.
  *
  * Business rules:
  * - Must be valid email format (RFC compliant via filter_var)
@@ -25,7 +24,7 @@ final class EmailTest extends TestCase
     #[DataProvider('invalidEmailProvider')]
     public function testRejectsInvalidEmailFormats(string $invalidEmail, string $description): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid email format');
 
         Email::fromString($invalidEmail);
@@ -49,9 +48,9 @@ final class EmailTest extends TestCase
     {
         // Create 256 character email: (244 chars username) + @ + example.com (11 chars) = 256
         $longUsername = str_repeat('a', 244);
-        $longEmail = $longUsername . '@example.com';
+        $longEmail = $longUsername.'@example.com';
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         // Note: filter_var may reject very long emails as invalid format before length check
         // We expect either "Invalid email format" or "Email cannot exceed 255 characters"
 
@@ -89,7 +88,7 @@ final class EmailTest extends TestCase
 
         // Create a moderately long but valid email (~80 chars)
         $longUsername = 'very.long.email.address.for.testing.purposes.with.dots';
-        $longEmail = $longUsername . '@example-domain.com'; // ~80 chars
+        $longEmail = $longUsername.'@example-domain.com'; // ~80 chars
 
         $email = Email::fromString($longEmail);
 

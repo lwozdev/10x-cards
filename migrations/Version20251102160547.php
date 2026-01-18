@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Refactor ai_jobs for synchronous generation (no async queue)
+ * Refactor ai_jobs for synchronous generation (no async queue).
  *
  * Purpose: Remove server-side preview storage, simplify to KPI tracking only
  * Tables affected: ai_jobs
@@ -43,15 +43,15 @@ final class Version20251102160547 extends AbstractMigration
 
         // 3. Alter status column to use new type
         //    Cast existing values (succeeded/failed already exist in new type)
-        $this->addSql("
+        $this->addSql('
             ALTER TABLE ai_jobs
             ALTER COLUMN status TYPE ai_job_status_new
             USING status::text::ai_job_status_new
-        ");
+        ');
 
         // 4. Drop old ENUM type and rename new one
-        $this->addSql("DROP TYPE ai_job_status");
-        $this->addSql("ALTER TYPE ai_job_status_new RENAME TO ai_job_status");
+        $this->addSql('DROP TYPE ai_job_status');
+        $this->addSql('ALTER TYPE ai_job_status_new RENAME TO ai_job_status');
 
         // 5. Remove preview-related columns (client-side preview now)
         $this->addSql('ALTER TABLE ai_jobs DROP COLUMN IF EXISTS cards');
@@ -61,11 +61,11 @@ final class Version20251102160547 extends AbstractMigration
 
         // 7. Add accepted_count (replaces edited_count with different semantics)
         //    accepted_count = how many cards user saved (regardless of edits)
-        $this->addSql("
+        $this->addSql('
             ALTER TABLE ai_jobs
             ADD COLUMN accepted_count INT NOT NULL DEFAULT 0
                 CHECK (accepted_count >= 0)
-        ");
+        ');
 
         // 8. Keep edited_count but update its meaning
         //    edited_count = how many of the SAVED cards were edited before saving
@@ -91,14 +91,14 @@ final class Version20251102160547 extends AbstractMigration
         $this->addSql("CREATE TYPE ai_job_status_new AS ENUM ('queued', 'running', 'succeeded', 'failed')");
 
         // 5. Alter status column back to old type
-        $this->addSql("
+        $this->addSql('
             ALTER TABLE ai_jobs
             ALTER COLUMN status TYPE ai_job_status_new
             USING status::text::ai_job_status_new
-        ");
+        ');
 
         // 6. Drop current type and rename
-        $this->addSql("DROP TYPE ai_job_status");
-        $this->addSql("ALTER TYPE ai_job_status_new RENAME TO ai_job_status");
+        $this->addSql('DROP TYPE ai_job_status');
+        $this->addSql('ALTER TYPE ai_job_status_new RENAME TO ai_job_status');
     }
 }

@@ -6,13 +6,12 @@ namespace App\Tests\Unit\Domain\Model;
 
 use App\Domain\Model\AiJob;
 use App\Domain\Model\AiJobStatus;
-use DomainException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Unit tests for AiJob Domain Model
+ * Unit tests for AiJob Domain Model.
  *
  * Critical business logic:
  * - Acceptance rate calculation (KPI metric: target 75%)
@@ -121,7 +120,7 @@ final class AiJobTest extends TestCase
     public function testGetAcceptanceRateCalculatesCorrectly(
         int $generatedCount,
         int $acceptedCount,
-        float $expectedRate
+        float $expectedRate,
     ): void {
         $userId = Uuid::v4();
         $setId = Uuid::v4();
@@ -177,7 +176,7 @@ final class AiJobTest extends TestCase
     public function testGetDeletedCountCalculatesCorrectly(
         int $generatedCount,
         int $acceptedCount,
-        int $expectedDeletedCount
+        int $expectedDeletedCount,
     ): void {
         $userId = Uuid::v4();
         $setId = Uuid::v4();
@@ -252,7 +251,7 @@ final class AiJobTest extends TestCase
 
         $job->linkToSet($setId1, 5, 0);
 
-        $this->expectException(DomainException::class);
+        $this->expectException(\DomainException::class);
         $this->expectExceptionMessage('Job already linked to a set');
 
         $job->linkToSet($setId2, 5, 0);
@@ -269,7 +268,7 @@ final class AiJobTest extends TestCase
             errorMessage: 'Generation failed'
         );
 
-        $this->expectException(DomainException::class);
+        $this->expectException(\DomainException::class);
         $this->expectExceptionMessage('Can only link successful jobs to sets');
 
         $job->linkToSet($setId, 0, 0);
@@ -290,7 +289,7 @@ final class AiJobTest extends TestCase
             tokensOut: 50
         );
 
-        $this->expectException(DomainException::class);
+        $this->expectException(\DomainException::class);
         $this->expectExceptionMessage('Cannot accept more cards than generated');
 
         $job->linkToSet($setId, 11, 0); // Trying to accept 11 when only 10 generated
@@ -311,7 +310,7 @@ final class AiJobTest extends TestCase
             tokensOut: 50
         );
 
-        $this->expectException(DomainException::class);
+        $this->expectException(\DomainException::class);
         $this->expectExceptionMessage('Cannot have more edited cards than accepted');
 
         $job->linkToSet($setId, 5, 6); // Trying to edit 6 when only 5 accepted

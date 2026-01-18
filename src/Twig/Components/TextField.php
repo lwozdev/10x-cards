@@ -30,7 +30,7 @@ final class TextField
 
     public function getId(): string
     {
-        return $this->id ?: 'textfield_' . uniqid();
+        return $this->id ?: 'textfield_'.uniqid();
     }
 
     public function getContainerClasses(): string
@@ -60,7 +60,7 @@ final class TextField
         ];
 
         // Variant-specific classes
-        if ($this->variant === 'filled') {
+        if ('filled' === $this->variant) {
             $classes[] = 'bg-[var(--color-surface-variant)]';
             $classes[] = 'rounded-t-[var(--radius-xs)]';
             $classes[] = 'border-b-2';
@@ -193,7 +193,7 @@ final class TextField
             $attrs['autocomplete'] = $this->autocomplete;
         }
 
-        $attrs['aria-describedby'] = $this->getId() . '_support';
+        $attrs['aria-describedby'] = $this->getId().'_support';
 
         if ($this->hasError()) {
             $attrs['aria-invalid'] = 'true';

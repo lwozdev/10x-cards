@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Domain\Value;
 
 use App\Domain\Value\CardBack;
-use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Unit tests for CardBack Value Object
+ * Unit tests for CardBack Value Object.
  *
  * Business rules:
  * - Cannot be empty after trimming whitespace
@@ -23,7 +22,7 @@ final class CardBackTest extends TestCase
 
     public function testRejectsEmptyString(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Card back cannot be empty');
 
         CardBack::fromString('');
@@ -31,7 +30,7 @@ final class CardBackTest extends TestCase
 
     public function testRejectsWhitespaceOnlyString(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Card back cannot be empty');
 
         CardBack::fromString('   ');
@@ -39,7 +38,7 @@ final class CardBackTest extends TestCase
 
     public function testRejectsVariousWhitespacePatterns(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Card back cannot be empty');
 
         CardBack::fromString("  \t\n\r  ");
@@ -49,7 +48,7 @@ final class CardBackTest extends TestCase
     {
         $longContent = str_repeat('a', 1001);
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Card back cannot exceed 1000 characters');
 
         CardBack::fromString($longContent);
@@ -59,7 +58,7 @@ final class CardBackTest extends TestCase
     {
         $longContent = str_repeat('ą', 1001);
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Card back cannot exceed 1000 characters');
 
         CardBack::fromString($longContent);

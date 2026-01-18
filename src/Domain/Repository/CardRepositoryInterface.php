@@ -18,7 +18,7 @@ interface CardRepositoryInterface
     public function save(Card $card): void;
 
     /**
-     * Save multiple cards in a single transaction (batch persist + flush)
+     * Save multiple cards in a single transaction (batch persist + flush).
      *
      * @param Card[] $cards
      */

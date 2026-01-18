@@ -4,19 +4,17 @@ declare(strict_types=1);
 
 namespace App\Domain\Value;
 
-use InvalidArgumentException;
-
 final readonly class Email
 {
     private function __construct(
-        public string $value
+        public string $value,
     ) {
         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-            throw new InvalidArgumentException(sprintf('Invalid email format: %s', $value));
+            throw new \InvalidArgumentException(sprintf('Invalid email format: %s', $value));
         }
 
         if (strlen($value) > 255) {
-            throw new InvalidArgumentException('Email cannot exceed 255 characters');
+            throw new \InvalidArgumentException('Email cannot exceed 255 characters');
         }
     }
 

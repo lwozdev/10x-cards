@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Domain\Value;
 
 use App\Domain\Value\SetName;
-use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Unit tests for SetName Value Object
+ * Unit tests for SetName Value Object.
  *
  * Business rules:
  * - Cannot be empty after trimming whitespace
@@ -23,7 +22,7 @@ final class SetNameTest extends TestCase
 
     public function testRejectsEmptyString(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Set name cannot be empty');
 
         SetName::fromString('');
@@ -31,7 +30,7 @@ final class SetNameTest extends TestCase
 
     public function testRejectsWhitespaceOnlyString(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Set name cannot be empty');
 
         SetName::fromString('   ');
@@ -39,7 +38,7 @@ final class SetNameTest extends TestCase
 
     public function testRejectsVariousWhitespacePatterns(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Set name cannot be empty');
 
         SetName::fromString("  \t\n\r  ");
@@ -49,7 +48,7 @@ final class SetNameTest extends TestCase
     {
         $longName = str_repeat('a', 256);
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Set name cannot exceed 255 characters');
 
         SetName::fromString($longName);
@@ -58,9 +57,9 @@ final class SetNameTest extends TestCase
     public function testRejectsNameExceedingMaximumLengthAfterTrim(): void
     {
         // 257 total chars: 1 space + 256 'a's
-        $longName = ' ' . str_repeat('a', 256);
+        $longName = ' '.str_repeat('a', 256);
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Set name cannot exceed 255 characters');
 
         SetName::fromString($longName);
@@ -232,7 +231,7 @@ final class SetNameTest extends TestCase
     {
         $longPolishName = str_repeat('ą', 256); // 256 Polish characters
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Set name cannot exceed 255 characters');
 
         SetName::fromString($longPolishName);

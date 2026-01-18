@@ -7,7 +7,7 @@ namespace App\Tests\Integration\Security;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
- * CRITICAL (P0) - Row-Level Security Tests
+ * CRITICAL (P0) - Row-Level Security Tests.
  *
  * Tests PostgreSQL RLS isolation between users
  * Reference: test-plan.md Section 5.2 (SEC-01, SEC-02, SEC-03)
@@ -25,12 +25,12 @@ class RowLevelSecurityTest extends KernelTestCase
     }
 
     /**
-     * TC-SEC-01: User cannot access another user's flashcard set
+     * TC-SEC-01: User cannot access another user's flashcard set.
      */
     public function testUserCannotAccessAnotherUsersFlashcardSet(): void
     {
         $this->markTestIncomplete(
-            'RLS not yet implemented. This test verifies that User A cannot query User B\'s sets. ' .
+            'RLS not yet implemented. This test verifies that User A cannot query User B\'s sets. '.
             'Repository should return null when filtering by RLS policy.'
         );
 
@@ -44,7 +44,7 @@ class RowLevelSecurityTest extends KernelTestCase
     }
 
     /**
-     * TC-SEC-02: User cannot edit another user's flashcard
+     * TC-SEC-02: User cannot edit another user's flashcard.
      */
     public function testUserCannotEditAnotherUsersFlashcard(): void
     {
@@ -60,12 +60,12 @@ class RowLevelSecurityTest extends KernelTestCase
     }
 
     /**
-     * TC-SEC-03: Session isolation - current_app_user() returns correct ID
+     * TC-SEC-03: Session isolation - current_app_user() returns correct ID.
      */
     public function testCurrentAppUserReturnsAuthenticatedUserId(): void
     {
         $this->markTestIncomplete(
-            'PostgresRLSSubscriber not yet implemented. ' .
+            'PostgresRLSSubscriber not yet implemented. '.
             'Must verify that SQL function current_app_user() returns authenticated user ID.'
         );
 
@@ -79,12 +79,12 @@ class RowLevelSecurityTest extends KernelTestCase
     }
 
     /**
-     * SEC-04: SQL injection cannot bypass RLS
+     * SEC-04: SQL injection cannot bypass RLS.
      */
     public function testSqlInjectionCannotBypassRls(): void
     {
         $this->markTestIncomplete(
-            'RLS policies not yet created. ' .
+            'RLS policies not yet created. '.
             'Must test that malicious SQL in filters cannot bypass RLS.'
         );
 
@@ -96,12 +96,12 @@ class RowLevelSecurityTest extends KernelTestCase
     }
 
     /**
-     * Test that unauthenticated requests return empty results
+     * Test that unauthenticated requests return empty results.
      */
     public function testUnauthenticatedRequestReturnsEmptyResults(): void
     {
         $this->markTestIncomplete(
-            'PostgresRLSSubscriber not yet implemented. ' .
+            'PostgresRLSSubscriber not yet implemented. '.
             'When no user is authenticated, current_app_user() should be NULL and queries return empty.'
         );
 

@@ -34,7 +34,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 final class UserProvider implements UserProviderInterface
 {
     public function __construct(
-        private readonly UserRepositoryInterface $userRepository
+        private readonly UserRepositoryInterface $userRepository,
     ) {
     }
 
@@ -46,7 +46,9 @@ final class UserProvider implements UserProviderInterface
      * - Custom authenticators that need to load user by email
      *
      * @param string $identifier User's email address
+     *
      * @return UserInterface Domain User entity implementing UserInterface
+     *
      * @throws UserNotFoundException When user with given email doesn't exist
      */
     public function loadUserByIdentifier(string $identifier): UserInterface
@@ -56,19 +58,15 @@ final class UserProvider implements UserProviderInterface
         } catch (\InvalidArgumentException $e) {
             // Invalid email format - throw UserNotFoundException for security
             // Don't reveal whether email format was invalid (info leak)
-            throw new UserNotFoundException(
-                sprintf('User with email "%s" not found.', $identifier)
-            );
+            throw new UserNotFoundException(sprintf('User with email "%s" not found.', $identifier));
         }
 
         $user = $this->userRepository->findByEmail($email);
 
-        if ($user === null) {
+        if (null === $user) {
             // Security best practice: use same message for all failures
             // Don't reveal whether user exists or not (prevents user enumeration)
-            throw new UserNotFoundException(
-                sprintf('User with email "%s" not found.', $identifier)
-            );
+            throw new UserNotFoundException(sprintf('User with email "%s" not found.', $identifier));
         }
 
         return $user;
@@ -87,25 +85,23 @@ final class UserProvider implements UserProviderInterface
      * - Detecting password changes (will invalidate session)
      *
      * @param UserInterface $user User instance from session
+     *
      * @return UserInterface Fresh user instance from database
+     *
      * @throws UserNotFoundException When user no longer exists
      */
     public function refreshUser(UserInterface $user): UserInterface
     {
         if (!$user instanceof User) {
-            throw new \InvalidArgumentException(
-                sprintf('Instances of "%s" are not supported.', get_class($user))
-            );
+            throw new \InvalidArgumentException(sprintf('Instances of "%s" are not supported.', get_class($user)));
         }
 
         // Reload user from database by ID
         $freshUser = $this->userRepository->findById($user->getId());
 
-        if ($freshUser === null) {
+        if (null === $freshUser) {
             // User was deleted - invalidate session
-            throw new UserNotFoundException(
-                sprintf('User with ID "%s" not found.', $user->getId()->toString())
-            );
+            throw new UserNotFoundException(sprintf('User with ID "%s" not found.', $user->getId()->toString()));
         }
 
         return $freshUser;
@@ -118,6 +114,7 @@ final class UserProvider implements UserProviderInterface
      * should handle refreshUser() calls.
      *
      * @param string $class Fully qualified class name
+     *
      * @return bool True if class is our Domain User entity
      */
     public function supportsClass(string $class): bool

@@ -6,13 +6,12 @@ namespace App\Tests\Unit\Domain\Model;
 
 use App\Domain\Model\ReviewState;
 use App\Domain\Value\UserId;
-use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Unit tests for ReviewState Domain Model
+ * Unit tests for ReviewState Domain Model.
  *
  * Critical business logic:
  * - Spaced repetition algorithm (SM-2 based)
@@ -97,7 +96,7 @@ final class ReviewStateTest extends TestCase
     public function testIsDueWithVariousScenarios(
         string $dueAtString,
         string $nowString,
-        bool $expectedIsDue
+        bool $expectedIsDue,
     ): void {
         $userId = UserId::fromString(Uuid::v4()->toString());
         $cardId = Uuid::v4()->toString();
@@ -219,7 +218,7 @@ final class ReviewStateTest extends TestCase
 
         $state = ReviewState::initialize($userId, $cardId, $dueAt);
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Grade must be 0 or 1');
 
         $state->updateAfterReview(
@@ -239,7 +238,7 @@ final class ReviewStateTest extends TestCase
 
         $state = ReviewState::initialize($userId, $cardId, $dueAt);
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Grade must be 0 or 1');
 
         $state->updateAfterReview(
@@ -436,7 +435,7 @@ final class ReviewStateTest extends TestCase
         $state = ReviewState::initialize($userId, $cardId, $dueAt);
 
         // Simulate 5 successful reviews
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 5; ++$i) {
             $state->updateAfterReview(
                 1,
                 (new \DateTimeImmutable('2024-01-15 10:00:00'))->modify("+{$i} days"),

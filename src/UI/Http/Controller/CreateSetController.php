@@ -82,7 +82,7 @@ final class CreateSetController extends AbstractController
 
             // 3. Get current user ID from security context
             $user = $this->getUser();
-            if ($user === null) {
+            if (null === $user) {
                 return $this->json([
                     'error' => 'Authentication required',
                     'code' => 'unauthorized',
@@ -98,7 +98,7 @@ final class CreateSetController extends AbstractController
                 $setName = SetName::fromString($requestDto->getName());
 
                 $cards = array_map(
-                    fn($cardDto) => new CreateSetCardDto(
+                    fn ($cardDto) => new CreateSetCardDto(
                         front: CardFront::fromString($cardDto->getFront()),
                         back: CardBack::fromString($cardDto->getBack()),
                         origin: CardOrigin::from($cardDto->getOrigin()),
@@ -107,10 +107,9 @@ final class CreateSetController extends AbstractController
                     $requestDto->getCards()
                 );
 
-                $jobId = $requestDto->getJobId() !== null
+                $jobId = null !== $requestDto->getJobId()
                     ? AiJobId::fromString($requestDto->getJobId())
                     : null;
-
             } catch (\InvalidArgumentException $e) {
                 return $this->json([
                     'error' => 'Validation failed',
@@ -146,7 +145,6 @@ final class CreateSetController extends AbstractController
                 Response::HTTP_CREATED,
                 ['Location' => "/api/sets/{$result->setId}"]
             );
-
         } catch (DuplicateSetNameException $e) {
             // 409 Conflict - set name already exists for this user
             $this->logger->info('Duplicate set name attempt', [
@@ -158,7 +156,6 @@ final class CreateSetController extends AbstractController
                 'code' => 'duplicate_set_name',
                 'field' => 'name',
             ], Response::HTTP_CONFLICT);
-
         } catch (AiJobNotFoundException $e) {
             // 404 Not Found - job_id doesn't exist or doesn't belong to user
             $this->logger->warning('AI job not found', [
@@ -169,7 +166,6 @@ final class CreateSetController extends AbstractController
                 'error' => $e->getMessage(),
                 'code' => 'job_not_found',
             ], Response::HTTP_NOT_FOUND);
-
         } catch (\Throwable $e) {
             // 500 Internal Server Error - unexpected errors
             $this->logger->error('Unexpected error in create set endpoint', [
@@ -187,7 +183,7 @@ final class CreateSetController extends AbstractController
     }
 
     /**
-     * Format validation errors for JSON response
+     * Format validation errors for JSON response.
      */
     private function validationErrorResponse($violations): JsonResponse
     {

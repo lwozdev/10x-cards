@@ -65,7 +65,7 @@ class DoctrineSetRepository extends ServiceEntityRepository implements SetReposi
         return $this->count([
             'ownerId' => $ownerId->toString(),
             'name' => $name,
-            'deletedAt' => null
+            'deletedAt' => null,
         ]) > 0;
     }
 }

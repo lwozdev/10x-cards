@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Exception;
 
-use DomainException;
-
 /**
  * Thrown when attempting to create a set with a name that already exists
  * for the same user (case-insensitive).
  */
-final class DuplicateSetNameException extends DomainException
+final class DuplicateSetNameException extends \DomainException
 {
     public static function forName(string $name): self
     {

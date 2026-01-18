@@ -128,7 +128,7 @@ final class ListItem
             $attrs['tabindex'] = '0';
         }
 
-        if ($this->type === 'selectable') {
+        if ('selectable' === $this->type) {
             $attrs['aria-selected'] = $this->selected ? 'true' : 'false';
         }
 

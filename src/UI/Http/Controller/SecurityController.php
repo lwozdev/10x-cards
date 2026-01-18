@@ -54,6 +54,7 @@ final class SecurityController extends AbstractController
      * - csrf_token_intention: 'authenticate' (for CSRF protection)
      *
      * @param AuthenticationUtils $authenticationUtils Symfony service for login errors
+     *
      * @return Response Rendered login form template
      */
     #[Route('/login', name: 'app_login', methods: ['GET', 'POST'])]
@@ -95,8 +96,6 @@ final class SecurityController extends AbstractController
      * This method exists only to:
      * - Generate route name for templates: path('app_logout')
      * - Provide IDE autocomplete and type hints
-     *
-     * @return void
      */
     #[Route('/logout', name: 'app_logout', methods: ['GET'])]
     public function logout(): void
@@ -104,10 +103,6 @@ final class SecurityController extends AbstractController
         // This code will never be executed
         // Symfony Security intercepts and handles logout
         // See: security.yaml -> firewalls.main.logout
-        throw new \LogicException(
-            'This method should never be reached. ' .
-            'Logout is handled by Symfony Security. ' .
-            'Check security.yaml configuration.'
-        );
+        throw new \LogicException('This method should never be reached. Logout is handled by Symfony Security. Check security.yaml configuration.');
     }
 }

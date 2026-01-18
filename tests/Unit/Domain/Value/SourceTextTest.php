@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Domain\Value;
 
 use App\Domain\Value\SourceText;
-use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Unit tests for SourceText Value Object
+ * Unit tests for SourceText Value Object.
  *
  * Business rules:
  * - Minimum 1000 characters
@@ -24,7 +23,7 @@ final class SourceTextTest extends TestCase
 
     public function testRejectsEmptyString(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Source text cannot be empty');
 
         SourceText::fromString('');
@@ -32,7 +31,7 @@ final class SourceTextTest extends TestCase
 
     public function testRejectsWhitespaceOnlyString(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Source text cannot be empty');
 
         SourceText::fromString("   \n\t  ");
@@ -42,7 +41,7 @@ final class SourceTextTest extends TestCase
     {
         $text = str_repeat('a', 999);
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Source text must be at least 1000 characters long, got 999');
 
         SourceText::fromString($text);
@@ -52,7 +51,7 @@ final class SourceTextTest extends TestCase
     {
         $text = str_repeat('a', 10001);
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Source text must not exceed 10000 characters, got 10001');
 
         SourceText::fromString($text);
@@ -62,7 +61,7 @@ final class SourceTextTest extends TestCase
     {
         // Text appears to be 1002 chars, but after trim is only 1000
         // Should pass since trimmed length equals minimum
-        $text = '  ' . str_repeat('a', 1000) . '  ';
+        $text = '  '.str_repeat('a', 1000).'  ';
         $sourceText = SourceText::fromString($text);
 
         $this->assertInstanceOf(SourceText::class, $sourceText);
@@ -71,9 +70,9 @@ final class SourceTextTest extends TestCase
     public function testRejectsTextThatIsTooShortAfterTrim(): void
     {
         // Text appears to be 1002 chars, but after trim is only 998
-        $text = '  ' . str_repeat('a', 998) . '  ';
+        $text = '  '.str_repeat('a', 998).'  ';
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Source text must be at least 1000 characters long, got 998');
 
         SourceText::fromString($text);
@@ -128,7 +127,7 @@ final class SourceTextTest extends TestCase
     {
         // Polish characters: ą, ć, ę, ł, ń, ó, ś, ź, ż (each is 2 bytes in UTF-8)
         // Using pattern without trailing space to avoid trim issues
-        $polishText = str_repeat('ąćęłńóśźż', 111) . 'ą'; // 9 * 111 + 1 = 1000 chars
+        $polishText = str_repeat('ąćęłńóśźż', 111).'ą'; // 9 * 111 + 1 = 1000 chars
 
         $sourceText = SourceText::fromString($polishText);
 
@@ -140,7 +139,7 @@ final class SourceTextTest extends TestCase
     {
         // Emoji can be 1-4 bytes in UTF-8, but count as 1 character
         $baseText = str_repeat('a', 995);
-        $textWithEmoji = $baseText . '😀😁😂😃😄'; // 995 + 5 = 1000 chars
+        $textWithEmoji = $baseText.'😀😁😂😃😄'; // 995 + 5 = 1000 chars
 
         $sourceText = SourceText::fromString($textWithEmoji);
 
@@ -152,7 +151,7 @@ final class SourceTextTest extends TestCase
         // 10001 Polish characters should be rejected
         $polishText = str_repeat('ą', 10001);
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Source text must not exceed 10000 characters, got 10001');
 
         SourceText::fromString($polishText);

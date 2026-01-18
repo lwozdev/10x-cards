@@ -27,7 +27,7 @@ class AiJobStatusType extends Type
 
     public function convertToPHPValue($value, AbstractPlatform $platform): ?AiJobStatus
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 
@@ -36,7 +36,7 @@ class AiJobStatusType extends Type
 
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
-        if ($value === null) {
+        if (null === $value) {
             return null;
         }
 
@@ -44,11 +44,7 @@ class AiJobStatusType extends Type
             return $value->value;
         }
 
-        throw new \InvalidArgumentException(sprintf(
-            'Expected %s, got %s',
-            AiJobStatus::class,
-            get_debug_type($value)
-        ));
+        throw new \InvalidArgumentException(sprintf('Expected %s, got %s', AiJobStatus::class, get_debug_type($value)));
     }
 
     public function getName(): string

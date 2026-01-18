@@ -9,7 +9,6 @@ use App\Domain\Model\AiJob;
 use App\Domain\Model\AnalyticsEvent;
 use App\Domain\Repository\AiJobRepositoryInterface;
 use App\Domain\Repository\AnalyticsEventRepositoryInterface;
-use DateTimeImmutable;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -24,17 +23,19 @@ final readonly class GenerateFlashcardsHandler
     public function __construct(
         private AiJobRepositoryInterface $aiJobRepository,
         private AnalyticsEventRepositoryInterface $analyticsRepository,
-    ) {}
+    ) {
+    }
 
     /**
      * Handle the command and return job ID.
      *
      * @return string UUID of the created AiJob
+     *
      * @throws \InvalidArgumentException if source text validation fails
      */
     public function handle(GenerateFlashcardsCommand $command): string
     {
-        $now = new DateTimeImmutable();
+        $now = new \DateTimeImmutable();
         $jobId = Uuid::v4()->toString();
 
         // Create AiJob entity (validation happens in constructor)

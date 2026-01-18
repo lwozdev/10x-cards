@@ -13,9 +13,9 @@ namespace App\Application\Handler;
 final readonly class CreateSetResult
 {
     /**
-     * @param string $setId UUID of the newly created set
-     * @param string $name Name of the created set
-     * @param int $cardCount Number of cards created with the set
+     * @param string $setId     UUID of the newly created set
+     * @param string $name      Name of the created set
+     * @param int    $cardCount Number of cards created with the set
      */
     public function __construct(
         public string $setId,

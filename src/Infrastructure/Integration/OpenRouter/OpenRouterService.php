@@ -13,7 +13,6 @@ use App\Infrastructure\Integration\OpenRouter\Exception\OpenRouterParseException
 use App\Infrastructure\Integration\OpenRouter\Exception\OpenRouterRateLimitException;
 use App\Infrastructure\Integration\OpenRouter\Exception\OpenRouterServerException;
 use App\Infrastructure\Integration\OpenRouter\Exception\OpenRouterTimeoutException;
-use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\Exception\TimeoutExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -41,12 +40,12 @@ final class OpenRouterService implements OpenRouterServiceInterface
         private readonly int $defaultTimeout = 60,
     ) {
         // Validate API key at construction
-        if (trim($this->apiKey) === '') {
-            throw new InvalidArgumentException('OpenRouter API key cannot be empty');
+        if ('' === trim($this->apiKey)) {
+            throw new \InvalidArgumentException('OpenRouter API key cannot be empty');
         }
 
-        if (trim($this->apiUrl) === '') {
-            throw new InvalidArgumentException('OpenRouter API URL cannot be empty');
+        if ('' === trim($this->apiUrl)) {
+            throw new \InvalidArgumentException('OpenRouter API URL cannot be empty');
         }
     }
 
@@ -61,6 +60,7 @@ final class OpenRouterService implements OpenRouterServiceInterface
         // Execute with retry logic
         return $this->executeWithRetry(function () use ($payload) {
             $response = $this->sendRequest($payload);
+
             return $this->parseResponse($response);
         });
     }
@@ -288,8 +288,11 @@ PROMPT;
      * Implements exponential backoff strategy.
      *
      * @template T
+     *
      * @param callable(): T $callable
+     *
      * @return T
+     *
      * @throws OpenRouterException
      */
     private function executeWithRetry(callable $callable): mixed
@@ -300,9 +303,9 @@ PROMPT;
         while ($attempt < self::MAX_RETRIES) {
             try {
                 return $callable();
-            } catch (OpenRouterNetworkException | OpenRouterTimeoutException | OpenRouterServerException $e) {
+            } catch (OpenRouterNetworkException|OpenRouterTimeoutException|OpenRouterServerException $e) {
                 // These errors are retryable
-                $attempt++;
+                ++$attempt;
                 $lastException = $e;
 
                 if ($attempt >= self::MAX_RETRIES) {
@@ -336,34 +339,32 @@ PROMPT;
      * Validate messages array structure.
      *
      * @param array<int, array{role: string, content: string}> $messages
-     * @throws InvalidArgumentException If validation fails
+     *
+     * @throws \InvalidArgumentException If validation fails
      */
     private function validateMessages(array $messages): void
     {
         if (empty($messages)) {
-            throw new InvalidArgumentException('Messages array cannot be empty');
+            throw new \InvalidArgumentException('Messages array cannot be empty');
         }
 
         $allowedRoles = ['system', 'user', 'assistant'];
 
         foreach ($messages as $index => $message) {
             if (!isset($message['role'])) {
-                throw new InvalidArgumentException("Message at index {$index} missing 'role' field");
+                throw new \InvalidArgumentException("Message at index {$index} missing 'role' field");
             }
 
             if (!isset($message['content'])) {
-                throw new InvalidArgumentException("Message at index {$index} missing 'content' field");
+                throw new \InvalidArgumentException("Message at index {$index} missing 'content' field");
             }
 
             if (!in_array($message['role'], $allowedRoles, true)) {
-                throw new InvalidArgumentException(
-                    "Message at index {$index} has invalid role '{$message['role']}'. " .
-                    'Allowed roles: ' . implode(', ', $allowedRoles)
-                );
+                throw new \InvalidArgumentException("Message at index {$index} has invalid role '{$message['role']}'. ".'Allowed roles: '.implode(', ', $allowedRoles));
             }
 
-            if (trim((string) $message['content']) === '') {
-                throw new InvalidArgumentException("Message at index {$index} has empty content");
+            if ('' === trim((string) $message['content'])) {
+                throw new \InvalidArgumentException("Message at index {$index} has empty content");
             }
         }
     }
@@ -372,21 +373,19 @@ PROMPT;
      * Validate response_format structure.
      *
      * @param array<string, mixed> $responseFormat
-     * @throws InvalidArgumentException If validation fails
+     *
+     * @throws \InvalidArgumentException If validation fails
      */
     private function validateResponseFormat(array $responseFormat): void
     {
         if (!isset($responseFormat['type'])) {
-            throw new InvalidArgumentException('response_format missing required field: type');
+            throw new \InvalidArgumentException('response_format missing required field: type');
         }
 
         $allowedTypes = ['text', 'json', 'json_object', 'regex', 'ebnf', 'structural_tag'];
 
         if (!in_array($responseFormat['type'], $allowedTypes, true)) {
-            throw new InvalidArgumentException(
-                "response_format type must be one of: " . implode(', ', $allowedTypes) .
-                ", got: {$responseFormat['type']}"
-            );
+            throw new \InvalidArgumentException('response_format type must be one of: '.implode(', ', $allowedTypes).", got: {$responseFormat['type']}");
         }
     }
 
@@ -394,6 +393,7 @@ PROMPT;
      * Sanitize user input to prevent prompt injection and remove control characters.
      *
      * @param string $input User-provided text
+     *
      * @return string Sanitized text
      */
     private function sanitizeUserInput(string $input): string
@@ -408,30 +408,18 @@ PROMPT;
     /**
      * Validate source text length for flashcard generation.
      *
-     * @throws InvalidArgumentException If text length is invalid
+     * @throws \InvalidArgumentException If text length is invalid
      */
     private function validateFlashcardTextLength(string $text): void
     {
         $length = mb_strlen($text);
 
         if ($length < self::MIN_FLASHCARD_TEXT_LENGTH) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Source text too short. Minimum %d characters required, got %d',
-                    self::MIN_FLASHCARD_TEXT_LENGTH,
-                    $length
-                )
-            );
+            throw new \InvalidArgumentException(sprintf('Source text too short. Minimum %d characters required, got %d', self::MIN_FLASHCARD_TEXT_LENGTH, $length));
         }
 
         if ($length > self::MAX_FLASHCARD_TEXT_LENGTH) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Source text too long. Maximum %d characters allowed, got %d',
-                    self::MAX_FLASHCARD_TEXT_LENGTH,
-                    $length
-                )
-            );
+            throw new \InvalidArgumentException(sprintf('Source text too long. Maximum %d characters allowed, got %d', self::MAX_FLASHCARD_TEXT_LENGTH, $length));
         }
     }
 
@@ -439,7 +427,8 @@ PROMPT;
      * Build request payload for OpenRouter API.
      *
      * @param array<int, array{role: string, content: string}> $messages
-     * @param array<string, mixed> $options
+     * @param array<string, mixed>                             $options
+     *
      * @return array<string, mixed>
      */
     private function buildRequestPayload(array $messages, array $options): array
@@ -482,7 +471,7 @@ PROMPT;
      * Send HTTP request to OpenRouter API.
      *
      * @param array<string, mixed> $payload
-     * @return ResponseInterface
+     *
      * @throws OpenRouterNetworkException On network errors
      * @throws OpenRouterTimeoutException On timeout
      */
@@ -491,7 +480,7 @@ PROMPT;
         try {
             $response = $this->httpClient->request('POST', $this->apiUrl, [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Authorization' => 'Bearer '.$this->apiKey,
                     'Content-Type' => 'application/json',
                     'HTTP-Referer' => 'https://flashcards-app.local', // For OpenRouter stats
                     'X-Title' => 'AI Flashcard Generator',
@@ -507,22 +496,14 @@ PROMPT;
                 'model' => $payload['model'] ?? 'unknown',
             ]);
 
-            throw new OpenRouterTimeoutException(
-                'Request to OpenRouter API timed out after ' . $this->defaultTimeout . ' seconds',
-                0,
-                $e
-            );
+            throw new OpenRouterTimeoutException('Request to OpenRouter API timed out after '.$this->defaultTimeout.' seconds', 0, $e);
         } catch (TransportExceptionInterface $e) {
             $this->logger->warning('OpenRouter network error', [
                 'error' => $e->getMessage(),
                 'model' => $payload['model'] ?? 'unknown',
             ]);
 
-            throw new OpenRouterNetworkException(
-                'Network error while communicating with OpenRouter API: ' . $e->getMessage(),
-                0,
-                $e
-            );
+            throw new OpenRouterNetworkException('Network error while communicating with OpenRouter API: '.$e->getMessage(), 0, $e);
         }
     }
 
@@ -530,17 +511,17 @@ PROMPT;
      * Parse and validate API response.
      *
      * @throws OpenRouterAuthenticationException On 401
-     * @throws OpenRouterRateLimitException On 429
+     * @throws OpenRouterRateLimitException      On 429
      * @throws OpenRouterInvalidRequestException On 400
-     * @throws OpenRouterServerException On 500+
-     * @throws OpenRouterParseException On parsing errors
+     * @throws OpenRouterServerException         On 500+
+     * @throws OpenRouterParseException          On parsing errors
      */
     private function parseResponse(ResponseInterface $response): OpenRouterResponse
     {
         $statusCode = $response->getStatusCode();
 
         // Handle non-200 status codes
-        if ($statusCode !== 200) {
+        if (200 !== $statusCode) {
             $this->handleErrorResponse($response, $statusCode);
         }
 
@@ -552,11 +533,7 @@ PROMPT;
                 'status_code' => $statusCode,
             ]);
 
-            throw new OpenRouterParseException(
-                'Failed to parse API response as JSON: ' . $e->getMessage(),
-                0,
-                $e
-            );
+            throw new OpenRouterParseException('Failed to parse API response as JSON: '.$e->getMessage(), 0, $e);
         }
 
         // Log successful request
@@ -589,9 +566,9 @@ PROMPT;
         }
 
         match (true) {
-            $statusCode === 401 => $this->handleAuthenticationError($errorMessage, $errorData),
-            $statusCode === 429 => $this->handleRateLimitError($response, $errorMessage, $errorData),
-            $statusCode === 400 => $this->handleInvalidRequestError($errorMessage, $errorData),
+            401 === $statusCode => $this->handleAuthenticationError($errorMessage, $errorData),
+            429 === $statusCode => $this->handleRateLimitError($response, $errorMessage, $errorData),
+            400 === $statusCode => $this->handleInvalidRequestError($errorMessage, $errorData),
             $statusCode >= 500 => $this->handleServerError($statusCode, $errorMessage, $errorData),
             default => $this->handleUnknownError($statusCode, $errorMessage, $errorData),
         };
@@ -608,11 +585,7 @@ PROMPT;
             'message' => $message,
         ]);
 
-        throw new OpenRouterAuthenticationException(
-            'Authentication failed. Please check your API key: ' . $message,
-            401,
-            $errorData
-        );
+        throw new OpenRouterAuthenticationException('Authentication failed. Please check your API key: '.$message, 401, $errorData);
     }
 
     /**
@@ -638,16 +611,11 @@ PROMPT;
         ]);
 
         $userMessage = 'Rate limit exceeded.';
-        if ($retryAfter !== null) {
+        if (null !== $retryAfter) {
             $userMessage .= " Please try again in {$retryAfter} seconds.";
         }
 
-        throw new OpenRouterRateLimitException(
-            $userMessage,
-            429,
-            $errorData,
-            $retryAfter
-        );
+        throw new OpenRouterRateLimitException($userMessage, 429, $errorData, $retryAfter);
     }
 
     /**
@@ -661,11 +629,7 @@ PROMPT;
             'message' => $message,
         ]);
 
-        throw new OpenRouterInvalidRequestException(
-            'Invalid request to OpenRouter API: ' . $message,
-            400,
-            $errorData
-        );
+        throw new OpenRouterInvalidRequestException('Invalid request to OpenRouter API: '.$message, 400, $errorData);
     }
 
     /**
@@ -680,11 +644,7 @@ PROMPT;
             'message' => $message,
         ]);
 
-        throw new OpenRouterServerException(
-            'OpenRouter server error. Please try again later: ' . $message,
-            $statusCode,
-            $errorData
-        );
+        throw new OpenRouterServerException('OpenRouter server error. Please try again later: '.$message, $statusCode, $errorData);
     }
 
     /**
@@ -699,10 +659,6 @@ PROMPT;
             'message' => $message,
         ]);
 
-        throw new OpenRouterInvalidRequestException(
-            "Unexpected error from OpenRouter API (HTTP {$statusCode}): {$message}",
-            $statusCode,
-            $errorData
-        );
+        throw new OpenRouterInvalidRequestException("Unexpected error from OpenRouter API (HTTP {$statusCode}): {$message}", $statusCode, $errorData);
     }
 }

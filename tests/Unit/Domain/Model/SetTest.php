@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Unit tests for Set Domain Model
+ * Unit tests for Set Domain Model.
  *
  * Critical business logic:
  * - Card count increment/decrement (with edge case: never below 0)
@@ -59,7 +59,7 @@ final class SetTest extends TestCase
     {
         $set = $this->createTestSet();
 
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 10; ++$i) {
             $set->incrementCardCount();
             $this->assertSame($i, $set->getCardCount());
         }
@@ -325,7 +325,7 @@ final class SetTest extends TestCase
         ?string $id = null,
         ?UserId $ownerId = null,
         ?SetName $name = null,
-        ?\DateTimeImmutable $createdAt = null
+        ?\DateTimeImmutable $createdAt = null,
     ): Set {
         return Set::create(
             $id ?? Uuid::v4()->toString(),

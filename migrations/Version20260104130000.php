@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Migration: Add email verification support to User entity
+ * Migration: Add email verification support to User entity.
  *
  * Changes:
  * - Add is_verified column to users table (default: false)

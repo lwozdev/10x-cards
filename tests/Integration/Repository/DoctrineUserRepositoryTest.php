@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Integration tests for DoctrineUserRepository
+ * Integration tests for DoctrineUserRepository.
  *
  * Tests user CRUD operations, email uniqueness, and authentication support.
  * Reference: test-plan.md Section 5.2 (TC-AUTH-001, SEC-04)
@@ -36,13 +36,13 @@ class DoctrineUserRepositoryTest extends KernelTestCase
 
     /**
      * Test: Create and save a new user
-     * TC-AUTH-001: Registration
+     * TC-AUTH-001: Registration.
      */
     public function testCanCreateAndSaveUser(): void
     {
         // Arrange
         $userId = UserId::fromString(Uuid::v4()->toString());
-        $email = Email::fromString('test_' . uniqid() . '@example.com');
+        $email = Email::fromString('test_'.uniqid().'@example.com');
         $passwordHash = password_hash('SecurePass123!', PASSWORD_BCRYPT);
         $now = new \DateTimeImmutable();
 
@@ -62,13 +62,13 @@ class DoctrineUserRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Find user by email
+     * Test: Find user by email.
      */
     public function testCanFindUserByEmail(): void
     {
         // Arrange
         $userId = UserId::fromString(Uuid::v4()->toString());
-        $email = Email::fromString('findme_' . uniqid() . '@example.com');
+        $email = Email::fromString('findme_'.uniqid().'@example.com');
         $passwordHash = password_hash('password123', PASSWORD_BCRYPT);
         $now = new \DateTimeImmutable();
 
@@ -85,7 +85,7 @@ class DoctrineUserRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: findByEmail returns null for non-existent email
+     * Test: findByEmail returns null for non-existent email.
      */
     public function testFindByEmailReturnsNullForNonExistentEmail(): void
     {
@@ -95,12 +95,12 @@ class DoctrineUserRepositoryTest extends KernelTestCase
 
     /**
      * Test: Email uniqueness constraint (SEC-04)
-     * Doctrine should throw exception on duplicate email
+     * Doctrine should throw exception on duplicate email.
      */
     public function testCannotSaveUserWithDuplicateEmail(): void
     {
         // Arrange
-        $email = Email::fromString('duplicate_' . uniqid() . '@example.com');
+        $email = Email::fromString('duplicate_'.uniqid().'@example.com');
         $passwordHash = password_hash('password123', PASSWORD_BCRYPT);
         $now = new \DateTimeImmutable();
 
@@ -126,12 +126,12 @@ class DoctrineUserRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: exists() checks if email is already registered
+     * Test: exists() checks if email is already registered.
      */
     public function testExistsReturnsTrueForRegisteredEmail(): void
     {
         // Arrange
-        $email = Email::fromString('registered_' . uniqid() . '@example.com');
+        $email = Email::fromString('registered_'.uniqid().'@example.com');
         $user = User::create(
             UserId::fromString(Uuid::v4()->toString()),
             $email,
@@ -143,17 +143,17 @@ class DoctrineUserRepositoryTest extends KernelTestCase
 
         // Act & Assert
         $this->assertTrue($this->repository->exists($email));
-        $this->assertFalse($this->repository->exists(Email::fromString('notregistered_' . uniqid() . '@example.com')));
+        $this->assertFalse($this->repository->exists(Email::fromString('notregistered_'.uniqid().'@example.com')));
     }
 
     /**
-     * Test: Update user's last login timestamp
+     * Test: Update user's last login timestamp.
      */
     public function testCanUpdateLastLoginAt(): void
     {
         // Arrange
         $userId = UserId::fromString(Uuid::v4()->toString());
-        $email = Email::fromString('login_' . uniqid() . '@example.com');
+        $email = Email::fromString('login_'.uniqid().'@example.com');
         $passwordHash = password_hash('password123', PASSWORD_BCRYPT);
         $createdAt = new \DateTimeImmutable('2025-01-01 10:00:00');
 
@@ -173,13 +173,13 @@ class DoctrineUserRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: User can be marked as verified
+     * Test: User can be marked as verified.
      */
     public function testCanMarkUserAsVerified(): void
     {
         // Arrange
         $userId = UserId::fromString(Uuid::v4()->toString());
-        $email = Email::fromString('verify_' . uniqid() . '@example.com');
+        $email = Email::fromString('verify_'.uniqid().'@example.com');
         $passwordHash = password_hash('password123', PASSWORD_BCRYPT);
         $now = new \DateTimeImmutable();
 
@@ -198,13 +198,13 @@ class DoctrineUserRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: User entity implements UserInterface for Symfony Security
+     * Test: User entity implements UserInterface for Symfony Security.
      */
     public function testUserImplementsSymfonySecurityInterfaces(): void
     {
         // Arrange
         $userId = UserId::fromString(Uuid::v4()->toString());
-        $email = Email::fromString('security_' . uniqid() . '@example.com');
+        $email = Email::fromString('security_'.uniqid().'@example.com');
         $passwordHash = password_hash('password123', PASSWORD_BCRYPT);
         $now = new \DateTimeImmutable();
 
@@ -221,13 +221,13 @@ class DoctrineUserRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Password hash must be at least 60 characters (bcrypt minimum)
+     * Test: Password hash must be at least 60 characters (bcrypt minimum).
      */
     public function testPasswordHashMustBeAtLeast60Characters(): void
     {
         // Arrange
         $userId = UserId::fromString(Uuid::v4()->toString());
-        $email = Email::fromString('short_' . uniqid() . '@example.com');
+        $email = Email::fromString('short_'.uniqid().'@example.com');
         $shortHash = 'tooshort'; // Less than 60 chars
         $now = new \DateTimeImmutable();
 
@@ -238,13 +238,13 @@ class DoctrineUserRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: Valid bcrypt hash is accepted
+     * Test: Valid bcrypt hash is accepted.
      */
     public function testValidBcryptHashIsAccepted(): void
     {
         // Arrange
         $userId = UserId::fromString(Uuid::v4()->toString());
-        $email = Email::fromString('bcrypt_' . uniqid() . '@example.com');
+        $email = Email::fromString('bcrypt_'.uniqid().'@example.com');
         $validHash = password_hash('SecurePassword123!', PASSWORD_BCRYPT);
         $now = new \DateTimeImmutable();
 
@@ -257,7 +257,7 @@ class DoctrineUserRepositoryTest extends KernelTestCase
     }
 
     /**
-     * Test: findById returns null for non-existent user ID
+     * Test: findById returns null for non-existent user ID.
      */
     public function testFindByIdReturnsNullForNonExistentId(): void
     {
@@ -268,14 +268,14 @@ class DoctrineUserRepositoryTest extends KernelTestCase
 
     /**
      * Test: Email addresses are case-sensitive in database
-     * NOTE: The application layer should normalize emails to lowercase before saving
+     * NOTE: The application layer should normalize emails to lowercase before saving.
      */
     public function testEmailAddressesAreCaseSensitiveInDatabase(): void
     {
         // Arrange
         $uniquePart = uniqid();
-        $email1 = Email::fromString('test_' . $uniquePart . '@example.com');
-        $email2 = Email::fromString('TEST_' . $uniquePart . '@example.com');
+        $email1 = Email::fromString('test_'.$uniquePart.'@example.com');
+        $email2 = Email::fromString('TEST_'.$uniquePart.'@example.com');
         $passwordHash = password_hash('password123', PASSWORD_BCRYPT);
         $now = new \DateTimeImmutable();
 

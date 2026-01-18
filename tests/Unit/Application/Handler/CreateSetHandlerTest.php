@@ -26,7 +26,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * Unit tests for CreateSetHandler
+ * Unit tests for CreateSetHandler.
  *
  * Tests business logic for creating flashcard sets with optional cards and AI job linkage.
  * Reference: test-plan.md Section 5.1 (AI-05), Section 5.3 (TC-EDIT-004)
@@ -57,7 +57,7 @@ class CreateSetHandlerTest extends TestCase
     }
 
     /**
-     * Test: Create empty set (manual creation, no cards)
+     * Test: Create empty set (manual creation, no cards).
      */
     public function testCanCreateEmptySetWithoutCards(): void
     {
@@ -97,7 +97,7 @@ class CreateSetHandlerTest extends TestCase
     }
 
     /**
-     * Test: Create set with manual cards
+     * Test: Create set with manual cards.
      */
     public function testCanCreateSetWithManualCards(): void
     {
@@ -132,17 +132,17 @@ class CreateSetHandlerTest extends TestCase
         $this->cardRepository->expects($this->once())
             ->method('saveAll')
             ->with($this->callback(function ($cards) {
-                return count($cards) === 2 &&
-                       $cards[0] instanceof \App\Domain\Model\Card &&
-                       $cards[1] instanceof \App\Domain\Model\Card;
+                return 2 === count($cards)
+                       && $cards[0] instanceof \App\Domain\Model\Card
+                       && $cards[1] instanceof \App\Domain\Model\Card;
             }));
 
         $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with($this->callback(function (SetCreatedEvent $event) {
-                return $event->totalCardCount === 2 &&
-                       $event->aiCardCount === 0 && // All manual
-                       $event->editedAiCardCount === 0;
+                return 2 === $event->totalCardCount
+                       && 0 === $event->aiCardCount // All manual
+                       && 0 === $event->editedAiCardCount;
             }));
 
         // Act
@@ -154,7 +154,7 @@ class CreateSetHandlerTest extends TestCase
 
     /**
      * Test: Create set with AI-generated cards (no edits)
-     * TC-EDIT-004: Save AI-generated set
+     * TC-EDIT-004: Save AI-generated set.
      */
     public function testCanCreateSetWithAiGeneratedCards(): void
     {
@@ -213,10 +213,10 @@ class CreateSetHandlerTest extends TestCase
         $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with($this->callback(function (SetCreatedEvent $event) use ($jobId) {
-                return $event->totalCardCount === 2 &&
-                       $event->aiCardCount === 2 &&
-                       $event->editedAiCardCount === 0 &&
-                       $event->jobId === $jobId->toString();
+                return 2 === $event->totalCardCount
+                       && 2 === $event->aiCardCount
+                       && 0 === $event->editedAiCardCount
+                       && $event->jobId === $jobId->toString();
             }));
 
         // Act
@@ -231,7 +231,7 @@ class CreateSetHandlerTest extends TestCase
 
     /**
      * Test: Create set with AI cards (some edited)
-     * TC-EDIT-004: Save with edited cards
+     * TC-EDIT-004: Save with edited cards.
      */
     public function testCanCreateSetWithEditedAiCards(): void
     {
@@ -288,9 +288,9 @@ class CreateSetHandlerTest extends TestCase
         $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with($this->callback(function (SetCreatedEvent $event) {
-                return $event->totalCardCount === 3 &&
-                       $event->aiCardCount === 3 &&
-                       $event->editedAiCardCount === 2; // 2 cards were edited
+                return 3 === $event->totalCardCount
+                       && 3 === $event->aiCardCount
+                       && 2 === $event->editedAiCardCount; // 2 cards were edited
             }));
 
         // Act
@@ -303,7 +303,7 @@ class CreateSetHandlerTest extends TestCase
     }
 
     /**
-     * Test: Throws exception when set name already exists
+     * Test: Throws exception when set name already exists.
      */
     public function testThrowsExceptionWhenSetNameAlreadyExists(): void
     {
@@ -329,7 +329,7 @@ class CreateSetHandlerTest extends TestCase
     }
 
     /**
-     * Test: Throws exception when AI job not found
+     * Test: Throws exception when AI job not found.
      */
     public function testThrowsExceptionWhenAiJobNotFound(): void
     {
@@ -359,7 +359,7 @@ class CreateSetHandlerTest extends TestCase
     }
 
     /**
-     * Test: Mixed AI and manual cards in same set
+     * Test: Mixed AI and manual cards in same set.
      */
     public function testCanCreateSetWithMixedOriginCards(): void
     {
@@ -391,9 +391,9 @@ class CreateSetHandlerTest extends TestCase
         $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with($this->callback(function (SetCreatedEvent $event) {
-                return $event->totalCardCount === 2 &&
-                       $event->aiCardCount === 1 && // Only 1 AI card
-                       $event->editedAiCardCount === 0;
+                return 2 === $event->totalCardCount
+                       && 1 === $event->aiCardCount // Only 1 AI card
+                       && 0 === $event->editedAiCardCount;
             }));
 
         // Act
@@ -404,7 +404,7 @@ class CreateSetHandlerTest extends TestCase
     }
 
     /**
-     * Test: SetCreatedEvent contains correct data
+     * Test: SetCreatedEvent contains correct data.
      */
     public function testSetCreatedEventContainsCorrectData(): void
     {
@@ -423,11 +423,12 @@ class CreateSetHandlerTest extends TestCase
             ->method('dispatch')
             ->with($this->callback(function (SetCreatedEvent $event) use (&$capturedEvent, $userId) {
                 $capturedEvent = $event;
-                return $event->userId === $userId->toString() &&
-                       $event->totalCardCount === 0 &&
-                       $event->aiCardCount === 0 &&
-                       $event->editedAiCardCount === 0 &&
-                       $event->jobId === null;
+
+                return $event->userId === $userId->toString()
+                       && 0 === $event->totalCardCount
+                       && 0 === $event->aiCardCount
+                       && 0 === $event->editedAiCardCount
+                       && null === $event->jobId;
             }));
 
         // Act
@@ -440,7 +441,7 @@ class CreateSetHandlerTest extends TestCase
 
     /**
      * Test: Handler validates that job belongs to user (via RLS)
-     * NOTE: RLS at database level ensures findById returns null for other user's jobs
+     * NOTE: RLS at database level ensures findById returns null for other user's jobs.
      */
     public function testAiJobRlsValidation(): void
     {

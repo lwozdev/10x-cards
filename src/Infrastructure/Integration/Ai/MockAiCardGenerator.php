@@ -46,7 +46,7 @@ final class MockAiCardGenerator implements AiCardGeneratorInterface
     }
 
     /**
-     * Extract suggested name from first 50 characters of source text
+     * Extract suggested name from first 50 characters of source text.
      */
     private function extractSuggestedName(SourceText $sourceText): SuggestedSetName
     {
@@ -66,7 +66,7 @@ final class MockAiCardGenerator implements AiCardGeneratorInterface
     }
 
     /**
-     * Generate example flashcards (10-15 cards based on text length)
+     * Generate example flashcards (10-15 cards based on text length).
      *
      * @return CardPreview[]
      */
@@ -76,11 +76,11 @@ final class MockAiCardGenerator implements AiCardGeneratorInterface
         $cardCount = min(15, max(10, (int) ($length / 500))); // 10-15 cards
 
         $cards = [];
-        for ($i = 1; $i <= $cardCount; $i++) {
+        for ($i = 1; $i <= $cardCount; ++$i) {
             $cards[] = CardPreview::create(
                 front: sprintf('Pytanie %d: Co to jest pojęcie %d z tekstu?', $i, $i),
                 back: sprintf(
-                    'Odpowiedź %d: To jest wyjaśnienie pojęcia %d, które pojawia się w tekście źródłowym. ' .
+                    'Odpowiedź %d: To jest wyjaśnienie pojęcia %d, które pojawia się w tekście źródłowym. '.
                     'Jest to przykładowa odpowiedź wygenerowana przez mock generator.',
                     $i,
                     $i

@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 namespace App\Domain\Value;
 
-use InvalidArgumentException;
-
 final readonly class SetName
 {
     private function __construct(
-        public string $value
+        public string $value,
     ) {
         $trimmed = trim($value);
 
-        if ($trimmed === '') {
-            throw new InvalidArgumentException('Set name cannot be empty');
+        if ('' === $trimmed) {
+            throw new \InvalidArgumentException('Set name cannot be empty');
         }
 
         if (mb_strlen($trimmed) > 255) {
-            throw new InvalidArgumentException('Set name cannot exceed 255 characters');
+            throw new \InvalidArgumentException('Set name cannot exceed 255 characters');
         }
     }
 

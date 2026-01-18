@@ -10,10 +10,9 @@ use App\Domain\Service\AiCardGeneratorInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use ReflectionMethod;
 
 /**
- * Unit tests for GenerateCardsHandler
+ * Unit tests for GenerateCardsHandler.
  *
  * Focus: truncateErrorMessage() utility method
  * Critical for preventing DB constraint violations (255 char limit)
@@ -71,7 +70,7 @@ final class GenerateCardsHandlerTest extends TestCase
     #[DataProvider('messageLengthProvider')]
     public function testTruncateErrorMessageHandlesVariousLengths(
         int $length,
-        bool $shouldTruncate
+        bool $shouldTruncate,
     ): void {
         $message = str_repeat('x', $length);
 
@@ -113,7 +112,7 @@ final class GenerateCardsHandlerTest extends TestCase
         $this->assertSame(255, mb_strlen($result, 'UTF-8'));
         $this->assertStringEndsWith('...', $result);
         // Should be 252 Polish chars + "..."
-        $this->assertSame(str_repeat('ą', 252) . '...', $result);
+        $this->assertSame(str_repeat('ą', 252).'...', $result);
     }
 
     public function testTruncateErrorMessageHandlesEmojiCorrectly(): void
@@ -130,7 +129,7 @@ final class GenerateCardsHandlerTest extends TestCase
     public function testTruncateErrorMessageHandlesMixedAsciiAndMultibyte(): void
     {
         // 200 ASCII + 56 Polish chars = 256 total chars
-        $mixedMessage = str_repeat('a', 200) . str_repeat('ą', 56);
+        $mixedMessage = str_repeat('a', 200).str_repeat('ą', 56);
 
         $result = $this->invokeTruncateErrorMessage($mixedMessage);
 
@@ -211,10 +210,10 @@ final class GenerateCardsHandlerTest extends TestCase
 
     public function testTruncateErrorMessageHandlesRealisticApiError(): void
     {
-        $apiError = 'OpenRouter API Error: The model "anthropic/claude-3.5-sonnet" is currently ' .
-            'unavailable due to high demand. Please try again in a few minutes or use an alternative ' .
-            'model. Error code: 503. Request ID: req_abc123def456. Timestamp: 2024-01-15T10:30:45Z. ' .
-            'Additional context: This error typically occurs during peak usage hours. Consider implementing ' .
+        $apiError = 'OpenRouter API Error: The model "anthropic/claude-3.5-sonnet" is currently '.
+            'unavailable due to high demand. Please try again in a few minutes or use an alternative '.
+            'model. Error code: 503. Request ID: req_abc123def456. Timestamp: 2024-01-15T10:30:45Z. '.
+            'Additional context: This error typically occurs during peak usage hours. Consider implementing '.
             'exponential backoff or using a different model tier for better availability.';
 
         $result = $this->invokeTruncateErrorMessage($apiError);
@@ -226,12 +225,12 @@ final class GenerateCardsHandlerTest extends TestCase
 
     public function testTruncateErrorMessageHandlesStackTrace(): void
     {
-        $stackTrace = "Fatal error in GenerateCardsHandler\n" .
-            "Stack trace:\n" .
-            "#0 /app/src/Handler/GenerateCardsHandler.php(45): App\\Service\\AiService->generate()\n" .
-            "#1 /app/src/Controller/ApiController.php(123): App\\Handler\\GenerateCardsHandler->handle()\n" .
-            "#2 /app/vendor/symfony/http-kernel/HttpKernel.php(456): App\\Controller\\ApiController->generateAction()\n" .
-            "#3 Additional frames omitted for brevity...";
+        $stackTrace = "Fatal error in GenerateCardsHandler\n".
+            "Stack trace:\n".
+            "#0 /app/src/Handler/GenerateCardsHandler.php(45): App\\Service\\AiService->generate()\n".
+            "#1 /app/src/Controller/ApiController.php(123): App\\Handler\\GenerateCardsHandler->handle()\n".
+            "#2 /app/vendor/symfony/http-kernel/HttpKernel.php(456): App\\Controller\\ApiController->generateAction()\n".
+            '#3 Additional frames omitted for brevity...';
 
         $result = $this->invokeTruncateErrorMessage($stackTrace);
 
@@ -293,7 +292,7 @@ final class GenerateCardsHandlerTest extends TestCase
         $result = $this->invokeTruncateErrorMessage($message256);
 
         // Result should be exactly: 252 'a' + '...' = 255 total
-        $expectedResult = str_repeat('a', 252) . '...';
+        $expectedResult = str_repeat('a', 252).'...';
         $this->assertSame($expectedResult, $result);
         $this->assertSame(255, mb_strlen($result, 'UTF-8'));
     }
@@ -301,11 +300,11 @@ final class GenerateCardsHandlerTest extends TestCase
     // ===== Helper Method =====
 
     /**
-     * Use reflection to access private truncateErrorMessage method
+     * Use reflection to access private truncateErrorMessage method.
      */
     private function invokeTruncateErrorMessage(string $message): string
     {
-        $reflection = new ReflectionMethod(
+        $reflection = new \ReflectionMethod(
             GenerateCardsHandler::class,
             'truncateErrorMessage'
         );

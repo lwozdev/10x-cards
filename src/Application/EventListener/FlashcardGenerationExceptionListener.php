@@ -8,7 +8,6 @@ use App\Domain\Model\AnalyticsEvent;
 use App\Domain\Model\User;
 use App\Domain\Repository\AnalyticsEventRepositoryInterface;
 use App\Domain\Value\UserId;
-use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -30,7 +29,8 @@ final readonly class FlashcardGenerationExceptionListener
         private AnalyticsEventRepositoryInterface $analyticsRepository,
         private Security $security,
         private LoggerInterface $logger,
-    ) {}
+    ) {
+    }
 
     /**
      * Handle exception and track analytics if from /generate endpoint.
@@ -46,13 +46,13 @@ final readonly class FlashcardGenerationExceptionListener
         $exception = $event->getThrowable();
 
         // Only track exceptions from POST /generate endpoint
-        if ($request->getMethod() !== 'POST' || $request->getPathInfo() !== '/generate') {
+        if ('POST' !== $request->getMethod() || '/generate' !== $request->getPathInfo()) {
             return;
         }
 
         // Only track for authenticated users
         $user = $this->security->getUser();
-        if ($user === null) {
+        if (null === $user) {
             return;
         }
 
@@ -76,7 +76,7 @@ final readonly class FlashcardGenerationExceptionListener
                     'error_message' => $exception->getMessage(),
                     'request_uri' => $request->getRequestUri(),
                 ],
-                occurredAt: new DateTimeImmutable()
+                occurredAt: new \DateTimeImmutable()
             );
 
             $this->analyticsRepository->save($analyticsEvent);
@@ -85,7 +85,6 @@ final readonly class FlashcardGenerationExceptionListener
                 'user_id' => $userId->toString(),
                 'error_type' => $exception::class,
             ]);
-
         } catch (\Exception $analyticsError) {
             // Don't fail the request if analytics tracking fails
             // Just log the error
@@ -102,9 +101,6 @@ final readonly class FlashcardGenerationExceptionListener
      * Supports both:
      * - Doctrine User entity (production) - has getId() method
      * - In-memory test user (development) - uses fixed UUID
-     *
-     * @param mixed $user
-     * @return UserId
      */
     private function getUserId($user): UserId
     {

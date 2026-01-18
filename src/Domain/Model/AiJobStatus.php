@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Model;
 
 /**
- * AI Job Status - synchronous generation (no queuing)
+ * AI Job Status - synchronous generation (no queuing).
  *
  * Jobs complete immediately:
  * - SUCCEEDED: AI successfully generated cards
@@ -18,11 +18,11 @@ enum AiJobStatus: string
 
     public function isSuccessful(): bool
     {
-        return $this === self::SUCCEEDED;
+        return self::SUCCEEDED === $this;
     }
 
     public function isFailed(): bool
     {
-        return $this === self::FAILED;
+        return self::FAILED === $this;
     }
 }

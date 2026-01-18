@@ -19,7 +19,6 @@ use App\Infrastructure\Integration\OpenRouter\Exception\OpenRouterRateLimitExcep
 use App\Infrastructure\Integration\OpenRouter\Exception\OpenRouterServerException;
 use App\Infrastructure\Integration\OpenRouter\Exception\OpenRouterTimeoutException;
 use App\Infrastructure\Integration\OpenRouter\OpenRouterServiceInterface;
-use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -91,10 +90,7 @@ final class OpenRouterAiCardGenerator implements AiCardGeneratorInterface
                 'retry_after' => $e->getRetryAfterSeconds(),
             ]);
 
-            throw AiGenerationException::serviceError(
-                429,
-                'Rate limit exceeded. Please try again later.'
-            );
+            throw AiGenerationException::serviceError(429, 'Rate limit exceeded. Please try again later.');
         } catch (OpenRouterInvalidRequestException $e) {
             $this->logger->error('Invalid request to AI service', [
                 'error' => $e->getMessage(),
@@ -107,17 +103,14 @@ final class OpenRouterAiCardGenerator implements AiCardGeneratorInterface
                 'status_code' => $e->getHttpStatusCode(),
             ]);
 
-            throw AiGenerationException::serviceError(
-                $e->getHttpStatusCode(),
-                'AI service is temporarily unavailable'
-            );
+            throw AiGenerationException::serviceError($e->getHttpStatusCode(), 'AI service is temporarily unavailable');
         } catch (OpenRouterParseException $e) {
             $this->logger->error('Failed to parse AI response', [
                 'error' => $e->getMessage(),
             ]);
 
             throw AiGenerationException::invalidResponse('Malformed AI response');
-        } catch (InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             // This catches validation errors from CardPreview creation
             $this->logger->error('AI returned invalid card data', [
                 'error' => $e->getMessage(),
@@ -139,6 +132,7 @@ final class OpenRouterAiCardGenerator implements AiCardGeneratorInterface
      * Convert OpenRouter Flashcard DTOs to domain CardPreview value objects.
      *
      * @param \App\Infrastructure\Integration\OpenRouter\DTO\Flashcard[] $flashcards
+     *
      * @return CardPreview[]
      */
     private function convertToDomainCards(array $flashcards): array
@@ -151,7 +145,7 @@ final class OpenRouterAiCardGenerator implements AiCardGeneratorInterface
                     front: $flashcard->front,
                     back: $flashcard->back
                 );
-            } catch (InvalidArgumentException $e) {
+            } catch (\InvalidArgumentException $e) {
                 // Log but skip invalid cards
                 $this->logger->warning('Skipping invalid flashcard from AI', [
                     'front' => mb_substr($flashcard->front, 0, 50),

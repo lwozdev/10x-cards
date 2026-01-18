@@ -17,7 +17,7 @@ final class Modal
 
     public function getId(): string
     {
-        return $this->id ?: 'modal_' . uniqid();
+        return $this->id ?: 'modal_'.uniqid();
     }
 
     public function getBackdropClasses(): string
@@ -38,7 +38,7 @@ final class Modal
         ];
 
         // Variant-specific classes
-        if ($this->variant === 'fullscreen') {
+        if ('fullscreen' === $this->variant) {
             $classes[] = 'h-full';
             $classes[] = 'max-w-full';
             $classes[] = 'rounded-none';
@@ -78,7 +78,7 @@ final class Modal
             'text-[var(--color-on-surface-variant)]',
         ];
 
-        if ($this->variant === 'scrollable') {
+        if ('scrollable' === $this->variant) {
             $classes[] = 'overflow-y-auto';
             $classes[] = 'flex-1';
         } else {
@@ -98,10 +98,10 @@ final class Modal
         $attrs = $this->attributes;
         $attrs['role'] = 'dialog';
         $attrs['aria-modal'] = 'true';
-        $attrs['aria-labelledby'] = $this->getId() . '_headline';
+        $attrs['aria-labelledby'] = $this->getId().'_headline';
 
         if ($this->supportingText) {
-            $attrs['aria-describedby'] = $this->getId() . '_description';
+            $attrs['aria-describedby'] = $this->getId().'_description';
         }
 
         $result = [];

@@ -42,7 +42,7 @@ final class CreateUserCommand extends Command
 {
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,
-        private readonly UserPasswordHasherInterface $passwordHasher
+        private readonly UserPasswordHasherInterface $passwordHasher,
     ) {
         parent::__construct();
     }
@@ -77,12 +77,14 @@ final class CreateUserCommand extends Command
         // Validate inputs
         if (!is_string($emailString) || !is_string($plainPassword)) {
             $io->error('Email and password must be strings.');
+
             return Command::FAILURE;
         }
 
         // Validate password length (minimum 8 characters per auth-spec.md)
         if (strlen($plainPassword) < 8) {
             $io->error('Password must be at least 8 characters long.');
+
             return Command::FAILURE;
         }
 
@@ -93,6 +95,7 @@ final class CreateUserCommand extends Command
             // Check if user already exists
             if ($this->userRepository->exists($email)) {
                 $io->error(sprintf('User with email "%s" already exists.', $email->toString()));
+
                 return Command::FAILURE;
             }
 
@@ -127,9 +130,9 @@ final class CreateUserCommand extends Command
             $this->userRepository->save($user);
 
             $io->success(sprintf(
-                'User created successfully!' . PHP_EOL .
-                'Email: %s' . PHP_EOL .
-                'ID: %s' . PHP_EOL .
+                'User created successfully!'.PHP_EOL.
+                'Email: %s'.PHP_EOL.
+                'ID: %s'.PHP_EOL.
                 'You can now log in at /login',
                 $user->getEmail()->toString(),
                 $user->getId()->toString()
@@ -139,10 +142,12 @@ final class CreateUserCommand extends Command
         } catch (\InvalidArgumentException $e) {
             // Email validation failed or other domain constraint violated
             $io->error($e->getMessage());
+
             return Command::FAILURE;
         } catch (\Throwable $e) {
             // Unexpected error (DB connection, etc.)
             $io->error(sprintf('Failed to create user: %s', $e->getMessage()));
+
             return Command::FAILURE;
         }
     }
