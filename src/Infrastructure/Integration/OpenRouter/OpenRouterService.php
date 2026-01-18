@@ -87,34 +87,20 @@ Wymagania:
 - Front: krótkie pytanie lub hasło (max 2-3 zdania)
 - Back: zwięzła odpowiedź (max 3-4 zdania)
 - Fiszki powinny pokrywać kluczowe koncepty z tekstu
+
+WAŻNE - Format odpowiedzi:
+Zwróć odpowiedź w formacie JSON według tego schematu:
+{
+  "flashcards": [
+    {"front": "pytanie lub hasło", "back": "odpowiedź"},
+    {"front": "pytanie lub hasło", "back": "odpowiedź"}
+  ]
+}
 PROMPT;
 
-        // Build JSON Schema for structured response
+        // Build response format for OpenRouter (json_object)
         $responseFormat = [
-            'type' => 'json_schema',
-            'json_schema' => [
-                'name' => 'flashcards_response',
-                'strict' => true,
-                'schema' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'flashcards' => [
-                            'type' => 'array',
-                            'items' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'front' => ['type' => 'string'],
-                                    'back' => ['type' => 'string'],
-                                ],
-                                'required' => ['front', 'back'],
-                                'additionalProperties' => false,
-                            ],
-                        ],
-                    ],
-                    'required' => ['flashcards'],
-                    'additionalProperties' => false,
-                ],
-            ],
+            'type' => 'json_object',
         ];
 
         // Merge options
@@ -179,34 +165,20 @@ Wymagania:
 - Front: krótkie pytanie lub hasło (max 2-3 zdania)
 - Back: zwięzła odpowiedź (max 3-4 zdania)
 - Fiszki powinny pokrywać kluczowe koncepty z tekstu
+
+WAŻNE - Format odpowiedzi:
+Zwróć odpowiedź w formacie JSON według tego schematu:
+{
+  "flashcards": [
+    {"front": "pytanie lub hasło", "back": "odpowiedź"},
+    {"front": "pytanie lub hasło", "back": "odpowiedź"}
+  ]
+}
 PROMPT;
 
-        // Build JSON Schema
+        // Build response format for OpenRouter (json_object)
         $responseFormat = [
-            'type' => 'json_schema',
-            'json_schema' => [
-                'name' => 'flashcards_response',
-                'strict' => true,
-                'schema' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'flashcards' => [
-                            'type' => 'array',
-                            'items' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'front' => ['type' => 'string'],
-                                    'back' => ['type' => 'string'],
-                                ],
-                                'required' => ['front', 'back'],
-                                'additionalProperties' => false,
-                            ],
-                        ],
-                    ],
-                    'required' => ['flashcards'],
-                    'additionalProperties' => false,
-                ],
-            ],
+            'type' => 'json_object',
         ];
 
         $mergedOptions = array_merge([
@@ -408,32 +380,13 @@ PROMPT;
             throw new InvalidArgumentException('response_format missing required field: type');
         }
 
-        if ($responseFormat['type'] !== 'json_schema') {
+        $allowedTypes = ['text', 'json', 'json_object', 'regex', 'ebnf', 'structural_tag'];
+
+        if (!in_array($responseFormat['type'], $allowedTypes, true)) {
             throw new InvalidArgumentException(
-                "response_format type must be 'json_schema', got: {$responseFormat['type']}"
+                "response_format type must be one of: " . implode(', ', $allowedTypes) .
+                ", got: {$responseFormat['type']}"
             );
-        }
-
-        if (!isset($responseFormat['json_schema'])) {
-            throw new InvalidArgumentException('response_format missing required field: json_schema');
-        }
-
-        $jsonSchema = $responseFormat['json_schema'];
-
-        if (!isset($jsonSchema['name'])) {
-            throw new InvalidArgumentException('json_schema missing required field: name');
-        }
-
-        if (!isset($jsonSchema['strict'])) {
-            throw new InvalidArgumentException('json_schema missing required field: strict');
-        }
-
-        if (!isset($jsonSchema['schema'])) {
-            throw new InvalidArgumentException('json_schema missing required field: schema');
-        }
-
-        if (!is_array($jsonSchema['schema'])) {
-            throw new InvalidArgumentException('json_schema.schema must be an object/array');
         }
     }
 

@@ -91,7 +91,7 @@ final class CreateSetController extends AbstractController
 
             // TEMPORARY: Hardcoded user ID for testing (same as GenerateCardsController)
             // TODO: Replace with: UserId::fromString($user->getUserIdentifier())
-            $userId = UserId::fromString('7c9bda17-fdec-4e89-82e9-5d93b10a9c40');
+            $userId = $this->getUser()->getId();
 
             // 4. Create Value Objects and map to Command
             try {

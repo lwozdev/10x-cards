@@ -90,7 +90,7 @@ final class GenerateCardsController extends AbstractController
             }
 
             //$userId = UserId::fromString($user->getUserIdentifier());
-            $userId = UserId::fromString('7c9bda17-fdec-4e89-82e9-5d93b10a9c40');
+            $userId = $this->getUser()->getId();
 
             // 5. Create command and call handler
             $command = new GenerateCardsCommand(
