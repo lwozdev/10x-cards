@@ -24,17 +24,17 @@ export class GeneratePage extends BasePage {
 
     // Form elements
     this.sourceTextarea = page.locator('textarea[name="source_text"]');
-    this.generateButton = page.locator('button:has-text("Generuj fiszki")');
+    this.generateButton = page.locator('[data-generate-target="submitButton"]');
 
-    // Stimulus controller targets
-    this.characterCounter = page.locator('[data-generate-target="counter"]');
-    this.currentCountElement = page.locator('[data-generate-target="currentCount"]');
+    // Stimulus controller targets - based on actual template (generate/index.html.twig)
+    this.characterCounter = page.locator('#character-counter');
+    this.currentCountElement = page.locator('[data-generate-target="charCount"]');
     this.progressBar = page.locator('[data-generate-target="progressBar"]');
     this.loadingOverlay = page.locator('[data-generate-target="loadingOverlay"]');
-    this.loadingMessage = page.locator('text=Analizowanie tekstu...');
+    this.loadingMessage = page.locator('[data-generate-target="loadingMessage"]');
 
     // Error handling
-    this.errorModal = page.locator('.error-modal');
+    this.errorModal = page.locator('[data-generate-target="errorModal"]');
   }
 
   /**
@@ -53,10 +53,23 @@ export class GeneratePage extends BasePage {
 
   /**
    * Get current character count from UI
+   * Waits for the count to be updated (non-zero) after text input
    */
   async getCharacterCount(): Promise<number> {
+    // Wait for counter to update after text input (Stimulus controller processes input event)
+    await this.page.waitForFunction(
+      (selector) => {
+        const element = document.querySelector(selector);
+        if (!element || !element.textContent) return false;
+        const count = parseInt(element.textContent);
+        return !isNaN(count) && count > 0;
+      },
+      '[data-generate-target="charCount"]',
+      { timeout: 5000 }
+    );
+
     const countText = await this.currentCountElement.textContent();
-    return parseInt(countText || '0');
+    return parseInt(countText?.replace(/\s/g, '') || '0');
   }
 
   /**

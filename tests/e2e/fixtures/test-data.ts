@@ -16,7 +16,7 @@ export const TestUsers = {
 
 export const TestTexts = {
   /**
-   * Valid text for generation (5000 characters)
+   * Valid text for generation (~5000 characters)
    */
   validGenerationText: `
 Fotosynteza jest procesem, w którym rośliny przekształcają energię słoneczną w energię chemiczną.
@@ -53,7 +53,7 @@ Produkty fotosyntezy są wykorzystywane przez rośliny do:
 
 Oddychanie komórkowe jest procesem odwrotnym do fotosyntezy.
 Zachodzi w mitochondriach i uwalnia energię z glukozy.
-  `.repeat(15).trim(),
+  `.repeat(4).trim(),
 
   /**
    * Text below minimum (999 characters)

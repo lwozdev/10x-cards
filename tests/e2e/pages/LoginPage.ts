@@ -20,8 +20,9 @@ export class LoginPage extends BasePage {
   constructor(page: Page) {
     super(page);
 
-    this.emailInput = page.locator('input[name="email"]');
-    this.passwordInput = page.locator('input[name="password"]');
+    // Symfony Security uses _username and _password as field names
+    this.emailInput = page.locator('input[name="_username"]');
+    this.passwordInput = page.locator('input[name="_password"]');
     this.submitButton = page.locator('button[type="submit"]');
     this.registerLink = page.locator('a:has-text("Zarejestruj się")');
     this.forgotPasswordLink = page.locator('a:has-text("Zapomniałeś hasła")');

@@ -21,15 +21,15 @@ export class EditSetPage extends BasePage {
   constructor(page: Page) {
     super(page);
 
-    // Form elements
-    this.setNameInput = page.locator('input[name="name"]');
-    this.saveButton = page.locator('button:has-text("Zapisz zestaw")');
+    // Form elements - based on actual template (sets/edit_new.html.twig)
+    this.setNameInput = page.locator('[data-edit-set-target="setNameInput"]');
+    this.saveButton = page.locator('[data-edit-set-target="saveButton"]');
 
     // Card list elements (Stimulus controller targets)
     this.cardItems = page.locator('[data-edit-set-target="cardItem"]');
-    this.cardFrontInput = page.locator('[data-edit-set-target="cardFront"]');
-    this.cardBackInput = page.locator('[data-edit-set-target="cardBack"]');
-    this.deleteCardButtons = page.locator('[data-edit-set-target="deleteCard"]');
+    this.cardFrontInput = page.locator('[data-edit-set-target="frontTextarea"]');
+    this.cardBackInput = page.locator('[data-edit-set-target="backTextarea"]');
+    this.deleteCardButtons = page.locator('button:has-text("Usuń")');
 
     // Feedback elements
     this.successSnackbar = page.locator('.snackbar:has-text("Zestaw zapisany")');
@@ -92,10 +92,18 @@ export class EditSetPage extends BasePage {
   }
 
   /**
-   * Wait for redirect to generate page after save
+   * Wait for redirect after save
+   * Application redirects to /sets (My Sets page) after saving
+   */
+  async waitForRedirectToSets() {
+    await this.page.waitForURL('/sets');
+  }
+
+  /**
+   * Deprecated: kept for backward compatibility
    */
   async waitForRedirectToGenerate() {
-    await this.page.waitForURL('/generate');
+    await this.waitForRedirectToSets();
   }
 
   /**
@@ -131,6 +139,6 @@ export class EditSetPage extends BasePage {
     // Set name and save
     await this.enterSetName(setName);
     await this.saveSet();
-    await this.waitForRedirectToGenerate();
+    await this.waitForRedirectToSets();
   }
 }

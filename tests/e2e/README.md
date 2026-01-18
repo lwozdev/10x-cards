@@ -40,6 +40,23 @@ docker compose exec node npm install
 # Nie trzeba uruchamiać playwright install - przeglądarka jest w obrazie Docker
 ```
 
+### Environment Variables Setup
+
+Playwright automatycznie ładuje zmienne środowiskowe z:
+- `.env.test` (commitowane, wartości domyślne)
+- `.env.test.local` (gitignored, twoje lokalne nadpisania)
+
+**Quick setup:**
+```bash
+# Copy example file
+cp .env.test.local.example .env.test.local
+
+# Edit with your values
+nano .env.test.local
+```
+
+**Więcej:** Zobacz [ENV_SETUP.md](./ENV_SETUP.md) dla szczegółów.
+
 ### Run Tests
 
 **✅ ZALECANE: Użyj Makefile**

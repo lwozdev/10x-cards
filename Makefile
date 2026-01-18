@@ -62,9 +62,15 @@ test-js-ui: ## Run frontend tests with UI (Docker)
 	@echo "${GREEN}Opening Vitest UI...${NC}"
 	docker compose exec node npm run test:ui
 
-test-e2e: ## Run E2E tests (Playwright in Docker)
-	@echo "${GREEN}Running E2E tests...${NC}"
+test-e2e: ## Run E2E tests (Playwright in Docker with Mock AI)
+	@echo "${GREEN}Running E2E tests with Mock AI generator...${NC}"
+	@echo "${YELLOW}Restarting backend in test mode...${NC}"
+	APP_ENV=test docker compose up -d backend
+	@echo "${YELLOW}Waiting for backend to be ready...${NC}"
+	sleep 3
 	docker compose exec -e BASE_URL=http://nginx node npm run test:e2e
+	@echo "${YELLOW}Restoring backend to dev mode...${NC}"
+	APP_ENV=dev docker compose up -d backend
 
 test-e2e-ui: ## Run E2E tests with Playwright UI (Docker)
 	@echo "${GREEN}Opening Playwright UI...${NC}"

@@ -7,3 +7,4 @@ export { BasePage } from './BasePage';
 export { GeneratePage } from './GeneratePage';
 export { EditSetPage } from './EditSetPage';
 export { LoginPage } from './LoginPage';
+export { MySetsPage } from './MySetsPage';

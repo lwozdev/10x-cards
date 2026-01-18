@@ -29,7 +29,9 @@ services:
       - vendor:/var/www/html/vendor
     environment:
       #DATABASE_URL: ${DATABASE_URL}
-      APP_ENV: ${APP_ENV}
+      APP_ENV: ${APP_ENV:-dev}
+    extra_hosts:
+      - "host.docker.internal:192.168.10.240"
     networks:
       - flashcards_network
     depends_on:

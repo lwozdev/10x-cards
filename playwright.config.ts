@@ -1,4 +1,20 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+/**
+ * Get __dirname equivalent in ES modules
+ */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/**
+ * Load environment variables from .env.test and .env.test.local
+ * .env.test.local takes precedence (gitignored for sensitive data)
+ */
+dotenv.config({ path: path.resolve(__dirname, '.env.test') });
+dotenv.config({ path: path.resolve(__dirname, '.env.test.local'), override: true });
 
 /**
  * Playwright configuration for E2E tests

@@ -1,0 +1,5 @@
+services:
+    # Override AI Card Generator with Mock implementation for test environment
+    # This allows E2E tests to run without calling external OpenRouter API
+    App\Domain\Service\AiCardGeneratorInterface:
+        class: App\Infrastructure\Integration\Ai\MockAiCardGenerator
