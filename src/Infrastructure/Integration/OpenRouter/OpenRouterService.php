@@ -7,6 +7,7 @@ namespace App\Infrastructure\Integration\OpenRouter;
 use App\Infrastructure\Integration\OpenRouter\DTO\Flashcard;
 use App\Infrastructure\Integration\OpenRouter\DTO\OpenRouterResponse;
 use App\Infrastructure\Integration\OpenRouter\Exception\OpenRouterAuthenticationException;
+use App\Infrastructure\Integration\OpenRouter\Exception\OpenRouterException;
 use App\Infrastructure\Integration\OpenRouter\Exception\OpenRouterInvalidRequestException;
 use App\Infrastructure\Integration\OpenRouter\Exception\OpenRouterNetworkException;
 use App\Infrastructure\Integration\OpenRouter\Exception\OpenRouterParseException;
@@ -338,7 +339,7 @@ PROMPT;
     /**
      * Validate messages array structure.
      *
-     * @param array<int, array{role: string, content: string}> $messages
+     * @param array<int, array<string, mixed>> $messages
      *
      * @throws \InvalidArgumentException If validation fails
      */

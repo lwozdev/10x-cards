@@ -27,7 +27,7 @@ final readonly class Flashcard
     /**
      * Factory method to create Flashcard from array.
      *
-     * @param array{front: string, back: string} $data
+     * @param array<string, mixed> $data
      *
      * @throws \InvalidArgumentException If data structure is invalid
      */

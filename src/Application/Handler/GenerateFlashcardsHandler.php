@@ -21,7 +21,7 @@ use Symfony\Component\Uid\Uuid;
 final readonly class GenerateFlashcardsHandler
 {
     public function __construct(
-        private AiJobRepositoryInterface $aiJobRepository,
+        //private AiJobRepositoryInterface $aiJobRepository,
         private AnalyticsEventRepositoryInterface $analyticsRepository,
     ) {
     }
@@ -38,16 +38,16 @@ final readonly class GenerateFlashcardsHandler
         $now = new \DateTimeImmutable();
         $jobId = Uuid::v4()->toString();
 
-        // Create AiJob entity (validation happens in constructor)
-        $aiJob = AiJob::create(
-            id: $jobId,
-            userId: $command->userId,
-            requestPrompt: $command->sourceText,
-            createdAt: $now
-        );
+//        // Create AiJob entity (validation happens in constructor)
+//        $aiJob = AiJob::create(
+//            id: $jobId,
+//            userId: $command->userId,
+//            requestPrompt: $command->sourceText,
+//            createdAt: $now
+//        );
 
         // Persist the job
-        $this->aiJobRepository->save($aiJob);
+        //$this->aiJobRepository->save($aiJob);
 
         // Publish analytics event
         $analyticsEvent = AnalyticsEvent::create(

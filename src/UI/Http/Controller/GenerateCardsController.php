@@ -81,6 +81,7 @@ final class GenerateCardsController extends AbstractController
             }
 
             // 4. Get current user ID from security context
+            /** @var \App\Domain\Model\User|null $user */
             $user = $this->getUser();
             if (null === $user) {
                 return $this->json([
@@ -89,8 +90,7 @@ final class GenerateCardsController extends AbstractController
                 ], Response::HTTP_UNAUTHORIZED);
             }
 
-            // $userId = UserId::fromString($user->getUserIdentifier());
-            $userId = $this->getUser()->getId();
+            $userId = $user->getId();
 
             // 5. Create command and call handler
             $command = new GenerateCardsCommand(

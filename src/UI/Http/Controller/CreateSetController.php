@@ -81,6 +81,7 @@ final class CreateSetController extends AbstractController
             }
 
             // 3. Get current user ID from security context
+            /** @var \App\Domain\Model\User|null $user */
             $user = $this->getUser();
             if (null === $user) {
                 return $this->json([
@@ -91,7 +92,7 @@ final class CreateSetController extends AbstractController
 
             // TEMPORARY: Hardcoded user ID for testing (same as GenerateCardsController)
             // TODO: Replace with: UserId::fromString($user->getUserIdentifier())
-            $userId = $this->getUser()->getId();
+            $userId = $user->getId();
 
             // 4. Create Value Objects and map to Command
             try {

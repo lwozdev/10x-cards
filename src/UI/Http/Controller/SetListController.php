@@ -30,6 +30,7 @@ final class SetListController extends AbstractController
     public function __invoke(): Response
     {
         // 1. Get current user ID
+        /** @var \App\Domain\Model\User|null $user */
         $user = $this->getUser();
 
         if (null === $user) {

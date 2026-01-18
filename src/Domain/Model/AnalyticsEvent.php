@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 class AnalyticsEvent
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'bigint')]
+    #[ORM\Column(type: 'int')]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private ?int $id = null;
 
