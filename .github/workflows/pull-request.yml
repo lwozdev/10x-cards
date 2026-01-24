@@ -236,6 +236,9 @@ jobs:
       - name: Build Tailwind CSS
         run: php bin/console tailwind:build
 
+      - name: Compile Asset Mapper assets
+        run: php bin/console asset-map:compile --env=test
+
       - name: Setup test database
         run: |
           php bin/console doctrine:database:create --env=test --if-not-exists
