@@ -230,7 +230,7 @@ jobs:
 
       - name: Start PHP built-in server
         run: |
-          php -S localhost:8000 -t public/ > /dev/null 2>&1 &
+          APP_ENV=test DATABASE_URL="${DATABASE_URL}" php -S localhost:8000 -t public/ > /dev/null 2>&1 &
           echo $! > server.pid
 
       - name: Wait for server to be ready
