@@ -205,6 +205,9 @@ jobs:
       - name: Install Playwright browsers
         run: npm run playwright:install
 
+      - name: Build Tailwind CSS
+        run: php bin/console tailwind:build
+
       - name: Setup test database
         run: |
           php bin/console doctrine:database:create --env=test --if-not-exists
