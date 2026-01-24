@@ -40,7 +40,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install PHP dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
+        run: composer install --prefer-dist --no-progress --no-interaction --no-scripts
 
       - name: Run PHP CS Fixer (dry-run)
         run: vendor/bin/php-cs-fixer fix --dry-run --diff --verbose
@@ -143,7 +143,7 @@ jobs:
     env:
       APP_ENV: test
       APP_SECRET: ${{ secrets.APP_SECRET }}
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: postgresql://flashcards_user:flashcards_pass@localhost:5432/flashcards_test?serverVersion=16&charset=utf8
       MAILER_DSN: ${{ secrets.MAILER_DSN }}
       MESSENGER_TRANSPORT_DSN: doctrine://default?auto_setup=0
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -151,6 +151,21 @@ jobs:
       OPENROUTER_DEFAULT_MODEL: xiaomi/mimo-v2-flash:free
       OPENROUTER_DEFAULT_TIMEOUT: 60
       BASE_URL: http://localhost:8000
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: flashcards_test
+          POSTGRES_USER: flashcards_user
+          POSTGRES_PASSWORD: flashcards_pass
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
     steps:
       - name: Checkout code
@@ -182,7 +197,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install PHP dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
+        run: composer install --prefer-dist --no-progress --no-interaction --no-scripts
 
       - name: Install Node dependencies
         run: npm ci
