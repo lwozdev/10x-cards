@@ -183,8 +183,13 @@ jobs:
         run: |
           sed -i 's|flashcards-postgres|localhost|g' .env .env.test
           sed -i 's|flashcards-mailpit|localhost|g' .env .env.test
+          # Create .env.test.local with highest priority to ensure correct DB URL
+          echo "DATABASE_URL=${DATABASE_URL}" > .env.test.local
+          echo "APP_SECRET=test-secret-for-ci" >> .env.test.local
+          echo "MAILER_DSN=smtp://localhost:1025" >> .env.test.local
           echo "=== .env ===" && cat .env
           echo "=== .env.test ===" && cat .env.test
+          echo "=== .env.test.local ===" && cat .env.test.local
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -228,9 +233,20 @@ jobs:
           php bin/console doctrine:database:create --env=test --if-not-exists
           php bin/console doctrine:migrations:migrate --env=test --no-interaction
 
+      - name: Clear Symfony cache
+        run: php bin/console cache:clear --env=test
+
+      - name: Debug environment before starting server
+        run: |
+          echo "=== Environment variables ==="
+          echo "APP_ENV=${APP_ENV}"
+          echo "DATABASE_URL=${DATABASE_URL}"
+          echo "=== Verifying database connection ==="
+          php bin/console doctrine:query:sql "SELECT 1" --env=test
+
       - name: Start PHP built-in server
         run: |
-          APP_ENV=test DATABASE_URL="${DATABASE_URL}" php -S localhost:8000 -t public/ > /dev/null 2>&1 &
+          APP_ENV=test DATABASE_URL="${DATABASE_URL}" php -S localhost:8000 -t public/ > server.log 2>&1 &
           echo $! > server.pid
 
       - name: Wait for server to be ready
@@ -239,6 +255,12 @@ jobs:
 
       - name: Run E2E tests
         run: npm run test:e2e
+
+      - name: Show PHP server logs
+        if: failure()
+        run: |
+          echo "=== PHP Server Logs ==="
+          cat server.log || echo "No server log found"
 
       - name: Stop PHP server
         if: always()
