@@ -174,9 +174,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Create .env.test.local for CI
+      - name: Override DATABASE_URL in .env.test for CI
         run: |
-          echo "DATABASE_URL=postgresql://flashcards_user:flashcards_pass@localhost:5432/flashcards_test?serverVersion=16&charset=utf8" > .env.test.local
+          sed -i 's|flashcards-postgres|localhost|g' .env.test
+          cat .env.test
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
