@@ -80,6 +80,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Override Docker hostnames for CI
+        run: |
+          sed -i 's|flashcards-postgres|localhost|g' .env .env.test
+          sed -i 's|flashcards-mailpit|localhost|g' .env .env.test
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -174,10 +179,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Override DATABASE_URL in .env.test for CI
+      - name: Override Docker hostnames for CI
         run: |
-          sed -i 's|flashcards-postgres|localhost|g' .env.test
-          cat .env.test
+          sed -i 's|flashcards-postgres|localhost|g' .env .env.test
+          sed -i 's|flashcards-mailpit|localhost|g' .env .env.test
+          echo "=== .env ===" && cat .env
+          echo "=== .env.test ===" && cat .env.test
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
