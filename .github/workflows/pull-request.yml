@@ -16,6 +16,9 @@ jobs:
     name: Code Formatting & PHPStan
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: postgresql://localhost:5432/dummy?serverVersion=16&charset=utf8
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -40,7 +43,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install PHP dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction --no-scripts
+        run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Run PHP CS Fixer (dry-run)
         run: vendor/bin/php-cs-fixer fix --dry-run --diff --verbose
@@ -197,7 +200,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install PHP dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction --no-scripts
+        run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Install Node dependencies
         run: npm ci
