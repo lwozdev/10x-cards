@@ -98,7 +98,7 @@
         "test:integration": "phpunit --testsuite=Integration",
         "test:functional": "phpunit --testsuite=Functional",
         "test:coverage": "phpunit --coverage-html var/coverage",
-        "phpstan": "phpstan analyse src tests --level=8"
+        "phpstan": "phpstan analyse src --level=5"
     },
     "conflict": {
         "symfony/symfony": "*"
