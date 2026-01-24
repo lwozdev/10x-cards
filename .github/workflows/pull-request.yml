@@ -40,7 +40,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install PHP dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction --no-scripts
+        run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Run PHP CS Fixer (dry-run)
         run: vendor/bin/php-cs-fixer fix --dry-run --diff --verbose
@@ -197,7 +197,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install PHP dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction --no-scripts
+        run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Install Node dependencies
         run: npm ci
