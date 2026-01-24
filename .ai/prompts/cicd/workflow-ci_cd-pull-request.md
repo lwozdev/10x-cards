@@ -5,7 +5,7 @@ Utwórz scenariusz "pull-request.yml" na podstawie @.ai/rules/github-action.mdc
 Workflow:
 Scenariusz "pull-request.yml" powinien działać następująco:
 
-- statyczna analiza kodu
+- formatowanie kodu
 - Następnie dwa równoległe - unit-test i e2e-test
 - Finalnie - status-comment (komentarz do PRa o statusie całości)
 
