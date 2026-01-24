@@ -84,6 +84,10 @@ jobs:
         run: |
           sed -i 's|flashcards-postgres|localhost|g' .env .env.test
           sed -i 's|flashcards-mailpit|localhost|g' .env .env.test
+          # Comment out DATABASE_URL in .env to prevent it from interfering with test environment
+          sed -i 's|^DATABASE_URL=|#DATABASE_URL=|g' .env
+          # Force APP_ENV=test in .env to ensure test environment is used
+          sed -i 's|^APP_ENV=dev|APP_ENV=test|g' .env
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -183,6 +187,10 @@ jobs:
         run: |
           sed -i 's|flashcards-postgres|localhost|g' .env .env.test
           sed -i 's|flashcards-mailpit|localhost|g' .env .env.test
+          # Comment out DATABASE_URL in .env to prevent it from interfering with test environment
+          sed -i 's|^DATABASE_URL=|#DATABASE_URL=|g' .env
+          # Force APP_ENV=test in .env to ensure test environment is used
+          sed -i 's|^APP_ENV=dev|APP_ENV=test|g' .env
           # Create .env.test.local with highest priority to ensure correct DB URL
           echo "DATABASE_URL=${DATABASE_URL}" > .env.test.local
           echo "APP_SECRET=test-secret-for-ci" >> .env.test.local
