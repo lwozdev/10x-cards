@@ -34,9 +34,9 @@ final readonly class UpdateSetHandler
     }
 
     /**
-     * @throws SetNotFoundException          When set doesn't exist
+     * @throws SetNotFoundException           When set doesn't exist
      * @throws UnauthorizedSetAccessException When user doesn't own the set
-     * @throws DuplicateSetNameException     When new name already exists for user
+     * @throws DuplicateSetNameException      When new name already exists for user
      */
     public function __invoke(UpdateSetCommand $command): UpdateSetResult
     {

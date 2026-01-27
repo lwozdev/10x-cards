@@ -76,7 +76,7 @@ final readonly class CreateSetHandler
             $command->name,
             $now
         );
-        if ($aiJob !== null && $aiJob->isSuccessful()) {
+        if (null !== $aiJob && $aiJob->isSuccessful()) {
             $set->markAsGenerated(
                 $aiJob->getCompletedAt() ?? $now,
                 $aiJob->getModelName() ?? 'unknown',
@@ -84,7 +84,6 @@ final readonly class CreateSetHandler
                 $aiJob->getTokensOut() ?? 0,
             );
         }
-
 
         // Step 4: Create Card entities and calculate KPI metrics
         $cards = [];

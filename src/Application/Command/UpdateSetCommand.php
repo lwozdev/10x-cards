@@ -19,11 +19,11 @@ use App\Domain\Value\UserId;
 final readonly class UpdateSetCommand
 {
     /**
-     * @param string              $setId          ID of the set to update
-     * @param UserId              $userId         Owner of the set (for authorization)
-     * @param SetName             $name           New name of the set
-     * @param UpdateSetCardDto[]  $cards          Array of cards (new + existing)
-     * @param string[]            $deletedCardIds Array of card IDs to delete
+     * @param string             $setId          ID of the set to update
+     * @param UserId             $userId         Owner of the set (for authorization)
+     * @param SetName            $name           New name of the set
+     * @param UpdateSetCardDto[] $cards          Array of cards (new + existing)
+     * @param string[]           $deletedCardIds Array of card IDs to delete
      */
     public function __construct(
         public string $setId,
