@@ -174,6 +174,7 @@ export default class extends Controller {
         try {
             const response = await fetch('/api/generate', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'

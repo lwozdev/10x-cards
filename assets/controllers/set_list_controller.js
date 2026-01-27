@@ -64,6 +64,7 @@ export default class extends Controller {
         try {
             const response = await fetch(`/api/sets/${this.selectedSetId}`, {
                 method: 'DELETE',
+                credentials: 'same-origin',
                 headers: {
                     'Accept': 'application/json'
                 }

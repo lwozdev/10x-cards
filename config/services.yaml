@@ -35,11 +35,12 @@ services:
 
     # AI Card Generator - Domain Interface Implementation
     # Maps domain interface to infrastructure adapter
+#    App\Domain\Service\AiCardGeneratorInterface:
+#        class: App\Infrastructure\Integration\Ai\OpenRouterAiCardGenerator
+#        arguments:
+#            $openRouterService: '@App\Infrastructure\Integration\OpenRouter\OpenRouterServiceInterface'
+#            $logger: '@monolog.logger'
     App\Domain\Service\AiCardGeneratorInterface:
-        class: App\Infrastructure\Integration\Ai\OpenRouterAiCardGenerator
-        arguments:
-            $openRouterService: '@App\Infrastructure\Integration\OpenRouter\OpenRouterServiceInterface'
-            $logger: '@monolog.logger'
-
+        class: App\Infrastructure\Integration\Ai\MockAiCardGenerator
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

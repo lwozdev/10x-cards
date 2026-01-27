@@ -235,6 +235,7 @@ export default class extends Controller {
 
             const response = await fetch('/api/sets', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'

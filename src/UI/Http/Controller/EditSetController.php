@@ -6,7 +6,6 @@ namespace App\UI\Http\Controller;
 
 use App\Domain\Repository\CardRepositoryInterface;
 use App\Domain\Repository\SetRepositoryInterface;
-use App\Domain\Value\UserId;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;

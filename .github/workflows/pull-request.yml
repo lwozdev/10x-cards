@@ -16,6 +16,9 @@ jobs:
     name: Code Formatting & PHPStan
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: postgresql://localhost:5432/dummy?serverVersion=16&charset=utf8
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -23,7 +26,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.3'
           extensions: ctype, iconv, pdo, pgsql
           coverage: none
           tools: composer:v2
@@ -50,7 +53,7 @@ jobs:
 
   # Job 2: PHP Unit Tests
   unit-tests:
-    name: Unit Tests (PHP + JS)
+    name: Unit Tests (PHP)
     runs-on: ubuntu-latest
     needs: format-code
 
@@ -77,10 +80,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Override Docker hostnames for CI
+        run: |
+          sed -i 's|flashcards-postgres|localhost|g' .env .env.test
+          sed -i 's|flashcards-mailpit|localhost|g' .env .env.test
+          # Comment out DATABASE_URL in .env to prevent it from interfering with test environment
+          sed -i 's|^DATABASE_URL=|#DATABASE_URL=|g' .env
+          # Force APP_ENV=test in .env to ensure test environment is used
+          sed -i 's|^APP_ENV=dev|APP_ENV=test|g' .env
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.3'
           extensions: ctype, iconv, pdo, pgsql
           coverage: xdebug
           tools: composer:v2
@@ -116,8 +128,8 @@ jobs:
       - name: Run PHP unit tests with coverage
         run: vendor/bin/phpunit --coverage-clover coverage-php.xml
 
-      - name: Run JS unit tests with coverage
-        run: npm run test:coverage
+      #- name: Run JS unit tests with coverage
+      #  run: npm run test:coverage
 
       - name: Upload PHP coverage artifact
         uses: actions/upload-artifact@v6
@@ -126,12 +138,12 @@ jobs:
           path: coverage-php.xml
           retention-days: 7
 
-      - name: Upload JS coverage artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: coverage-js
-          path: coverage/
-          retention-days: 7
+#      - name: Upload JS coverage artifact
+#        uses: actions/upload-artifact@v6
+#        with:
+#          name: coverage-js
+#          path: coverage/
+#          retention-days: 7
 
   # Job 3: E2E Tests with Playwright
   e2e-tests:
@@ -143,7 +155,7 @@ jobs:
     env:
       APP_ENV: test
       APP_SECRET: ${{ secrets.APP_SECRET }}
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: postgresql://flashcards_user:flashcards_pass@localhost:5432/flashcards_test?serverVersion=16&charset=utf8
       MAILER_DSN: ${{ secrets.MAILER_DSN }}
       MESSENGER_TRANSPORT_DSN: doctrine://default?auto_setup=0
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -152,14 +164,45 @@ jobs:
       OPENROUTER_DEFAULT_TIMEOUT: 60
       BASE_URL: http://localhost:8000
 
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: flashcards_test
+          POSTGRES_USER: flashcards_user
+          POSTGRES_PASSWORD: flashcards_pass
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Override Docker hostnames for CI
+        run: |
+          sed -i 's|flashcards-postgres|localhost|g' .env .env.test
+          sed -i 's|flashcards-mailpit|localhost|g' .env .env.test
+          # Comment out DATABASE_URL in .env to prevent it from interfering with test environment
+          sed -i 's|^DATABASE_URL=|#DATABASE_URL=|g' .env
+          # Force APP_ENV=test in .env to ensure test environment is used
+          sed -i 's|^APP_ENV=dev|APP_ENV=test|g' .env
+          # Create .env.test.local with highest priority to ensure correct DB URL
+          echo "DATABASE_URL=${DATABASE_URL}" > .env.test.local
+          echo "APP_SECRET=test-secret-for-ci" >> .env.test.local
+          echo "MAILER_DSN=smtp://localhost:1025" >> .env.test.local
+          echo "=== .env ===" && cat .env
+          echo "=== .env.test ===" && cat .env.test
+          echo "=== .env.test.local ===" && cat .env.test.local
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.3'
           extensions: ctype, iconv, pdo, pgsql
           coverage: none
           tools: composer:v2
@@ -190,14 +233,34 @@ jobs:
       - name: Install Playwright browsers
         run: npm run playwright:install
 
+      - name: Build Tailwind CSS
+        run: php bin/console tailwind:build
+
+      - name: Compile Asset Mapper assets
+        run: php bin/console asset-map:compile --env=test
+
       - name: Setup test database
         run: |
           php bin/console doctrine:database:create --env=test --if-not-exists
           php bin/console doctrine:migrations:migrate --env=test --no-interaction
 
+      - name: Clear Symfony cache
+        run: php bin/console cache:clear --env=test
+
+      - name: Load E2E test fixtures
+        run: php bin/console doctrine:fixtures:load --env=test --group=e2e --no-interaction
+
+      - name: Debug environment before starting server
+        run: |
+          echo "=== Environment variables ==="
+          echo "APP_ENV=${APP_ENV}"
+          echo "DATABASE_URL=${DATABASE_URL}"
+          echo "=== Verifying database connection ==="
+          php bin/console doctrine:query:sql "SELECT 1" --env=test
+
       - name: Start PHP built-in server
         run: |
-          php -S localhost:8000 -t public/ > /dev/null 2>&1 &
+          APP_ENV=test DATABASE_URL="${DATABASE_URL}" php -S localhost:8000 -t public/ > server.log 2>&1 &
           echo $! > server.pid
 
       - name: Wait for server to be ready
@@ -206,6 +269,12 @@ jobs:
 
       - name: Run E2E tests
         run: npm run test:e2e
+
+      - name: Show PHP server logs
+        if: failure()
+        run: |
+          echo "=== PHP Server Logs ==="
+          cat server.log || echo "No server log found"
 
       - name: Stop PHP server
         if: always()

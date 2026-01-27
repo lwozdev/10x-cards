@@ -7,7 +7,6 @@ namespace App\UI\Http\Controller;
 use App\Application\Command\GenerateCardsCommand;
 use App\Application\Handler\GenerateCardsHandler;
 use App\Domain\Value\SourceText;
-use App\Domain\Value\UserId;
 use App\Infrastructure\Integration\Ai\Exception\AiGenerationException;
 use App\Infrastructure\Integration\Ai\Exception\AiTimeoutException;
 use App\UI\Http\Request\GenerateCardsRequest;

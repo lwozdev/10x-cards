@@ -39,7 +39,7 @@ final class UpdateSetRequest
      * @var string[]
      */
     #[Assert\All([
-        new Assert\Uuid(message: 'Invalid deleted card ID format')
+        new Assert\Uuid(message: 'Invalid deleted card ID format'),
     ])]
     public array $deleted_card_ids = [];
 
