@@ -88,7 +88,21 @@ export class EditSetPage extends BasePage {
    * Save the flashcard set
    */
   async saveSet() {
+    // Wait for the network response when clicking save
+    const responsePromise = this.page.waitForResponse(
+      response => response.url().includes('/api/sets') && response.request().method() === 'POST',
+      { timeout: 15000 }
+    );
+
     await this.saveButton.click();
+
+    const response = await responsePromise;
+    const status = response.status();
+
+    if (status !== 201) {
+      const body = await response.text();
+      throw new Error(`Save failed with status ${status}: ${body}`);
+    }
   }
 
   /**

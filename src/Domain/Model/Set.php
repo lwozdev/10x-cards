@@ -111,6 +111,11 @@ class Set
         return null !== $this->deletedAt;
     }
 
+    public function isAiGenerated(): bool
+    {
+        return null !== $this->generatedAt;
+    }
+
     public function renameTo(SetName $newName, \DateTimeImmutable $updatedAt): void
     {
         $this->name = $newName->toString();

@@ -14,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 class ReviewEvent
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'int')]
+    #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private ?int $id = null;
 
