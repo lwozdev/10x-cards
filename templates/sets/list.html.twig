@@ -87,9 +87,9 @@
                            class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg text-center transition">
                             Ucz się
                         </a>
-                        <a href="/sets/{{ set.id }}"
+                        <a href="{{ path('set_edit', { id: set.id }) }}"
                            class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg text-center transition">
-                            Szczegóły
+                            Edytuj
                         </a>
                         <button
                             data-action="click->set-list#confirmDelete"
