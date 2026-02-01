@@ -24,9 +24,9 @@ final class GenerateCardsHandlerTest extends TestCase
     protected function setUp(): void
     {
         // Create mock dependencies
-        $aiGenerator = $this->createMock(AiCardGeneratorInterface::class);
-        $aiJobRepository = $this->createMock(AiJobRepositoryInterface::class);
-        $logger = $this->createMock(LoggerInterface::class);
+        $aiGenerator = $this->createStub(AiCardGeneratorInterface::class);
+        $aiJobRepository = $this->createStub(AiJobRepositoryInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
 
         $this->handler = new GenerateCardsHandler(
             $aiGenerator,

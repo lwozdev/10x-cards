@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Security;
 
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
@@ -17,6 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
  * 2. User A cannot access User B's data
  * 3. SQL injection cannot bypass RLS policies
  */
+#[Group('incomplete')]
 class RowLevelSecurityTest extends KernelTestCase
 {
     protected function setUp(): void

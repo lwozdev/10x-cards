@@ -16,6 +16,7 @@ use App\Domain\Value\UserId;
 use App\Infrastructure\Doctrine\Repository\DoctrineCardRepository;
 use App\Infrastructure\Doctrine\Repository\DoctrineSetRepository;
 use App\Infrastructure\Doctrine\Repository\DoctrineUserRepository;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
 
@@ -430,10 +431,9 @@ class DoctrineCardRepositoryTest extends KernelTestCase
 
     /**
      * RLS Test: User cannot access cards from another user's set.
-     *
-     * @group rls
-     * @group incomplete
      */
+    #[Group('rls')]
+    #[Group('incomplete')]
     public function testRlsUserCannotAccessAnotherUsersCards(): void
     {
         $this->markTestIncomplete(

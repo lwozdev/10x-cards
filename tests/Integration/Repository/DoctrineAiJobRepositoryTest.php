@@ -14,6 +14,7 @@ use App\Domain\Value\UserId;
 use App\Infrastructure\Doctrine\Repository\DoctrineAiJobRepository;
 use App\Infrastructure\Doctrine\Repository\DoctrineSetRepository;
 use App\Infrastructure\Doctrine\Repository\DoctrineUserRepository;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
 
@@ -413,6 +414,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     /**
      * Test: Jobs are ordered by createdAt DESC in findByUser.
      */
+    #[Group('incomplete')]
     public function testFindByUserOrdersByCreatedAtDesc(): void
     {
         $this->markTestSkipped(
