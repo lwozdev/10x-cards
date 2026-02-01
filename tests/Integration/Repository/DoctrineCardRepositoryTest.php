@@ -13,10 +13,10 @@ use App\Domain\Value\CardFront;
 use App\Domain\Value\Email;
 use App\Domain\Value\SetName;
 use App\Domain\Value\UserId;
-use PHPUnit\Framework\Attributes\Group;
 use App\Infrastructure\Doctrine\Repository\DoctrineCardRepository;
 use App\Infrastructure\Doctrine\Repository\DoctrineSetRepository;
 use App\Infrastructure\Doctrine\Repository\DoctrineUserRepository;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
 

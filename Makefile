@@ -32,7 +32,7 @@ setup-test-db: ## Create and migrate test database
 
 test: test-php test-js ## Run all tests (PHP + JS, excluding E2E)
 
-test-all: test-php test-js test-e2e ## Run ALL tests including E2E
+test-all: test-php-clean test-e2e ## Run ALL tests including E2E
 
 test-php: ## Run all PHP tests (Unit + Integration + Functional)
 	@echo "${GREEN}Running PHP tests...${NC}"
