@@ -13,6 +13,7 @@ use App\Domain\Value\CardFront;
 use App\Domain\Value\Email;
 use App\Domain\Value\SetName;
 use App\Domain\Value\UserId;
+use PHPUnit\Framework\Attributes\Group;
 use App\Infrastructure\Doctrine\Repository\DoctrineCardRepository;
 use App\Infrastructure\Doctrine\Repository\DoctrineSetRepository;
 use App\Infrastructure\Doctrine\Repository\DoctrineUserRepository;
@@ -430,10 +431,9 @@ class DoctrineCardRepositoryTest extends KernelTestCase
 
     /**
      * RLS Test: User cannot access cards from another user's set.
-     *
-     * @group rls
-     * @group incomplete
      */
+    #[Group('rls')]
+    #[Group('incomplete')]
     public function testRlsUserCannotAccessAnotherUsersCards(): void
     {
         $this->markTestIncomplete(

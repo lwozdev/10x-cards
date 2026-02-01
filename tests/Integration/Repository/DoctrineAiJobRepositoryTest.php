@@ -11,6 +11,7 @@ use App\Domain\Model\User;
 use App\Domain\Value\Email;
 use App\Domain\Value\SetName;
 use App\Domain\Value\UserId;
+use PHPUnit\Framework\Attributes\Group;
 use App\Infrastructure\Doctrine\Repository\DoctrineAiJobRepository;
 use App\Infrastructure\Doctrine\Repository\DoctrineSetRepository;
 use App\Infrastructure\Doctrine\Repository\DoctrineUserRepository;
@@ -413,6 +414,7 @@ class DoctrineAiJobRepositoryTest extends KernelTestCase
     /**
      * Test: Jobs are ordered by createdAt DESC in findByUser.
      */
+    #[Group('incomplete')]
     public function testFindByUserOrdersByCreatedAtDesc(): void
     {
         $this->markTestSkipped(

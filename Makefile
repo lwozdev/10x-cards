@@ -1,4 +1,4 @@
-.PHONY: help test test-php test-js test-e2e test-all coverage setup-test-db phpstan
+.PHONY: help test test-php test-php-clean test-js test-e2e test-all coverage setup-test-db phpstan
 
 # Colors for output
 GREEN  := \033[0;32m
@@ -37,6 +37,10 @@ test-all: test-php test-js test-e2e ## Run ALL tests including E2E
 test-php: ## Run all PHP tests (Unit + Integration + Functional)
 	@echo "${GREEN}Running PHP tests...${NC}"
 	docker compose exec backend vendor/bin/phpunit
+
+test-php-clean: ## Run PHP tests excluding incomplete tests
+	@echo "${GREEN}Running PHP tests (excluding incomplete)...${NC}"
+	docker compose exec backend vendor/bin/phpunit --exclude-group incomplete
 
 test-unit: ## Run PHP unit tests only
 	@echo "${GREEN}Running PHP unit tests...${NC}"

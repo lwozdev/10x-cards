@@ -12,6 +12,7 @@ use App\Domain\Value\UserId;
 use App\Infrastructure\Doctrine\Repository\DoctrineSetRepository;
 use App\Infrastructure\Doctrine\Repository\DoctrineUserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -306,10 +307,9 @@ class DoctrineSetRepositoryTest extends KernelTestCase
 
     /**
      * RLS Test: User cannot access another user's set via findById.
-     *
-     * @group rls
-     * @group incomplete
      */
+    #[Group('rls')]
+    #[Group('incomplete')]
     public function testRlsUserCannotAccessAnotherUsersSetViaFindById(): void
     {
         $this->markTestIncomplete(
@@ -332,10 +332,9 @@ class DoctrineSetRepositoryTest extends KernelTestCase
      *
      * NOTE: This test requires database trigger to be implemented.
      * The trigger should automatically update set.card_count when cards are added/deleted.
-     *
-     * @group trigger
-     * @group incomplete
      */
+    #[Group('trigger')]
+    #[Group('incomplete')]
     public function testCardCountTriggerUpdatesAutomatically(): void
     {
         $this->markTestIncomplete(

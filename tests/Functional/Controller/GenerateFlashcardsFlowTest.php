@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Controller;
 
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
@@ -13,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  * Reference: test-plan.md Section 5.1 (TC-GEN-001)
  * User Story: US-003, US-006
  */
+#[Group('incomplete')]
 class GenerateFlashcardsFlowTest extends WebTestCase
 {
     /**
